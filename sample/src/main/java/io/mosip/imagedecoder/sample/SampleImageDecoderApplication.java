@@ -75,33 +75,37 @@ public class SampleImageDecoderApplication {
 				File initialFile = new File(fileName);
 				if (initialFile.exists()) {
 					LOGGER.info("decodeJPEG2000 :: fileName ::" + fileName);
+					try {
+						DecoderRequestInfo requestInfo = new DecoderRequestInfo();
+						byte[] imageData = Files.readAllBytes(Paths.get(fileName));
+						requestInfo.setImageData(imageData);
+						requestInfo.setBufferedImage(true);
 
-					DecoderRequestInfo requestInfo = new DecoderRequestInfo();
-					byte[] imageData = Files.readAllBytes(Paths.get(fileName));
-					requestInfo.setImageData(imageData);
-					requestInfo.setBufferedImage(true);
+						decoder = new OpenJpegDecoder();
 
-					decoder = new OpenJpegDecoder();
+						long startTimeOneFile = System.currentTimeMillis();
+						Response<DecoderResponseInfo> info = decoder.decode(requestInfo);
+						long endTimeOneFile = System.currentTimeMillis();
+						System.out.println(
+								"Time Taken for one file : " + (endTimeOneFile - startTimeOneFile) + " milliseconds");
 
-					long startTimeOneFile = System.currentTimeMillis();
-					Response<DecoderResponseInfo> info = decoder.decode(requestInfo);
-					long endTimeOneFile = System.currentTimeMillis();
-					System.out.println(
-							"Time Taken for one file : " + (endTimeOneFile - startTimeOneFile) + " milliseconds");
+						LOGGER.info("INFO :: WIDTH \t= " + info.getResponse().getImageWidth());
+						LOGGER.info("INFO :: HEIGHT\t=" + info.getResponse().getImageHeight());
+						LOGGER.info("INFO :: DEPTH \t=" + info.getResponse().getImageDepth());
+						LOGGER.info("INFO :: LOSSLESS \t=" + info.getResponse().getImageLossless());
+						LOGGER.info("INFO :: DPI_HORIZONTAL \t=" + info.getResponse().getImageDpiHorizontal());
+						LOGGER.info("INFO :: DPI_VERTICAL \t=" + info.getResponse().getImageDpiVertical());
+						LOGGER.info("INFO :: TYPE \t=" + info.getResponse().getImageType());
+						LOGGER.info("INFO :: SIZE \t=" + info.getResponse().getImageSize());
+						LOGGER.info("INFO :: COLORSPACE\t=" + info.getResponse().getImageColorSpace());
+						LOGGER.info("INFO :: ASPECT_RATIO\t=" + info.getResponse().getImageAspectRatio());
+						LOGGER.info("INFO :: COMPRESSION_RATIO\t=" + info.getResponse().getImageCompressionRatio());
 
-					LOGGER.info("INFO :: WIDTH \t= " + info.getResponse().getImageWidth());
-					LOGGER.info("INFO :: HEIGHT\t=" + info.getResponse().getImageHeight());
-					LOGGER.info("INFO :: DEPTH \t=" + info.getResponse().getImageDepth());
-					LOGGER.info("INFO :: LOSSLESS \t=" + info.getResponse().getImageLossless());
-					LOGGER.info("INFO :: DPI_HORIZONTAL \t=" + info.getResponse().getImageDpiHorizontal());
-					LOGGER.info("INFO :: DPI_VERTICAL \t=" + info.getResponse().getImageDpiVertical());
-					LOGGER.info("INFO :: TYPE \t=" + info.getResponse().getImageType());
-					LOGGER.info("INFO :: SIZE \t=" + info.getResponse().getImageSize());
-					LOGGER.info("INFO :: COLORSPACE\t=" + info.getResponse().getImageColorSpace());
-					LOGGER.info("INFO :: ASPECT_RATIO\t=" + info.getResponse().getImageAspectRatio());
-					LOGGER.info("INFO :: COMPRESSION_RATIO\t=" + info.getResponse().getImageCompressionRatio());
-
-					LOGGER.info("===============================================================================");					
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					LOGGER.info("===============================================================================");
 				}
 			}
 		} catch (Exception ex) {
@@ -117,8 +121,8 @@ public class SampleImageDecoderApplication {
 	}
 
 	public static void decodeWSQ2000(String biometricFolderPath, String fileExtension) {
-		LOGGER.info("decodeWSQ2000 :: Started :: inputImageType :: WSQ :: biometricFolderPath :: "
-				+ biometricFolderPath + " :: fileExtension :: " + fileExtension);
+		LOGGER.info("decodeWSQ2000 :: Started :: inputImageType :: WSQ :: biometricFolderPath :: " + biometricFolderPath
+				+ " :: fileExtension :: " + fileExtension);
 		FileOutputStream tmpOutputStream = null;
 		try {
 			IImageDecoderApi decoder = null;
@@ -136,46 +140,36 @@ public class SampleImageDecoderApplication {
 				File initialFile = new File(fileName);
 				if (initialFile.exists()) {
 					LOGGER.info("decodeWSQ2000 :: fileName ::" + fileName);
+					try {
+						DecoderRequestInfo requestInfo = new DecoderRequestInfo();
+						byte[] imageData = Files.readAllBytes(Paths.get(fileName));
+						requestInfo.setImageData(imageData);
+						requestInfo.setBufferedImage(true);
 
-					DecoderRequestInfo requestInfo = new DecoderRequestInfo();
-					byte[] imageData = Files.readAllBytes(Paths.get(fileName));
-					requestInfo.setImageData(imageData);
-					requestInfo.setBufferedImage(true);
+						decoder = new WsqDecoder();
+						long startTimeOneFile = System.currentTimeMillis();
+						Response<DecoderResponseInfo> info = decoder.decode(requestInfo);
+						long endTimeOneFile = System.currentTimeMillis();
+						System.out.println(
+								"Time Taken for one file : " + (endTimeOneFile - startTimeOneFile) + " milliseconds");
 
-					decoder = new WsqDecoder();
-					long startTimeOneFile = System.currentTimeMillis();
-					Response<DecoderResponseInfo> info = decoder.decode(requestInfo);
-					long endTimeOneFile = System.currentTimeMillis();
-					System.out.println(
-							"Time Taken for one file : " + (endTimeOneFile - startTimeOneFile) + " milliseconds");
-
-					LOGGER.info("INFO :: WIDTH \t= " + info.getResponse().getImageWidth());
-					LOGGER.info("INFO :: HEIGHT\t=" + info.getResponse().getImageHeight());
-					LOGGER.info("INFO :: DEPTH \t=" + info.getResponse().getImageDepth());
-					LOGGER.info("INFO :: LOSSLESS \t=" + info.getResponse().getImageLossless());
-					LOGGER.info("INFO :: DPI_HORIZONTAL \t=" + info.getResponse().getImageDpiHorizontal());
-					LOGGER.info("INFO :: DPI_VERTICAL \t=" + info.getResponse().getImageDpiVertical());
-					LOGGER.info("INFO :: BIT_RATE \t=" + info.getResponse().getImageBitRate());
-					LOGGER.info("INFO :: TYPE \t=" + info.getResponse().getImageType());
-					LOGGER.info("INFO :: SIZE \t=" + info.getResponse().getImageSize());
-					LOGGER.info("INFO :: COLORSPACE\t=" + info.getResponse().getImageColorSpace());
-					LOGGER.info("INFO :: ASPECT_RATIO\t=" + info.getResponse().getImageAspectRatio());
-					LOGGER.info("INFO :: COMPRESSION_RATIO\t=" + info.getResponse().getImageCompressionRatio());
-
-					// For testing
-					// BufferedImage image = null;
-					// try
-					// {
-					// image = ImageUtil.fromByteGray(width, height, cdata);
-					// File outputfile = new
-					// File("D:\\Project\\Mosip\\imagedecoder\\imagedecoder\\BiometricInfo\\info_left_thumb_auth.jpg");
-					// ImageIO.write(image, "jpg", outputfile);
-					// }
-					// catch(Exception ex)
-					// {
-					// ex.printStackTrace();
-					// }
-
+						LOGGER.info("INFO :: WIDTH \t= " + info.getResponse().getImageWidth());
+						LOGGER.info("INFO :: HEIGHT\t=" + info.getResponse().getImageHeight());
+						LOGGER.info("INFO :: DEPTH \t=" + info.getResponse().getImageDepth());
+						LOGGER.info("INFO :: LOSSLESS \t=" + info.getResponse().getImageLossless());
+						LOGGER.info("INFO :: DPI_HORIZONTAL \t=" + info.getResponse().getImageDpiHorizontal());
+						LOGGER.info("INFO :: DPI_VERTICAL \t=" + info.getResponse().getImageDpiVertical());
+						LOGGER.info("INFO :: BIT_RATE \t=" + info.getResponse().getImageBitRate());
+						LOGGER.info("INFO :: TYPE \t=" + info.getResponse().getImageType());
+						LOGGER.info("INFO :: SIZE \t=" + info.getResponse().getImageSize());
+						LOGGER.info("INFO :: COLORSPACE\t=" + info.getResponse().getImageColorSpace());
+						LOGGER.info("INFO :: ASPECT_RATIO\t=" + info.getResponse().getImageAspectRatio());
+						LOGGER.info("INFO :: COMPRESSION_RATIO\t=" + info.getResponse().getImageCompressionRatio());
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					LOGGER.info("===============================================================================");
 				}
 			}
 		} catch (Exception ex) {

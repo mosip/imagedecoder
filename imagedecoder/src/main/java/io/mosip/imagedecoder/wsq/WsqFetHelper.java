@@ -158,7 +158,8 @@ public class WsqFetHelper {
 			}
 		}
 		if (item >= fet.getNum()) {
-			LOGGER.error(String.format("extractFet : feature %s not found"), new String(feature));
+			if (feature != null)
+				LOGGER.error(String.format("extractFet : feature %s not found", new String(feature)));
 			return (WsqErrorCode.EMPTY_STRING_FOUND.getErrorId());
 		}
 		if (fet.getValues()[item] != null) {

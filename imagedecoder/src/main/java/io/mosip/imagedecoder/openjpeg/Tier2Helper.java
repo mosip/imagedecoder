@@ -347,7 +347,7 @@ public class Tier2Helper {
 		/* SOP markers */
 		if ((tcp.getCodingStyle() & OpenJpegConstant.J2K_CP_CSTY_SOP) != 0) {
 			if (cData[cIndex + 0] != (byte) 0xff || cData[cIndex + 1] != (byte) 0x91) {
-				LOGGER.warn(String.format("Expected SOP marker" + t2.getCodecContextInfo()));
+				LOGGER.warn(String.format("Expected SOP marker %s " + t2.getCodecContextInfo().toString()));
 			} else {
 				cIndex += 6;
 			}
@@ -622,7 +622,7 @@ public class Tier2Helper {
 					int tpnum1 = compNo;
 					if (PiHelper.getInstance().piCreateEncode(pi, codingParameters, tileno, poc, tpnum1, tppos, tier2Mode,
 							curTotalNoOfTilePart) != 0) {
-						LOGGER.error(String.format("Error initializing Packet Iterator" + t2.getCodecContextInfo()));
+						LOGGER.error(String.format("Error initializing Packet Iterator %s " + t2.getCodecContextInfo().toString()));
 						return -999;
 					}
 					while (PiHelper.getInstance().piNext(pi[poc]) != 0) {

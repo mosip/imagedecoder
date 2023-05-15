@@ -420,16 +420,24 @@ public class WsqTableIOHelper {
 	{
 		int ret = 0;
 
-		//LOGGER.debug(String.format("Reading Comment Field."));
+		try
+		{
+			//LOGGER.debug(String.format("Reading Comment Field."));
 
-		/* Read only the number of bytes as specified in the header length. */
-		int size = (int) ByteStreamUtil.getInstance().getBufferU(cbufptr, comment, comment.length - 1);
+			/* Read only the number of bytes as specified in the header length. */
+			int size = (int) ByteStreamUtil.getInstance().getBufferU(cbufptr, comment, comment.length - 1);
 
-		/* If comment did not explicitly contain a NULL terminator, it will */
-		/* have one here by default due to the calloc of one extra byte at */
-		/* the end. */
+			/* If comment did not explicitly contain a NULL terminator, it will */
+			/* have one here by default due to the calloc of one extra byte at */
+			/* the end. */
 
-		//LOGGER.debug(String.format("Comment =  %s", new String(comment, StandardCharsets.UTF_8)));
+			//LOGGER.debug(String.format("Comment =  %s", new String(comment, StandardCharsets.UTF_8)));
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			comment = " ".toString().getBytes();
+		}
 		return ret;
 	}
 

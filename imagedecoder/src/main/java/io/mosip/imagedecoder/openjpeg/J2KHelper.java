@@ -234,7 +234,7 @@ public class J2KHelper {
 		codingParameters.setTileY0((int) CioHelper.getInstance().cioRead(cio, 4)); /* YT0siz */
 
 		if ((image.getX0() < 0) || (image.getX1() < 0) || (image.getY0() < 0) || (image.getY1() < 0)) {
-			LOGGER.error(String.format("%s: invalid image size (x0:%d, x1:%d, y0:%d, y1:%d)", image.getX0(),
+			LOGGER.error(String.format("invalid image size (x0:%d, x1:%d, y0:%d, y1:%d)", image.getX0(),
 					image.getX1(), image.getY0(), image.getY1()));
 			return;
 		}
@@ -681,7 +681,7 @@ public class J2KHelper {
 				if ((noOfBands < 0) || (noOfBands >= OpenJpegConstant.J2K_MAXBANDS)) {
 					LOGGER.warn(String.format("JPWL: bad number of subbands in Sqcx (%d)", noOfBands));
 					if (!OpenJpegConstant.JPWL_ASSUME) {
-						LOGGER.error(String.format("JPWL: giving up", noOfBands));
+						LOGGER.error(String.format("JPWL: giving up  (%d)", noOfBands));
 						return;
 					}
 					/* we try to correct */
@@ -780,7 +780,7 @@ public class J2KHelper {
 
 				/* compNo is negative or larger than the number of components!!! */
 				if ((compNo < 0) || (compNo >= noOfComp)) {
-					LOGGER.error(String.format("JPWL: bad component number in QCC (%d out of a maximum of %d", compNo,
+					LOGGER.error(String.format("JPWL: bad component number in QCC (%d out of a maximum of %d)", compNo,
 							noOfComp));
 					if (!OpenJpegConstant.JPWL_ASSUME) {
 						LOGGER.warn(String.format("JPWL: giving up"));
