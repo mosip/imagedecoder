@@ -15,7 +15,7 @@ on:
   push:
     branches:
       - '!release-branch'
-      - 'MOSIP'
+      - 'MOSIP*'
       - 'develop'
       - 'master'
       - '1.*'
