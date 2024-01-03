@@ -4,7 +4,7 @@
 
     <groupId>io.mosip.imagedecoder</groupId>
     <artifactId>imagedecoder</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.9.0</version>
 
     <name>Image Decoder Project (from https://github.com/mosip/imagedecoder)</name>
 
