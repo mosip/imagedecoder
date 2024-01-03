@@ -11,14 +11,14 @@
   <groupId>io.mosip.imagedecoder</groupId>
   <artifactId>sample-imagedecoder</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.9.0</version>
   <name>imagedecoder</name>
   <url>http://maven.apache.org</url>
   <dependencies>
 	<dependency>
 		<groupId>io.mosip.imagedecoder</groupId>
 		<artifactId>imagedecoder</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.9.0</version>
 	</dependency>		
 	<dependency>
       	<groupId>org.projectlombok</groupId>

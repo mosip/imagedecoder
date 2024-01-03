@@ -4,7 +4,7 @@
 
     <groupId>io.mosip.imagedecoder</groupId>
     <artifactId>imagedecoder</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.9.0</version>
 
     <name>Image Decoder Project (from https://github.com/mosip/imagedecoder)</name>
 
@@ -159,7 +159,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>1.5</version>
-				<!--<configuration><skip>true</skip></configuration>-->
+				<!--<configuration><skip>false</skip></configuration>-->
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
