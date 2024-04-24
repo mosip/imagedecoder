@@ -5,7 +5,7 @@
 	<groupId>io.mosip.imagedecoder</groupId>
 	<artifactId>sample-imagedecoder</artifactId>
 	<packaging>jar</packaging>
-	<version>0.9.0-java21-SNAPSHOT</version>
+	<version>0.0.1-java21-SNAPSHOT</version>
 	<name>imagedecoder</name>
 	<url>http://maven.apache.org</url>
 	<description>Image decoder testing sample</description>
@@ -41,7 +41,7 @@
 		<!-- Mosip kernel -->
 		<kernel.bom.version>1.2.1-java21-SNAPSHOT</kernel.bom.version>
 		<kernel.core.version>1.2.1-java21-SNAPSHOT</kernel.core.version>
-		<mosip.imagedecoder.version>0.9.0-java21-SNAPSHOT</mosip.imagedecoder.version>
+		<mosip.imagedecoder.version>0.0.1-java21-SNAPSHOT</mosip.imagedecoder.version>
 	</properties>
 	
 	<dependencyManagement>
