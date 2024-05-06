@@ -16,7 +16,7 @@ on:
     branches:
       - '!release-branch'
       - 'MOSIP*'
-      - 'develop'
+      - 'develop*'
       - 'master'
       - '1.*'
       - 'release*'
