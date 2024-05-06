@@ -1,54 +1,117 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.0.2.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
-	</parent>
-	
-  <groupId>io.mosip.imagedecoder</groupId>
-  <artifactId>sample-imagedecoder</artifactId>
-  <packaging>jar</packaging>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>imagedecoder</name>
-  <url>http://maven.apache.org</url>
-  <dependencies>
-	<dependency>
-		<groupId>io.mosip.imagedecoder</groupId>
-		<artifactId>imagedecoder</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-	</dependency>		
-	<dependency>
-      	<groupId>org.projectlombok</groupId>
-      	<artifactId>lombok</artifactId>
-      	<version>1.18.24</version>
-      	<scope>compile</scope>
-  	</dependency>	
-    <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-		<artifactId>jackson-databind</artifactId>
-        <version>2.11.1</version>
-    </dependency>
-	<dependency>
-	    <groupId>com.fasterxml.jackson.core</groupId>
-	    <artifactId>jackson-core</artifactId>
-        <version>2.11.1</version>
-	</dependency>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>io.mosip.imagedecoder</groupId>
+	<artifactId>sample-imagedecoder</artifactId>
+	<packaging>jar</packaging>
+	<version>0.0.1-java21-SNAPSHOT</version>
+	<name>imagedecoder</name>
+	<url>http://maven.apache.org</url>
+	<description>Image decoder testing sample</description>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>21</java.version>
 
-  </dependencies>
-  	<build>
+		<!-- maven -->
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<maven.compiler.version>3.11.0</maven.compiler.version>
+		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
+		<maven.war.plugin.version>3.1.0</maven.war.plugin.version>
+		<maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
+		<maven.shade.plugin.version>2.3</maven.shade.plugin.version>
+		<jacoco.maven.plugin.version>0.8.11</jacoco.maven.plugin.version>
+		<maven.deploy.plugin.version>3.1.1</maven.deploy.plugin.version>
+		<maven.source.plugin.version>3.3.1</maven.source.plugin.version>
+		<maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
+		<maven.gpg.plugin.version>3.2.3</maven.gpg.plugin.version>
+		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
+		<maven.war.plugin.version>3.1.0</maven.war.plugin.version>
+		<maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
+		<maven.dependency.plugin.version>3.1.2</maven.dependency.plugin.version>
+		<maven.resources.plugin.version>3.0.2</maven.resources.plugin.version>
+		
+		<nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
+		<spring.boot.maven.plugin.version>3.2.5</spring.boot.maven.plugin.version>
+
+		<!-- git -->
+		<git.commit.id.plugin.version>3.0.1</git.commit.id.plugin.version>
+
+		<!-- Mosip kernel -->
+		<kernel.bom.version>1.2.1-java21-SNAPSHOT</kernel.bom.version>
+		<kernel.core.version>1.2.1-java21-SNAPSHOT</kernel.core.version>
+		<mosip.imagedecoder.version>0.0.1-java21-SNAPSHOT</mosip.imagedecoder.version>
+	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.mosip.kernel</groupId>
+				<artifactId>kernel-bom</artifactId>
+				<version>${kernel.bom.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	<dependencies>
+		<dependency>
+			<groupId>io.mosip.imagedecoder</groupId>
+			<artifactId>imagedecoder</artifactId>
+			<version>${mosip.imagedecoder.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-core</artifactId>
+			<version>${kernel.core.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>
+						spring-boot-starter-security
+					</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+	
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+	
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven.compiler.version}</version>
+				<configuration>
+					<release>${java.version}</release>
+					<compilerArgs>
+						<arg>--enable-preview</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
+				<version>${maven.jar.plugin.version}</version>
 				<configuration>
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>io.mosip.imagedecoder.test.ImageDecoderApplication.class</mainClass>
+							<mainClass>
+								io.mosip.imagedecoder.test.ImageDecoderApplication.class</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -57,7 +120,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.1.2</version>
+				<version>${maven.dependency.plugin.version}</version>
 				<executions>
 					<execution>
 						<id>copy</id>
@@ -79,7 +142,7 @@
 
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>${maven.resources.plugin.version}</version>
 				<executions>
 					<execution>
 						<id>copy-resources-1</id>
@@ -111,9 +174,9 @@
 									<directory>${basedir}</directory>
 									<filtering>true</filtering>
 									<includes><!-- what -->
-							          <include>run_jp2000_decoder.bat</include>
-							          <include>run_wsq_decoder.bat</include>
-							       </includes>
+										<include>run_jp2000_decoder.bat</include>
+										<include>run_wsq_decoder.bat</include>
+									</includes>
 								</resource>
 							</resources>
 						</configuration>
@@ -122,5 +185,5 @@
 			</plugin>
 		</plugins>
 	</build>
-  
+
 </project>
