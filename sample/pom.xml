@@ -41,6 +41,7 @@
 		<!-- Mosip kernel -->
 		<kernel.bom.version>1.2.1-java21-SNAPSHOT</kernel.bom.version>
 		<kernel.core.version>1.2.1-java21-SNAPSHOT</kernel.core.version>
+		<kernel.logger.logback.version>1.2.1-java21-SNAPSHOT</kernel.logger.logback.version>
 		<mosip.imagedecoder.version>0.0.1-java21-SNAPSHOT</mosip.imagedecoder.version>
 	</properties>
 	
@@ -74,6 +75,11 @@
 					</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-logger-logback</artifactId>
+			<version>${kernel.logger.logback.version}</version>
 		</dependency>
 	</dependencies>
 	

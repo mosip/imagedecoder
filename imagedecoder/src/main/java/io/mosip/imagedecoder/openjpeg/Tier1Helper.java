@@ -1,8 +1,5 @@
 package io.mosip.imagedecoder.openjpeg;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.mosip.imagedecoder.constant.openjpeg.OpenJpegConstant;
 import io.mosip.imagedecoder.model.openjpeg.CodecContextInfo;
 import io.mosip.imagedecoder.model.openjpeg.MQCoder;
@@ -23,23 +20,21 @@ import io.mosip.imagedecoder.util.openjpeg.MathUtil;
 
 //T1 - Implementation of the tier-1 coding
 public class Tier1Helper {
-	private Logger LOGGER = LoggerFactory.getLogger(Tier1Helper.class);
 	// Static variable reference of singleInstance of type Singleton
-    private static Tier1Helper singleInstance = null;    
-    private Tier1Helper()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized Tier1Helper getInstance()
-	{ 
+	private static Tier1Helper singleInstance = null;
+
+	private Tier1Helper() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized Tier1Helper getInstance() {
 		if (singleInstance == null)
 			singleInstance = new Tier1Helper();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
-	
+
 	private int tier1GetContextNoZC(int f, int orient) {
 		return OpenJpegConstant.LUT_CONTEXTNO_ZC[(orient << 8) | (f & OpenJpegConstant.T1_SIG_OTH)];
 	}
@@ -49,7 +44,8 @@ public class Tier1Helper {
 	}
 
 	private int tier1GetContextNoMAG(int f) {
-		int tmp1 = (f & OpenJpegConstant.T1_SIG_OTH) != 0 ? OpenJpegConstant.T1_CTXNO_MAG + 1 : OpenJpegConstant.T1_CTXNO_MAG;
+		int tmp1 = (f & OpenJpegConstant.T1_SIG_OTH) != 0 ? OpenJpegConstant.T1_CTXNO_MAG + 1
+				: OpenJpegConstant.T1_CTXNO_MAG;
 		int tmp2 = (f & OpenJpegConstant.T1_REFINE) != 0 ? OpenJpegConstant.T1_CTXNO_MAG + 2 : tmp1;
 		return (tmp2);
 	}
@@ -93,18 +89,21 @@ public class Tier1Helper {
 		flagsp[spIndex + 1] |= OpenJpegConstant.T1_SIG_NW;
 	}
 
+	@SuppressWarnings({ "java:S107", "java:S1659", "java:S3776" })
 	private void tier1EncodeSigpassStep(Tier1 t1, int[] flagsp, int flagspIndex, int[] data, int dataIndex, int orient,
 			int bpno, int one, int[] nmsedec, int nmsedecIndex, int type, int vsc) {
-		int v, flag;
+		int v;
+		int flag;
 
 		MQCoder mqc = t1.getMqc(); /* MQC component */
 
 		flag = vsc != 0
-				? ((flagsp[flagspIndex])
-						& (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE | OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
+				? ((flagsp[flagspIndex]) & (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE
+						| OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
 				: (flagsp[flagspIndex]);
-		if ((flag & OpenJpegConstant.T1_SIG_OTH) != 0 && (flag & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT)) == 0) {
-			v = (MathUtil.intAbs(data[dataIndex]) & one) != 0 ? 1 : 0;
+		if ((flag & OpenJpegConstant.T1_SIG_OTH) != 0
+				&& (flag & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT)) == 0) {
+			v = (MathUtil.getInstance().intAbs(data[dataIndex]) & one) != 0 ? 1 : 0;
 			MQCoderHelper.getInstance().mqcSetCurrentContext(mqc, tier1GetContextNoZC(flag, orient)); /* ESSAI */
 			if (type == OpenJpegConstant.T1_TYPE_RAW) { /* BYPASS/LAZY MODE */
 				MQCoderHelper.getInstance().mqcBypassEncode(mqc, v);
@@ -113,7 +112,7 @@ public class Tier1Helper {
 			}
 			if (v != 0) {
 				v = data[dataIndex] < 0 ? 1 : 0;
-				nmsedec[nmsedecIndex] += tier1GetNmseDecSig(MathUtil.intAbs(data[dataIndex]),
+				nmsedec[nmsedecIndex] += tier1GetNmseDecSig(MathUtil.getInstance().intAbs(data[dataIndex]),
 						bpno + OpenJpegConstant.T1_NMSEDEC_FRACBITS);
 				MQCoderHelper.getInstance().mqcSetCurrentContext(mqc, tier1GetContextNoSC(flag)); /* ESSAI */
 				if (type == OpenJpegConstant.T1_TYPE_RAW) { /* BYPASS/LAZY MODE */
@@ -127,18 +126,21 @@ public class Tier1Helper {
 		}
 	}
 
+	@SuppressWarnings({ "java:S107", "java:S1659", "java:S3776" })
 	private void tier1DecodeSigpassStep(Tier1 t1, int[] flagsp, int flagspIndex, int[] data, int dataIndex, int orient,
 			int oneplushalf, int type, int vsc) {
-		int v, flag;
+		int v;
+		int flag;
 
 		Raw raw = t1.getRaw(); /* RAW component */
 		MQCoder mqc = t1.getMqc(); /* MQC component */
 
 		flag = vsc != 0
-				? ((flagsp[flagspIndex])
-						& (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE | OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
+				? ((flagsp[flagspIndex]) & (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE
+						| OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
 				: (flagsp[flagspIndex]);
-		if ((flag & OpenJpegConstant.T1_SIG_OTH) != 0 && (flag & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT)) == 0) {
+		if ((flag & OpenJpegConstant.T1_SIG_OTH) != 0
+				&& (flag & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT)) == 0) {
 			if (type == OpenJpegConstant.T1_TYPE_RAW) {
 				if (RawHelper.getInstance().rawDecode(raw) != 0) {
 					v = RawHelper.getInstance().rawDecode(raw); /* ESSAI */
@@ -158,6 +160,7 @@ public class Tier1Helper {
 		}
 	} /* VSC and BYPASS */
 
+	@SuppressWarnings({ "java:S1659" })
 	private void tier1EncodeSigpass(Tier1 t1, int bpno, int orient, int[] nmsedec, int nmsedecIndex, int type,
 			int cblksty) {
 		int i, j, k, one, vsc;
@@ -166,7 +169,8 @@ public class Tier1Helper {
 		for (k = 0; k < t1.getHeight(); k += 4) {
 			for (i = 0; i < t1.getWidth(); ++i) {
 				for (j = k; j < k + 4 && j < t1.getHeight(); ++j) {
-					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0 && (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
+					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0
+							&& (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
 					tier1EncodeSigpassStep(t1, t1.getFlags(), (((j + 1) * t1.getFlagsStride()) + i + 1), t1.getData(),
 							((j * t1.getWidth()) + i), orient, bpno, one, nmsedec, nmsedecIndex, type, vsc);
 				}
@@ -174,6 +178,7 @@ public class Tier1Helper {
 		}
 	}
 
+	@SuppressWarnings({ "java:S1659" })
 	private void tier1DecodeSigpass(Tier1 t1, int bpno, int orient, int type, int cblksty) {
 		int i, j, k, one, half, oneplushalf, vsc;
 		one = 1 << bpno;
@@ -182,7 +187,8 @@ public class Tier1Helper {
 		for (k = 0; k < t1.getHeight(); k += 4) {
 			for (i = 0; i < t1.getWidth(); ++i) {
 				for (j = k; j < k + 4 && j < t1.getHeight(); ++j) {
-					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0 && (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
+					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0
+							&& (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
 					tier1DecodeSigpassStep(t1, t1.getFlags(), (((j + 1) * t1.getFlagsStride()) + i + 1), t1.getData(),
 							((j * t1.getWidth()) + i), orient, oneplushalf, type, vsc);
 				}
@@ -191,6 +197,7 @@ public class Tier1Helper {
 	}
 	/* VSC and BYPASS */
 
+	@SuppressWarnings({ "java:S107", "java:S1659" })
 	private void tier1EncodeRefpassStep(Tier1 t1, int[] flagsp, int flagspIndex, int[] data, int dataIndex, int bpno,
 			int one, int[] nmsedec, int nmsedecIndex, int type, int vsc) {
 		int v, flag;
@@ -198,13 +205,13 @@ public class Tier1Helper {
 		MQCoder mqc = t1.getMqc(); /* MQC component */
 
 		flag = vsc != 0
-				? ((flagsp[flagspIndex])
-						& (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE | OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
+				? ((flagsp[flagspIndex]) & (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE
+						| OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
 				: (flagsp[flagspIndex]);
 		if ((flag & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT)) == OpenJpegConstant.T1_SIG) {
-			nmsedec[nmsedecIndex] += tier1GetNmseDecRef(MathUtil.intAbs(data[dataIndex]),
+			nmsedec[nmsedecIndex] += tier1GetNmseDecRef(MathUtil.getInstance().intAbs(data[dataIndex]),
 					bpno + OpenJpegConstant.T1_NMSEDEC_FRACBITS);
-			v = (MathUtil.intAbs(data[dataIndex]) & one) != 0 ? 1 : 0;
+			v = (MathUtil.getInstance().intAbs(data[dataIndex]) & one) != 0 ? 1 : 0;
 			MQCoderHelper.getInstance().mqcSetCurrentContext(mqc, tier1GetContextNoMAG(flag)); /* ESSAI */
 			if (type == OpenJpegConstant.T1_TYPE_RAW) { /* BYPASS/LAZY MODE */
 				MQCoderHelper.getInstance().mqcBypassEncode(mqc, v);
@@ -215,16 +222,17 @@ public class Tier1Helper {
 		}
 	}
 
-	private void tier1DecodeRefpassStep(Tier1 t1, int[] flagsp, int flagspIndex, int[] data, int dataIndex,
-			int poshalf, int neghalf, int type, int vsc) {
+	@SuppressWarnings({ "java:S107", "java:S1659" })
+	private void tier1DecodeRefpassStep(Tier1 t1, int[] flagsp, int flagspIndex, int[] data, int dataIndex, int poshalf,
+			int neghalf, int type, int vsc) {
 		int v, t, flag;
 
 		MQCoder mqc = t1.getMqc(); /* MQC component */
 		Raw raw = t1.getRaw(); /* RAW component */
 
 		flag = vsc != 0
-				? ((flagsp[flagspIndex])
-						& (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE | OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
+				? ((flagsp[flagspIndex]) & (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE
+						| OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
 				: (flagsp[flagspIndex]);
 		if ((flag & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT)) == OpenJpegConstant.T1_SIG) {
 			MQCoderHelper.getInstance().mqcSetCurrentContext(mqc, tier1GetContextNoMAG(flag)); /* ESSAI */
@@ -239,6 +247,7 @@ public class Tier1Helper {
 		}
 	} /* VSC and BYPASS */
 
+	@SuppressWarnings({ "java:S1659" })
 	private void tier1EncodeRefpass(Tier1 t1, int bpno, int[] nmsedec, int nmsedecIndex, int type, int cblksty) {
 		int i, j, k, one, vsc;
 		nmsedec[nmsedecIndex] = 0;
@@ -246,7 +255,8 @@ public class Tier1Helper {
 		for (k = 0; k < t1.getHeight(); k += 4) {
 			for (i = 0; i < t1.getWidth(); ++i) {
 				for (j = k; j < k + 4 && j < t1.getHeight(); ++j) {
-					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0 && (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
+					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0
+							&& (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
 					tier1EncodeRefpassStep(t1, t1.getFlags(), (((j + 1) * t1.getFlagsStride()) + i + 1), t1.getData(),
 							((j * t1.getWidth()) + i), bpno, one, nmsedec, nmsedecIndex, type, vsc);
 				}
@@ -254,6 +264,7 @@ public class Tier1Helper {
 		}
 	}
 
+	@SuppressWarnings({ "java:S1659" })
 	private void tier1DecodeRefpassStep(Tier1 t1, int bpno, int type, int cblksty) {
 		int i, j, k, one, poshalf, neghalf;
 		int vsc;
@@ -263,7 +274,8 @@ public class Tier1Helper {
 		for (k = 0; k < t1.getHeight(); k += 4) {
 			for (i = 0; i < t1.getWidth(); ++i) {
 				for (j = k; j < k + 4 && j < t1.getHeight(); ++j) {
-					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0 && (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
+					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0
+							&& (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
 					tier1DecodeRefpassStep(t1, t1.getFlags(), (((j + 1) * t1.getFlagsStride()) + i + 1), t1.getData(),
 							((j * t1.getWidth()) + i), poshalf, neghalf, type, vsc);
 				}
@@ -272,26 +284,27 @@ public class Tier1Helper {
 	}
 	/* VSC and BYPASS */
 
+	@SuppressWarnings({ "java:S107", "java:S1659", "java:S3776" })
 	private void tier1EncodeClnpassStep(Tier1 t1, int[] flagsp, int flagspIndex, int[] data, int dataIndex, int orient,
 			int bpno, int one, int[] nmsedec, int nmsedecIndex, int partial, int vsc) {
 		int v, flag;
-		boolean LABEL_PARTIAL = false;
+		boolean labelPartial = false;
 		MQCoder mqc = t1.getMqc(); /* MQC component */
 
 		flag = vsc != 0
-				? ((flagsp[flagspIndex])
-						& (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE | OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
+				? ((flagsp[flagspIndex]) & (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE
+						| OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
 				: (flagsp[flagspIndex]);
 		if (partial != 0) {
-			LABEL_PARTIAL = true;
+			labelPartial = true;
 		}
-		if (!LABEL_PARTIAL) {
+		if (!labelPartial) {
 			if ((flagsp[flagspIndex] & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT)) == 0) {
 				MQCoderHelper.getInstance().mqcSetCurrentContext(mqc, tier1GetContextNoZC(flag, orient));
-				v = (MathUtil.intAbs(data[dataIndex]) & one) != 0 ? 1 : 0;
+				v = (MathUtil.getInstance().intAbs(data[dataIndex]) & one) != 0 ? 1 : 0;
 				MQCoderHelper.getInstance().mqcEncode(mqc, v);
 				if (v != 0) {
-					nmsedec[nmsedecIndex] += tier1GetNmseDecSig(MathUtil.intAbs(data[dataIndex]),
+					nmsedec[nmsedecIndex] += tier1GetNmseDecSig(MathUtil.getInstance().intAbs(data[dataIndex]),
 							bpno + OpenJpegConstant.T1_NMSEDEC_FRACBITS);
 					MQCoderHelper.getInstance().mqcSetCurrentContext(mqc, tier1GetContextNoSC(flag));
 					v = data[dataIndex] < 0 ? 1 : 0;
@@ -300,7 +313,7 @@ public class Tier1Helper {
 				}
 			}
 		} else {
-			nmsedec[nmsedecIndex] += tier1GetNmseDecSig(MathUtil.intAbs(data[dataIndex]),
+			nmsedec[nmsedecIndex] += tier1GetNmseDecSig(MathUtil.getInstance().intAbs(data[dataIndex]),
 					bpno + OpenJpegConstant.T1_NMSEDEC_FRACBITS);
 			MQCoderHelper.getInstance().mqcSetCurrentContext(mqc, tier1GetContextNoSC(flag));
 			v = data[dataIndex] < 0 ? 1 : 0;
@@ -310,21 +323,22 @@ public class Tier1Helper {
 		flagsp[flagspIndex] &= ~OpenJpegConstant.T1_VISIT;
 	}
 
+	@SuppressWarnings({ "java:S107", "java:S1659", "java:S3776" })
 	private void tier1DecodeClnpassStep(Tier1 t1, int[] flagsp, int flagspIndex, int[] data, int dataIndex, int orient,
 			int oneplushalf, int partial, int vsc) {
 		int v, flag;
-		boolean LABEL_PARTIAL = false;
+		boolean labelPartial = false;
 		MQCoder mqc = t1.getMqc(); /* MQC component */
 
 		flag = vsc != 0
-				? ((flagsp[flagspIndex])
-						& (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE | OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
+				? ((flagsp[flagspIndex]) & (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE
+						| OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
 				: (flagsp[flagspIndex]);
-		
+
 		if (partial != 0) {
-			LABEL_PARTIAL = true;
+			labelPartial = true;
 		}
-		if (!LABEL_PARTIAL) {
+		if (!labelPartial) {
 			if ((flag & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT)) == 0) {
 				int zc = tier1GetContextNoZC(flag, orient);
 				MQCoderHelper.getInstance().mqcSetCurrentContext(mqc, zc);
@@ -349,6 +363,7 @@ public class Tier1Helper {
 		return t1.getFlags()[((x) * (t1.getFlagsStride())) + (y)];
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S3776" })
 	private void tier1EncodeClnpass(Tier1 t1, int bpno, int orient, int[] nmsedec, int nmsedecIndex, int cblksty) {
 		int i, j, k, one, agg, runLength, vsc;
 
@@ -360,31 +375,34 @@ public class Tier1Helper {
 			for (i = 0; i < t1.getWidth(); ++i) {
 				if (k + 3 < t1.getHeight()) {
 					if ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0) {
-						agg = !((tier1GetFlags(t1, 1 + k, 1 + i)
-								& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| (tier1GetFlags(t1, 1 + k + 1, 1 + i)
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| (tier1GetFlags(t1, 1 + k + 2, 1 + i)
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| ((tier1GetFlags(t1, 1 + k + 3, 1 + i) & (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE
-										| OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0) ? 1 : 0;
+						agg = !((tier1GetFlags(t1, 1 + k, 1 + i) & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT
+								| OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| (tier1GetFlags(t1, 1 + k + 1, 1 + i) & (OpenJpegConstant.T1_SIG
+										| OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| (tier1GetFlags(t1, 1 + k + 2, 1 + i) & (OpenJpegConstant.T1_SIG
+										| OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| ((tier1GetFlags(t1, 1 + k + 3, 1 + i)
+										& (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE
+												| OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
+										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT
+												| OpenJpegConstant.T1_SIG_OTH)) != 0) ? 1 : 0;
 					} else {
-						agg = !((tier1GetFlags(t1, 1 + k, 1 + i)
-								& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| (tier1GetFlags(t1, 1 + k + 1, 1 + i)
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| (tier1GetFlags(t1, 1 + k + 2, 1 + i)
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| (tier1GetFlags(t1, 1 + k + 3, 1 + i)
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0) ? 1 : 0;
+						agg = !((tier1GetFlags(t1, 1 + k, 1 + i) & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT
+								| OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| (tier1GetFlags(t1, 1 + k + 1, 1 + i) & (OpenJpegConstant.T1_SIG
+										| OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| (tier1GetFlags(t1, 1 + k + 2, 1 + i) & (OpenJpegConstant.T1_SIG
+										| OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| (tier1GetFlags(t1, 1 + k + 3, 1 + i) & (OpenJpegConstant.T1_SIG
+										| OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0) ? 1 : 0;
 					}
 				} else {
 					agg = 0;
 				}
 				if (agg != 0) {
 					for (runLength = 0; runLength < 4; ++runLength) {
-						if ((MathUtil.intAbs(t1.getData()[((k + runLength) * t1.getWidth()) + i]) & one) != 0)
+						if ((MathUtil.getInstance().intAbs(t1.getData()[((k + runLength) * t1.getWidth()) + i])
+								& one) != 0)
 							break;
 					}
 					MQCoderHelper.getInstance().mqcSetCurrentContext(mqc, OpenJpegConstant.T1_CTXNO_AGG);
@@ -399,7 +417,8 @@ public class Tier1Helper {
 					runLength = 0;
 				}
 				for (j = k + runLength; j < k + 4 && j < t1.getHeight(); ++j) {
-					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0 && (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
+					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0
+							&& (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
 					tier1EncodeClnpassStep(t1, t1.getFlags(), (((j + 1) * t1.getFlagsStride()) + i + 1), t1.getData(),
 							((j * t1.getWidth()) + i), orient, bpno, one, nmsedec, nmsedecIndex,
 							((agg != 0 && (j == k + runLength)) ? 1 : 0), vsc);
@@ -408,6 +427,7 @@ public class Tier1Helper {
 		}
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S1854", "java:S3776", "java:S6541" })
 	private void tier1DecodeClnpassStep(Tier1 t1, int bpno, int orient, int cblksty) {
 		int i, j, k, one, half, oneplushalf, agg, runLength, vsc;
 		int segsym = (cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_SEGSYM) != 0 ? 1 : 0;
@@ -421,24 +441,26 @@ public class Tier1Helper {
 			for (i = 0; i < t1.getWidth(); ++i) {
 				if (k + 3 < t1.getHeight()) {
 					if ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0) {
-						agg = !((tier1GetFlags(t1, 1 + k, 1 + i)
-								& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| (tier1GetFlags(t1, 1 + k + 1, 1 + i)
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| (tier1GetFlags(t1, 1 + k + 2, 1 + i)
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| ((tier1GetFlags(t1, 1 + k + 3, 1 + i) & (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE
-										| OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0) ? 1 : 0;
+						agg = !((tier1GetFlags(t1, 1 + k, 1 + i) & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT
+								| OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| (tier1GetFlags(t1, 1 + k + 1, 1 + i) & (OpenJpegConstant.T1_SIG
+										| OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| (tier1GetFlags(t1, 1 + k + 2, 1 + i) & (OpenJpegConstant.T1_SIG
+										| OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| ((tier1GetFlags(t1, 1 + k + 3, 1 + i)
+										& (~(OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SIG_SE
+												| OpenJpegConstant.T1_SIG_SW | OpenJpegConstant.T1_SGN_S)))
+										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT
+												| OpenJpegConstant.T1_SIG_OTH)) != 0) ? 1 : 0;
 					} else {
-						agg = !((tier1GetFlags(t1, 1 + k, 1 + i)
-								& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| (tier1GetFlags(t1, 1 + k + 1, 1 + i)
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| (tier1GetFlags(t1, 1 + k + 2, 1 + i)
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
-								|| (tier1GetFlags(t1, 1 + k + 3, 1 + i)
-										& (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0) ? 1 : 0;
+						agg = !((tier1GetFlags(t1, 1 + k, 1 + i) & (OpenJpegConstant.T1_SIG | OpenJpegConstant.T1_VISIT
+								| OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| (tier1GetFlags(t1, 1 + k + 1, 1 + i) & (OpenJpegConstant.T1_SIG
+										| OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| (tier1GetFlags(t1, 1 + k + 2, 1 + i) & (OpenJpegConstant.T1_SIG
+										| OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0
+								|| (tier1GetFlags(t1, 1 + k + 3, 1 + i) & (OpenJpegConstant.T1_SIG
+										| OpenJpegConstant.T1_VISIT | OpenJpegConstant.T1_SIG_OTH)) != 0) ? 1 : 0;
 					}
 				} else {
 					agg = 0;
@@ -446,7 +468,7 @@ public class Tier1Helper {
 				if (agg != 0) {
 					MQCoderHelper.getInstance().mqcSetCurrentContext(mqc, OpenJpegConstant.T1_CTXNO_AGG);
 					int decodeValue = MQCoderHelper.getInstance().mqcDecode(mqc);
-					if (decodeValue== 0) {
+					if (decodeValue == 0) {
 						continue;
 					}
 					MQCoderHelper.getInstance().mqcSetCurrentContext(mqc, OpenJpegConstant.T1_CTXNO_UNI);
@@ -456,10 +478,12 @@ public class Tier1Helper {
 					runLength = 0;
 				}
 				for (j = k + runLength; j < k + 4 && j < t1.getHeight(); ++j) {
-					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0 && (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
-					
+					vsc = ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_VSC) != 0
+							&& (j == k + 3 || j == t1.getHeight() - 1)) ? 1 : 0;
+
 					tier1DecodeClnpassStep(t1, t1.getFlags(), (((j + 1) * t1.getFlagsStride()) + i + 1), t1.getData(),
-							((j * t1.getWidth()) + i), orient, oneplushalf, (agg != 0 && (j == k + runLength) ? 1 : 0), vsc);
+							((j * t1.getWidth()) + i), orient, oneplushalf, (agg != 0 && (j == k + runLength) ? 1 : 0),
+							vsc);
 				}
 			}
 		}
@@ -470,22 +494,19 @@ public class Tier1Helper {
 			v = (v << 1) | MQCoderHelper.getInstance().mqcDecode(mqc);
 			v = (v << 1) | MQCoderHelper.getInstance().mqcDecode(mqc);
 			v = (v << 1) | MQCoderHelper.getInstance().mqcDecode(mqc);
-			/*
-			 * if (v!=0xa) { opj_event_msg(t1->cinfo, EVT_WARNING,
-			 * "Bad segmentation symbol %x\n", v); }
-			 */
 		}
 	}
 	/* VSC and BYPASS */
 
 	/** mod fixed_quality */
-	private double tier1GetWmseDecode(int nmsedec, int compno, int level, int orient, int bpno, int qmfbid, double stepsize,
-			int numcomps) {
+	@SuppressWarnings({ "java:S107", "java:S1659" })
+	private double tier1GetWmseDecode(int nmsedec, int compno, int level, int orient, int bpno, int qmfbid,
+			double stepsize, int numcomps) {
 		double w1, w2, wmsedec;
 		if (qmfbid == 1) {
 			w1 = (numcomps > 1) ? MctHelper.getInstance().mctGetNorm(compno) : 1.0;
 			w2 = DwtHelper.getInstance().dwtGetNorm(level, orient);
-		} else { /* if (qmfbid == 0) */
+		} else {
 			w1 = (numcomps > 1) ? MctHelper.getInstance().mctGetNormReal(compno) : 1.0;
 			w2 = DwtHelper.getInstance().dwtGetNormReal(level, orient);
 		}
@@ -503,9 +524,9 @@ public class Tier1Helper {
 			t1.setData(new int[datasize]);
 			t1.setDataSize(datasize);
 		}
-		for (int index=0; index < datasize; index++)
+		for (int index = 0; index < datasize; index++)
 			t1.getData()[index] = 0;
-			
+
 		t1.setFlagsStride(w + 2);
 		flagssize = t1.getFlagsStride() * (h + 2);
 
@@ -513,7 +534,7 @@ public class Tier1Helper {
 			t1.setFlags(new int[flagssize]);
 			t1.setFlagsSize(flagssize);
 		}
-		for (int index=0; index < flagssize; index++)
+		for (int index = 0; index < flagssize; index++)
 			t1.getFlags()[index] = 0;
 
 		t1.setWidth(w);
@@ -523,6 +544,7 @@ public class Tier1Helper {
 	}
 
 	/** mod fixed_quality */
+	@SuppressWarnings({ "java:S107", "java:S1659", "java:S1854", "java:S3776", "java:S3923", "java:S6541" })
 	private void tier1EncodeCodeBlock(Tier1 t1, TcdCodeBlockEncoder cblk, int orient, int compno, int level, int qmfbid,
 			double stepsize, int cblksty, int numcomps, TcdTile tile) {
 		double cumwmsedec = 0.0;
@@ -539,10 +561,11 @@ public class Tier1Helper {
 		max = 0;
 		for (i = 0; i < t1.getWidth() * t1.getHeight(); ++i) {
 			int tmp = Math.abs(t1.getData()[i]);
-			max = MathUtil.intMax(max, tmp);
+			max = MathUtil.getInstance().intMax(max, tmp);
 		}
 
-		cblk.setNoOfBps(max != 0 ? (MathUtil.intFloorLog2(max) + 1) - OpenJpegConstant.T1_NMSEDEC_FRACBITS : 0);
+		cblk.setNoOfBps(
+				max != 0 ? (MathUtil.getInstance().intFloorLog2(max) + 1) - OpenJpegConstant.T1_NMSEDEC_FRACBITS : 0);
 
 		bpno = cblk.getNoOfBps() - 1;
 		passtype = 2;
@@ -556,9 +579,9 @@ public class Tier1Helper {
 		for (passno = 0; bpno >= 0; ++passno) {
 			TcdPass pass = cblk.getPasses()[passno];
 			int correction = 3;
-			type = ((bpno < (cblk.getNoOfBps() - 4)) && (passtype < 2) && (cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_LAZY) != 0)
-					? OpenJpegConstant.T1_TYPE_RAW
-					: OpenJpegConstant.T1_TYPE_MQ;
+			type = ((bpno < (cblk.getNoOfBps() - 4)) && (passtype < 2)
+					&& (cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_LAZY) != 0) ? OpenJpegConstant.T1_TYPE_RAW
+							: OpenJpegConstant.T1_TYPE_MQ;
 
 			switch (passtype) {
 			case 0:
@@ -573,10 +596,13 @@ public class Tier1Helper {
 				if ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_SEGSYM) != 0)
 					MQCoderHelper.getInstance().mqcSegMarkEncode(mqc);
 				break;
+			default:
+				break;
 			}
 
 			/* fixed_quality */
-			tempwmsedec = tier1GetWmseDecode(nmsedec[nmsedecIndex], compno, level, orient, bpno, qmfbid, stepsize, numcomps);
+			tempwmsedec = tier1GetWmseDecode(nmsedec[nmsedecIndex], compno, level, orient, bpno, qmfbid, stepsize,
+					numcomps);
 			cumwmsedec += tempwmsedec;
 			tile.setDistortionTile(tile.getDistortionTile() + tempwmsedec);
 
@@ -585,8 +611,7 @@ public class Tier1Helper {
 				if (type == OpenJpegConstant.T1_TYPE_RAW) {
 					MQCoderHelper.getInstance().mqcFlush(mqc);
 					correction = 1;
-					/* correction = mqcBypassFlushEncode(); */
-				} else { /* correction = mqcRestartEncode(); */
+				} else {
 					MQCoderHelper.getInstance().mqcFlush(mqc);
 					correction = 1;
 				}
@@ -598,8 +623,7 @@ public class Tier1Helper {
 					if (type == OpenJpegConstant.T1_TYPE_RAW) {
 						MQCoderHelper.getInstance().mqcFlush(mqc);
 						correction = 1;
-						/* correction = mqcBypassFlushEncode(); */
-					} else { /* correction = mqcRestartEncode(); */
+					} else {
 						MQCoderHelper.getInstance().mqcFlush(mqc);
 						correction = 1;
 					}
@@ -616,7 +640,8 @@ public class Tier1Helper {
 
 			if (pass.getTerm() != 0 && bpno > 0) {
 				type = ((bpno < (cblk.getNoOfBps() - 4)) && (passtype < 2)
-						&& (cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_LAZY) != 0) ? OpenJpegConstant.T1_TYPE_RAW : OpenJpegConstant.T1_TYPE_MQ;
+						&& (cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_LAZY) != 0) ? OpenJpegConstant.T1_TYPE_RAW
+								: OpenJpegConstant.T1_TYPE_MQ;
 				if (type == OpenJpegConstant.T1_TYPE_RAW)
 					MQCoderHelper.getInstance().mqcBypassInitEncode(mqc);
 				else
@@ -624,7 +649,7 @@ public class Tier1Helper {
 			}
 
 			pass.setDistortionDec(cumwmsedec);
-			pass.setRate(MQCoderHelper.getInstance().mqcNoOfBytes(mqc) + correction); /* FIXME */
+			pass.setRate(MQCoderHelper.getInstance().mqcNoOfBytes(mqc) + correction); /* FIX ME */
 
 			/* Code-switch "RESET" */
 			if ((cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_RESET) != 0)
@@ -652,6 +677,7 @@ public class Tier1Helper {
 		}
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S1854", "java:S3776" })
 	private void tier1DecodeCodeBlock(Tier1 t1, TcdCodeBlockDecoder cblk, int orient, int roishift, int cblksty) {
 		Raw raw = t1.getRaw(); /* RAW component */
 		MQCoder mqc = t1.getMqc(); /* MQC component */
@@ -677,9 +703,10 @@ public class Tier1Helper {
 
 			/* BYPASS mode */
 			type = ((bpno <= (cblk.getNoOfBps() - 1) - 4) && (passtype < 2)
-					&& (cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_LAZY) != 0) ? OpenJpegConstant.T1_TYPE_RAW : OpenJpegConstant.T1_TYPE_MQ;
+					&& (cblksty & OpenJpegConstant.J2K_CCP_CBLKSTY_LAZY) != 0) ? OpenJpegConstant.T1_TYPE_RAW
+							: OpenJpegConstant.T1_TYPE_MQ;
 			/*
-			 * FIXME: check why we get here with a null pointer. Why? Partially downloaded
+			 * FIX ME: check why we get here with a null pointer. Why? Partially downloaded
 			 * and/or corrupt textures?
 			 */
 			if (seg.getData() == null) {
@@ -701,6 +728,8 @@ public class Tier1Helper {
 					break;
 				case 2:
 					tier1DecodeClnpassStep(t1, bpno + 1, orient, cblksty);
+					break;
+				default:
 					break;
 				}
 
@@ -742,10 +771,10 @@ public class Tier1Helper {
 			RawHelper.getInstance().rawDestroy(t1.getRaw());
 			t1.setData(null);
 			t1.setFlags(null);
-			t1 = null;
 		}
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S3776" })
 	public void tier1EncodeCodeBlocks(Tier1 t1, TcdTile tile, Tcp tcp) {
 		int compno, resNo, bandNo, precNo, codeBlockNo;
 
@@ -794,10 +823,11 @@ public class Tier1Helper {
 								for (j = 0; j < codeBlockHeight; ++j) {
 									for (i = 0; i < codeBlockWidth; ++i) {
 										int tmp = tilec.getIData()[fromIndex + ((j * tileWidth) + i)];
-										t1.getData()[(j * codeBlockWidth) + i] = tmp << OpenJpegConstant.T1_NMSEDEC_FRACBITS;
+										t1.getData()[(j * codeBlockWidth)
+												+ i] = tmp << OpenJpegConstant.T1_NMSEDEC_FRACBITS;
 									}
 								}
-							} else { /* if (tccp->qmfbid == 0) */
+							} else {
 								for (j = 0; j < codeBlockHeight; ++j) {
 									for (i = 0; i < codeBlockWidth; ++i) {
 										int tmp = (int) tilec.getFData()[fromIndex + ((j * tileWidth) + i)];
@@ -808,8 +838,9 @@ public class Tier1Helper {
 								}
 							}
 
-							tier1EncodeCodeBlock(t1, cblk, band.getBandNo(), compno, tilec.getNoOfResolutions() - 1 - resNo,
-									tccp.getQmfbid(), band.getStepSize(), tccp.getCodeBlockStyle(), tile.getNoOfComps(), tile);
+							tier1EncodeCodeBlock(t1, cblk, band.getBandNo(), compno,
+									tilec.getNoOfResolutions() - 1 - resNo, tccp.getQmfbid(), band.getStepSize(),
+									tccp.getCodeBlockStyle(), tile.getNoOfComps(), tile);
 
 						} /* codeBlockNo */
 					} /* precNo */
@@ -818,6 +849,7 @@ public class Tier1Helper {
 		} /* compno */
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S3776", "java:S6541" })
 	public void tier1DecodeCodeBlocks(Tier1 t1, TcdTileComponent tilec, TileComponentCodingParameters tccp) {
 		int resNo, bandNo, precNo, codeBlockNo;
 		int tileWidth = tilec.getX1() - tilec.getX0();
@@ -878,7 +910,7 @@ public class Tier1Helper {
 									tilec.getIData()[fromIndex + ((j * tileWidth) + i)] = tmp / 2;
 								}
 							}
-						} else { /* if (tccp->qmfbid == 0) */
+						} else {
 							tilec.setIData(null);
 							for (j = 0; j < codeBlockHeight; ++j) {
 								for (i = 0; i < codeBlockWidth; ++i) {
@@ -890,7 +922,7 @@ public class Tier1Helper {
 						cblk.setData(null);
 						cblk.setSegs(null);
 					} /* codeBlockNo */
-					
+
 					precinct.setTcdCodeBlockDecoder(null);
 				} /* precNo */
 			} /* bandNo */
@@ -905,7 +937,7 @@ public class Tier1Helper {
 	 * @return Returns a * b
 	 */
 	private int fixMul(int a, int b) {
-		long temp = a * b;
+		long temp = (long) a * b;
 		temp += temp & 4096;
 		return (int) (temp >> 13);
 	}

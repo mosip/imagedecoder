@@ -3,13 +3,12 @@ package io.mosip.imagedecoder.constant.openjpeg;
 import io.mosip.imagedecoder.constant.DecoderConstant;
 import io.mosip.imagedecoder.model.openjpeg.J2KProgressionOrder;
 import io.mosip.imagedecoder.model.openjpeg.ProgressionOrder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Data
+@SuppressWarnings({ "java:S2386"})
 public class OpenJpegConstant extends DecoderConstant {
 	public static final String OPENJPEG_VERSION = "1.3.0";
 	
@@ -156,9 +155,10 @@ public class OpenJpegConstant extends DecoderConstant {
 	public static final double DBL_MIN          = 2.2250738585072014e-308; // min positive value
 	public static final int DBL_MIN_10_EXP   = (-307);                  // min decimal exponent
 	public static final int DBL_MIN_EXP      = (-1021);                 // min binary exponent
+	
+	@SuppressWarnings({ "java:S115" })
 	public static final int _DBL_RADIX       = 2;                       // exponent radix
 	public static final double DBL_TRUE_MIN  = 4.9406564584124654e-324; // min positive value
-
 	
 	public static final int[] LUT_CONTEXTNO_ZC = { 0, 1, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 			3, 3, 3, 3, 3, 3, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
@@ -264,7 +264,7 @@ public class OpenJpegConstant extends DecoderConstant {
 	/* <summary>                                                              */
 	/* This table contains the norms of the 5-3 wavelets for different bands. */
 	/* </summary>                                                             */
-	public static final double DWT_NORMS [][] = {
+	public static final double [][] DWT_NORMS = {
 		{1.000, 1.500, 2.750, 5.375, 10.68, 21.34, 42.67, 85.33, 170.7, 341.3},
 		{1.038, 1.592, 2.919, 5.703, 11.33, 22.64, 45.25, 90.48, 180.9},
 		{1.038, 1.592, 2.919, 5.703, 11.33, 22.64, 45.25, 90.48, 180.9},
@@ -274,7 +274,7 @@ public class OpenJpegConstant extends DecoderConstant {
 	/* <summary>                                                              */
 	/* This table contains the norms of the 9-7 wavelets for different bands. */
 	/* </summary>                                                             */
-	public static final double DWT_NORMS_REAL[][] = {
+	public static final double[][] DWT_NORMS_REAL = {
 		{1.000, 1.965, 4.177, 8.403, 16.90, 33.84, 67.69, 135.3, 270.6, 540.9},
 		{2.022, 3.989, 8.355, 17.04, 34.27, 68.63, 137.3, 274.6, 549.0},
 		{2.022, 3.989, 8.355, 17.04, 34.27, 68.63, 137.3, 274.6, 549.0},
@@ -287,7 +287,6 @@ public class OpenJpegConstant extends DecoderConstant {
 	public static final float DWT_DELTA = -0.443506852f; //  -3633
 
 	public static final float K      = 1.230174105f; //  10078
-	/* FIXME: What is this constant? */
 	public static final float C13318 = 1.625732422f;
 
 	/* <summary> */
@@ -303,7 +302,6 @@ public class OpenJpegConstant extends DecoderConstant {
 	public static final double[] MCT_NORMS_REAL = { 1.732, 1.805, 1.573 };
 	
 	/** @defgroup JP2 JP2 - JPEG-2000 file format reader/writer */
-	/*@{*/
 
 	public static final int JPIP_JPIP = 0x6a706970;
 
@@ -330,7 +328,7 @@ public class OpenJpegConstant extends DecoderConstant {
 			new J2KProgressionOrder(ProgressionOrder.RPCL, "RPCL".toCharArray()),
 			new J2KProgressionOrder(ProgressionOrder.PROG_UNKNOWN, "".toCharArray()) };
 
-	public static final int T1_MOD[] = { OpenJpegConstant.T1_SIG_S, OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SGN_S, OpenJpegConstant.T1_SIG_E,
+	public static final int[] T1_MOD = { OpenJpegConstant.T1_SIG_S, OpenJpegConstant.T1_SIG_S | OpenJpegConstant.T1_SGN_S, OpenJpegConstant.T1_SIG_E,
 			OpenJpegConstant.T1_SIG_E | OpenJpegConstant.T1_SGN_E, OpenJpegConstant.T1_SIG_W, OpenJpegConstant.T1_SIG_W | OpenJpegConstant.T1_SGN_W,
 			OpenJpegConstant.T1_SIG_N, OpenJpegConstant.T1_SIG_N | OpenJpegConstant.T1_SGN_N };
 

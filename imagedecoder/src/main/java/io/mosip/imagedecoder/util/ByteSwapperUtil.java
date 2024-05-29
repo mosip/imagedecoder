@@ -26,7 +26,7 @@ public class ByteSwapperUtil {
 		int b1 = value & 0xff;
 		int b2 = (value >> 8) & 0xff;
 
-		return (short) (b1 << 8 | b2 << 0);
+		return (short) (b1 << 8 | b2); 
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class ByteSwapperUtil {
 		int b2 = (value >> 8) & 0xff;
 		int b3 = (value >> 16) & 0xff;
 
-		return b1 << 16 | b2 << 8 | b3 << 0;
+		return b1 << 16 | b2 << 8 | b3; 
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class ByteSwapperUtil {
 		int b3 = (value >> 16) & 0xff;
 		int b4 = (value >> 24) & 0xff;
 
-		return b1 << 24 | b2 << 16 | b3 << 8 | b4 << 0;
+		return b1 << 24 | b2 << 16 | b3 << 8 | b4; 
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class ByteSwapperUtil {
 		long b7 = (value >> 48) & 0xff;
 		long b8 = (value >> 56) & 0xff;
 
-		return b1 << 56 | b2 << 48 | b3 << 40 | b4 << 32 | b5 << 24 | b6 << 16 | b7 << 8 | b8 << 0;
+		return b1 << 56 | b2 << 48 | b3 << 40 | b4 << 32 | b5 << 24 | b6 << 16 | b7 << 8 | b8; 
 	}
 
 	/**

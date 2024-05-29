@@ -1,9 +1,11 @@
 package io.mosip.imagedecoder.openjpeg;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_EMPTY;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_IDTYPE;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_SESSIONID;
 
 import io.mosip.imagedecoder.constant.openjpeg.OpenJpegConstant;
+import io.mosip.imagedecoder.logger.ImageDecoderLogger;
 import io.mosip.imagedecoder.model.openjpeg.Cio;
 import io.mosip.imagedecoder.model.openjpeg.CodeStreamInfo;
 import io.mosip.imagedecoder.model.openjpeg.CodecContextInfo;
@@ -16,10 +18,16 @@ import io.mosip.imagedecoder.model.openjpeg.JP2Component;
 import io.mosip.imagedecoder.model.openjpeg.Jp2ColorSpace;
 import io.mosip.imagedecoder.model.openjpeg.OpenJpegImage;
 import io.mosip.imagedecoder.util.ByteStreamUtil;
+import io.mosip.kernel.core.logger.spi.Logger;
 
 public class JP2Helper {
-	private Logger LOGGER = LoggerFactory.getLogger(JP2Helper.class);
+	private Logger logger = ImageDecoderLogger.getLogger(JP2Helper.class);
+
 	private J2KHelper j2k = new J2KHelper();
+
+	public JP2Helper() {
+		super();
+	}
 
 	public J2KHelper getJ2k() {
 		return j2k;
@@ -29,13 +37,14 @@ public class JP2Helper {
 		this.j2k = j2k;
 	}
 
+	@SuppressWarnings({ "java:S1172"})
 	private int jp2ReadBoxHeader(CodecContextInfo codecContextInfo, Cio cio, JP2Box box) {
 		box.setInitPosition(CioHelper.getInstance().cioTell(cio));
 		box.setLength((int) CioHelper.getInstance().cioRead(cio, 4));
 		box.setType((int) CioHelper.getInstance().cioRead(cio, 4));
 		if (box.getLength() == 1) {
 			if (CioHelper.getInstance().cioRead(cio, 4) != 0) {
-				LOGGER.error(String.format("Cannot handle box sizes higher than 2^32"));
+				logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Cannot handle box sizes higher than 2^32");
 				return 0;
 			}
 			box.setLength((int) CioHelper.getInstance().cioRead(cio, 4));
@@ -48,6 +57,7 @@ public class JP2Helper {
 		return 1;
 	}
 
+	@SuppressWarnings({ "java:S135", "unused"})
 	private void jp2WriteUrl(Cio cio, char[] url) {
 		int i;
 		JP2Box box = new JP2Box();
@@ -77,7 +87,7 @@ public class JP2Helper {
 
 		jp2ReadBoxHeader(codecContextInfo, cio, box);
 		if (OpenJpegConstant.JP2_IHDR != box.getType()) {
-			LOGGER.error(String.format("Expected IHDR Marker"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Expected IHDR Marker");
 			return 0;
 		}
 
@@ -93,7 +103,7 @@ public class JP2Helper {
 		jp2.setIpr(CioHelper.getInstance().cioRead(cio, 1)); /* IPR */
 
 		if (CioHelper.getInstance().cioTell(cio) - box.getInitPosition() != box.getLength()) {
-			LOGGER.error(String.format("Error with IHDR Box"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Error with IHDR Box");
 			return 0;
 		}
 
@@ -149,7 +159,7 @@ public class JP2Helper {
 
 		jp2ReadBoxHeader(codecContextInfo, cio, box);
 		if (OpenJpegConstant.JP2_BPCC != box.getType()) {
-			LOGGER.error(String.format("Expected BPCC Marker"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Expected BPCC Marker");
 			return 0;
 		}
 
@@ -158,7 +168,7 @@ public class JP2Helper {
 		}
 
 		if (CioHelper.getInstance().cioTell(cio) - box.getInitPosition() != box.getLength()) {
-			LOGGER.error(String.format("Error with BPCC Box"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Error with BPCC Box");
 			return 0;
 		}
 
@@ -212,19 +222,21 @@ public class JP2Helper {
 			/* skip PROFILE */
 			skipLength = box.getInitPosition() + box.getLength() - CioHelper.getInstance().cioTell(cio);
 			if (skipLength < 0) {
-				LOGGER.error(String.format("Error with Colr box size"));
+				logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Error with Colr box size");
 				return 0;
 			}
-			CioHelper.getInstance().cioSkip(cio, box.getInitPosition() + box.getLength() - CioHelper.getInstance().cioTell(cio));
+			CioHelper.getInstance().cioSkip(cio,
+					box.getInitPosition() + box.getLength() - CioHelper.getInstance().cioTell(cio));
 		}
 
 		if (CioHelper.getInstance().cioTell(cio) - box.getInitPosition() != box.getLength()) {
-			LOGGER.error(String.format("Error with Colr Box"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Error with Colr Box");
 			return 0;
 		}
 		return 1;
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S1854", "java:S3358", "unused"})
 	private int jp2ReadRes(JP2 jp2, Cio cio) {
 		JP2Box box = new JP2Box();
 		int skipLength;
@@ -232,20 +244,18 @@ public class JP2Helper {
 		CodecContextInfo codecContextInfo = jp2.getCodecContextInfo();
 
 		jp2ReadBoxHeader(codecContextInfo, cio, box);
-		if (OpenJpegConstant.JP2_RES == box.getType() && 
-				box.getLength() == 26) {
+		if (OpenJpegConstant.JP2_RES == box.getType() && box.getLength() == 26) {
 			CioHelper.getInstance().cioSkip(cio, 4);
 			long resx = CioHelper.getInstance().cioRead(cio, 4);
-			long resc1 = ByteStreamUtil.getInstance().MKBETAG('r', 'e', 's', ' ');
-			long resc = ByteStreamUtil.getInstance().MKBETAG('r', 'e', 's', 'c');
-			long resd = ByteStreamUtil.getInstance().MKBETAG('r', 'e', 's', 'd');
+			long resc1 = ByteStreamUtil.getInstance().makeBETag('r', 'e', 's', ' ');
+			long resc = ByteStreamUtil.getInstance().makeBETag('r', 'e', 's', 'c');
+			long resd = ByteStreamUtil.getInstance().makeBETag('r', 'e', 's', 'd');
 			if (resx != resc && resx != resd)
 				return 1;
-			
-			int resolutionBoxType = resx == resc ? 0
-					: resx == resd ? 1 : -1;
-			
-			jp2.getResolutionBox().setResolutionBoxType(resolutionBoxType); /* resolutionBoxType*/
+
+			int resolutionBoxType = resx == resc ? 0 : resx == resd ? 1 : -1;
+
+			jp2.getResolutionBox().setResolutionBoxType(resolutionBoxType); /* resolutionBoxType */
 			jp2.getResolutionBox().setResolutionBoxType(resolutionBoxType);
 			jp2.getResolutionBox().setVerticalNumerator((int) CioHelper.getInstance().cioRead(cio, 2));
 			jp2.getResolutionBox().setVerticalDenominator((int) CioHelper.getInstance().cioRead(cio, 2));
@@ -253,7 +263,7 @@ public class JP2Helper {
 			jp2.getResolutionBox().setHorizontalDenominator((int) CioHelper.getInstance().cioRead(cio, 2));
 			jp2.getResolutionBox().setVerticalExponent((int) CioHelper.getInstance().cioRead(cio, 1));
 			jp2.getResolutionBox().setHorizontalExponent((int) CioHelper.getInstance().cioRead(cio, 1));
-			
+
 			double inchPerMeter = OpenJpegConstant.INCH_PER_METER;
 			long vnum, vden, hnum, hden, vexp, hexp;
 			vnum = jp2.getResolutionBox().getVerticalNumerator();
@@ -262,21 +272,19 @@ public class JP2Helper {
 			hden = jp2.getResolutionBox().getHorizontalDenominator();
 			vexp = jp2.getResolutionBox().getVerticalExponent();
 			hexp = jp2.getResolutionBox().getHorizontalExponent();
-	
+
 			int verticalResolution = (int) Math
-					.ceil(((Math.round((vnum / vden) * Math.pow(10, vexp)) / inchPerMeter) / 100) * 100);
+					.ceil(((Math.round(((double) vnum / vden) * Math.pow(10, vexp)) / inchPerMeter) / 100) * 100);
 			int horizontalResolution = (int) Math
-					.ceil(((Math.round((hnum / hden) * Math.pow(10, hexp)) / inchPerMeter) / 100) * 100);
+					.ceil(((Math.round(((double) hnum / hden) * Math.pow(10, hexp)) / inchPerMeter) / 100) * 100);
 			jp2.getResolutionBox().setHorizontalResolution(horizontalResolution);
 			jp2.getResolutionBox().setVerticalResolution(verticalResolution);
-	
+
 			if (CioHelper.getInstance().cioTell(cio) - box.getInitPosition() != box.getLength()) {
-				LOGGER.error(String.format("Error with RES Box"));
+				logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Error with RES Box");
 				return 0;
 			}
-		}
-		else
-		{
+		} else {
 			CioHelper.getInstance().cioPosition(cio, box.getInitPosition() - 1);
 		}
 		return 1;
@@ -312,7 +320,7 @@ public class JP2Helper {
 		do {
 			if (OpenJpegConstant.JP2_JP2H != box.getType()) {
 				if (box.getType() == OpenJpegConstant.JP2_JP2C) {
-					LOGGER.error(String.format("Expected JP2H Marker"));
+					logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Expected JP2H Marker");
 					return 0;
 				}
 				CioHelper.getInstance().cioSkip(cio, box.getLength() - 8);
@@ -323,9 +331,8 @@ public class JP2Helper {
 		if (jp2ReadIHeader(jp2, cio) == 0)
 			return 0;
 
-		if (jp2.getBpc() == 255) {
-			if (jp2ReadBpcc(jp2, cio) == 0)
-				return 0;
+		if (jp2.getBpc() == 255 && jp2ReadBpcc(jp2, cio) == 0) {
+			return 0;
 		}
 		if (jp2ReadColr(jp2, cio) == 0)
 			return 0;
@@ -335,10 +342,11 @@ public class JP2Helper {
 
 		skipLength = box.getInitPosition() + box.getLength() - CioHelper.getInstance().cioTell(cio);
 		if (skipLength < 0) {
-			LOGGER.error(String.format("Error with JP2H Box"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Error with JP2H Box");
 			return 0;
 		}
-		CioHelper.getInstance().cioSkip(cio, box.getInitPosition() + box.getLength() - CioHelper.getInstance().cioTell(cio));
+		CioHelper.getInstance().cioSkip(cio,
+				box.getInitPosition() + box.getLength() - CioHelper.getInstance().cioTell(cio));
 
 		return 1;
 	}
@@ -373,7 +381,7 @@ public class JP2Helper {
 		jp2ReadBoxHeader(codecContextInfo, cio, box);
 
 		if (OpenJpegConstant.JP2_FTYP != box.getType()) {
-			LOGGER.error(String.format("Expected FTYP Marker"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Expected FTYP Marker");
 			return 0;
 		}
 
@@ -387,19 +395,19 @@ public class JP2Helper {
 		}
 
 		if (CioHelper.getInstance().cioTell(cio) - box.getInitPosition() != box.getLength()) {
-			LOGGER.error(String.format("Error with FTYP Box"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Error with FTYP Box");
 			return 0;
 		}
 
 		return 1;
 	}
 
-	public int jp2WriteJP2c(JP2 jp2, Cio cio, OpenJpegImage image, CodeStreamInfo codeStreamInfo,
-			boolean USE_JPWL) {
-		long[] j2kCodestreamOffset = new long[1], j2kCodestreamLength = new long[1];
+	public int jp2WriteJP2c(JP2 jp2, Cio cio, OpenJpegImage image, CodeStreamInfo codeStreamInfo, boolean useJPWL) {
+		long[] j2kCodestreamOffset = new long[1];
+		long[] j2kCodestreamLength = new long[1];
 		JP2Box box = new JP2Box();
 
-		J2K j2k = jp2.getJ2k();
+		J2K j2kInfo = jp2.getJ2k();
 
 		box.setInitPosition(CioHelper.getInstance().cioTell(cio));
 		CioHelper.getInstance().cioSkip(cio, 4);
@@ -407,8 +415,8 @@ public class JP2Helper {
 
 		/* J2K encoding */
 		j2kCodestreamOffset[0] = CioHelper.getInstance().cioTell(cio);
-		if (this.getJ2k().j2kEncode(j2k, cio, image, codeStreamInfo, USE_JPWL) == 0) {
-			LOGGER.error(String.format("Failed to encode image"));
+		if (this.getJ2k().j2kEncode(j2kInfo, cio, image, codeStreamInfo, useJPWL) == 0) {
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Failed to encode image");
 			return 0;
 		}
 		j2kCodestreamLength[0] = CioHelper.getInstance().cioTell(cio) - j2kCodestreamOffset[0];
@@ -438,7 +446,7 @@ public class JP2Helper {
 		} while (OpenJpegConstant.JP2_JP2C != box.getType());
 
 		j2kCodestreamOffset[0] = CioHelper.getInstance().cioTell(cio);
-		j2kCodestreamLength[0] = box.getLength() - 8;
+		j2kCodestreamLength[0] = (long) box.getLength() - 8;
 
 		return 1;
 	}
@@ -464,15 +472,15 @@ public class JP2Helper {
 
 		jp2ReadBoxHeader(codecContextInfo, cio, box);
 		if (OpenJpegConstant.JP2_JP != box.getType()) {
-			LOGGER.error(String.format("Expected JP Marker"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Expected JP Marker");
 			return 0;
 		}
 		if (0x0d0a870a != CioHelper.getInstance().cioRead(cio, 4)) {
-			LOGGER.error(String.format("Error with JP Marker"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Error with JP Marker");
 			return 0;
 		}
 		if (CioHelper.getInstance().cioTell(cio) - box.getInitPosition() != box.getLength()) {
-			LOGGER.error(String.format("Error with JP Box size"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Error with JP Box size");
 			return 0;
 		}
 
@@ -518,17 +526,16 @@ public class JP2Helper {
 			if (jp2.getCl() != null) {
 				jp2.setCl(null);
 			}
-			jp2 = null;
 		}
 	}
 
-	public void jp2SetupDecoder(JP2 jp2, DecompressionParameters parameters, boolean USE_JPWL) {
+	public void jp2SetupDecoder(JP2 jp2, DecompressionParameters parameters, boolean useJPWL) {
 		/* setup the J2K codec */
-		this.getJ2k().j2kSetupDecoder(jp2.getJ2k(), parameters, USE_JPWL);
+		this.getJ2k().j2kSetupDecoder(jp2.getJ2k(), parameters, useJPWL);
 		/* further JP2 initializations go here */
 	}
 
-	public OpenJpegImage jp2Decode(JP2 jp2, Cio cio, CodeStreamInfo codeStreamInfo, boolean USE_JPWL) {
+	public OpenJpegImage jp2Decode(JP2 jp2, Cio cio, CodeStreamInfo codeStreamInfo, boolean useJPWL) {
 		OpenJpegImage image = null;
 
 		if (jp2 == null || cio == null) {
@@ -537,14 +544,14 @@ public class JP2Helper {
 
 		/* JP2 header decoding */
 		if (jp2ReadStruct(jp2, cio) == 0) {
-			LOGGER.error(String.format("Failed to decode jp2 structure"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Failed to decode jp2 structure");
 			return null;
 		}
 
 		/* J2K data decoding */
-		image = this.getJ2k().j2kDecode(jp2.getJ2k(), cio, codeStreamInfo, USE_JPWL);
+		image = this.getJ2k().j2kDecode(jp2.getJ2k(), cio, codeStreamInfo, useJPWL);
 		if (image == null) {
-			LOGGER.error(String.format("Failed to decode jp2 structure"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Failed to decode jp2 structure");
 			return null;
 		}
 
@@ -590,11 +597,11 @@ public class JP2Helper {
 			if (jp2.getCl() != null) {
 				jp2.setCl(null);
 			}
-			jp2 = null;
 		}
 	}
 
-	public void jp2SetupEncoder(JP2 jp2, CompressionParameters parameters, OpenJpegImage image, boolean USE_JPWL) {
+	@SuppressWarnings({ "java:S1659", "java:S1854", "java:S3776"})
+	public void jp2SetupEncoder(JP2 jp2, CompressionParameters parameters, OpenJpegImage image, boolean useJPWL) {
 		int i;
 		int depth0, sign;
 
@@ -606,11 +613,12 @@ public class JP2Helper {
 
 		/* Check if number of components respects standard */
 		if (image.getNoOfComps() < 1 || image.getNoOfComps() > 16384) {
-			LOGGER.error(String.format("Invalid number of components specified while setting up JP2 encoder"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE,LOGGER_EMPTY, 
+					"Invalid number of components specified while setting up JP2 encoder");
 			return;
 		}
 
-		this.getJ2k().j2kSetupEncoder(jp2.getJ2k(), parameters, image, USE_JPWL);
+		this.getJ2k().j2kSetupEncoder(jp2.getJ2k(), parameters, image, useJPWL);
 
 		/* setup the JP2 codec */
 		/* ------------------- */
@@ -627,12 +635,12 @@ public class JP2Helper {
 
 		jp2.setNoOfComps(image.getNoOfComps()); /* NC */
 		jp2.setComps(new JP2Component[(int) jp2.getNoOfComps()]);
-		jp2.setHeight(image.getY1() - image.getY0()); /* HEIGHT */
-		jp2.setWidth(image.getX1() - image.getX0()); /* WIDTH */
+		jp2.setHeight((long) image.getY1() - image.getY0()); /* HEIGHT */
+		jp2.setWidth((long) image.getX1() - image.getX0()); /* WIDTH */
 		/* BPC */
 		depth0 = image.getComps()[0].getPrec() - 1;
 		sign = image.getComps()[0].getSgnd();
-		jp2.setBpc(depth0 + (sign << 7));
+		jp2.setBpc(depth0 + (long) (sign << 7));
 		for (i = 1; i < image.getNoOfComps(); i++) {
 			int depth = image.getComps()[i].getPrec() - 1;
 			sign = image.getComps()[i].getSgnd();
@@ -670,7 +678,7 @@ public class JP2Helper {
 		jp2.setApprox(0); /* APPROX */
 	}
 
-	public int jp2Encode(JP2 jp2, Cio cio, OpenJpegImage image, CodeStreamInfo codeStreamInfo, boolean USE_JPWL) {
+	public int jp2Encode(JP2 jp2, Cio cio, OpenJpegImage image, CodeStreamInfo codeStreamInfo, boolean useJPWL) {
 		/* JP2 encoding */
 
 		/* JPEG 2000 Signature box */
@@ -682,8 +690,8 @@ public class JP2Helper {
 
 		/* J2K encoding */
 
-		if (jp2WriteJP2c(jp2, cio, image, codeStreamInfo, USE_JPWL) == 0) {
-			LOGGER.error(String.format("Failed to encode image"));
+		if (jp2WriteJP2c(jp2, cio, image, codeStreamInfo, useJPWL) == 0) {
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Failed to encode image");
 			return 0;
 		}
 
