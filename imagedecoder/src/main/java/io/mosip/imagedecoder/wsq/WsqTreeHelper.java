@@ -1,27 +1,22 @@
 package io.mosip.imagedecoder.wsq;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.mosip.imagedecoder.model.wsq.WsqQuantizationTree;
 import io.mosip.imagedecoder.model.wsq.WsqWavletTree;
 
 public class WsqTreeHelper {
-	private Logger LOGGER = LoggerFactory.getLogger(WsqTreeHelper.class);
 	// Static variable reference of singleInstance of type Singleton
-    private static WsqTreeHelper singleInstance = null;    
-    private WsqTreeHelper()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized WsqTreeHelper getInstance()
-	{ 
+	private static WsqTreeHelper singleInstance = null;
+
+	private WsqTreeHelper() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized WsqTreeHelper getInstance() {
 		if (singleInstance == null)
 			singleInstance = new WsqTreeHelper();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
 	/************************************************************************/
 	/* Routines used to generate the "trees" used */
@@ -32,8 +27,9 @@ public class WsqTreeHelper {
 
 	/* Build WSQ decomposition trees. */
 	/************************************************************************/
-	public void buildWsqTrees(WsqWavletTree waveletTree[], int w_treelen, WsqQuantizationTree quantizationTree[],
-			int q_treelen, int width, int height) {
+	@SuppressWarnings({ "java:S1172" })
+	public void buildWsqTrees(WsqWavletTree[] waveletTree, int waveletTreeLength,
+			WsqQuantizationTree[] quantizationTree, int quantizationTreeLength, int width, int height) {
 		/* Build a W-TREE structure for the image. */
 		buildWaveletTree(waveletTree, width, height);
 		/* Build a Q-TREE structure for the image. */
@@ -43,7 +39,8 @@ public class WsqTreeHelper {
 	/********************************************************************/
 	/* Routine to obtain subband "x-y locations" for creating wavelets. */
 	/********************************************************************/
-	private void buildWaveletTree(WsqWavletTree waveletTree[], /* wavelet tree structure */
+	@SuppressWarnings({ "java:S1659", "java:S2589" })
+	private void buildWaveletTree(WsqWavletTree[] waveletTree, /* wavelet tree structure */
 			int width, /* image width */
 			int height) /* image height */
 	{
@@ -107,20 +104,13 @@ public class WsqTreeHelper {
 			waveletTree[19].setLenY(waveletTree[15].getLenY() / 2);
 		else
 			waveletTree[19].setLenY((waveletTree[15].getLenY() + 1) / 2);
-
-		/*
-		for (node = 0; node < 20; node++)
-			LOGGER.debug(String.format("t%d -> x = %d  y = %d : dx = %d  dy = %d : ir = %d  ic = %d", node,
-					waveletTree[node].getX(), waveletTree[node].getY(), waveletTree[node].getLenX(),
-					waveletTree[node].getLenY(), waveletTree[node].getInvRow(), waveletTree[node].getInvCol()));
-		*/
-		return;
 	}
 
 	/***************************************************************/
 	/* Gives location and size of subband splits for buildWaveletTree. */
 	/***************************************************************/
-	private void waveletTree4(WsqWavletTree waveletTree[], /* wavelet tree structure */
+	@SuppressWarnings({ "java:S107", "java:S1659", "java:S2589" })
+	private void waveletTree4(WsqWavletTree[] waveletTree, /* wavelet tree structure */
 			int start1, /* waveletTree locations to start calculating */
 			int start2, /* subband split locations and sizes */
 			int lenx, /* (temp) subband split location and sizes */
@@ -185,7 +175,7 @@ public class WsqTreeHelper {
 
 	/****************************************************************/
 	private void buildQuantizationTree(WsqWavletTree[] waveletTree, /* wavelet tree structure */
-		WsqQuantizationTree[] quantizationTree) /* quantization tree structure */
+			WsqQuantizationTree[] quantizationTree) /* quantization tree structure */
 	{
 		int node;
 
@@ -203,17 +193,10 @@ public class WsqTreeHelper {
 				waveletTree[5].getX(), waveletTree[5].getY(), 1, 0);
 		quantizationTree4(quantizationTree, 0, waveletTree[19].getLenX(), waveletTree[19].getLenY(),
 				waveletTree[19].getX(), waveletTree[19].getY());
-
-		/*
-		for (node = 0; node < 60; node++)
-			LOGGER.error(String.format("t%d -> x = %d  y = %d : lx = %d  ly = %d", node,
-					quantizationTree[node].getX(), quantizationTree[node].getY(), quantizationTree[node].getLenX(),
-					quantizationTree[node].getLenY()));
-		*/
-		return;
 	}
 
 	/*****************************************************************/
+	@SuppressWarnings({ "java:S107", "java:S1659", "java:S3776" })
 	private void quantizationTree16(WsqQuantizationTree[] quantizationTree, /* quantization tree structure */
 			int start, /* quantizationTree location of first subband */
 			/* in the subband group being calculated */
@@ -361,6 +344,7 @@ public class WsqTreeHelper {
 	}
 
 	/********************************************************************/
+	@SuppressWarnings({ "java:S1659" })
 	private void quantizationTree4(WsqQuantizationTree[] quantizationTree, /* quantization tree structure */
 			int start, /* quantizationTree location of first subband */
 			/* in the subband group being calculated */

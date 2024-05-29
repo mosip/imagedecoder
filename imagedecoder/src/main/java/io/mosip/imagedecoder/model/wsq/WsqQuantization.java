@@ -15,5 +15,6 @@ public class WsqQuantization {
 	private float[] qbssT = new float[WsqConstant.MAX_SUBBANDS];
 	private float[] qbss = new float[WsqConstant.MAX_SUBBANDS];
 	private float[] qzbs = new float[WsqConstant.MAX_SUBBANDS];
+	@SuppressWarnings({ "java:S6213" })
 	private float[] var = new float[WsqConstant.MAX_SUBBANDS];
 }

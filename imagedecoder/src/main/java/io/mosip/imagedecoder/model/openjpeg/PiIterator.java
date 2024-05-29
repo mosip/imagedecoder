@@ -39,6 +39,12 @@ public class PiIterator {
 	private int noOfComps;
 	/** Components*/
 	private PiComponent[] comps;
-	private int tX0, tY0, tX1, tY1;
-	private int x, y, dX, dY;
+	private int tX0;
+	private int tY0;
+	private int tX1;
+	private int tY1;
+	private int x;
+	private int y;
+	private int dX; 
+	private int dY;
 }

@@ -11,7 +11,8 @@ import lombok.Setter;
  * pi Component
  */
 public class PiComponent {
-	private int dX, dY;
+	private int dX;
+	private int dY;
 	  /** number of resolution levels */
 	private int noOfResolutions;
 	private PiResolution[] resolutions;

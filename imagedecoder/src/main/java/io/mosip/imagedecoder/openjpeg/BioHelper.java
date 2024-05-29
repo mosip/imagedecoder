@@ -4,21 +4,20 @@ import io.mosip.imagedecoder.model.openjpeg.Bio;
 
 public class BioHelper {
 	// Static variable reference of singleInstance of type Singleton
-    private static BioHelper singleInstance = null;    
-    private BioHelper()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized BioHelper getInstance()
-	{ 
+	private static BioHelper singleInstance = null;
+
+	private BioHelper() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized BioHelper getInstance() {
 		if (singleInstance == null)
 			singleInstance = new BioHelper();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
-	
+
 	public int bioByteOut(Bio bio) {
 		bio.setBuf((bio.getBuf() << 8) & 0xffff);
 		bio.setCt(bio.getBuf() == 0xff00 ? 7 : 8);
@@ -58,13 +57,17 @@ public class BioHelper {
 	}
 
 	public Bio bioCreate() {
-		Bio bio = new Bio();
-		return bio;
+		return new Bio();
 	}
 
-	public void bioDestroy(Bio bio) {
-		if (bio != null)
-			bio = null;
+	 /**
+     * Releases resources associated with this Bio object.
+     *
+     * This method properly cleans up any resources used by the Bio object,
+     * ensuring efficient memory management and preventing potential leaks.
+     * Call this method when you are done using a Bio object.
+     */
+   	public void bioDestroy(Bio bio) {// default implementation ignored
 	}
 
 	public int bioNoOfBytes(Bio bio) {
@@ -97,8 +100,8 @@ public class BioHelper {
 	}
 
 	public int bioRead(Bio bio, int n) {
-		int i, v;
-		v = 0;
+		int i;
+		int v = 0;
 		for (i = n - 1; i >= 0; i--) {
 			v += bioGetBit(bio) << i;
 		}

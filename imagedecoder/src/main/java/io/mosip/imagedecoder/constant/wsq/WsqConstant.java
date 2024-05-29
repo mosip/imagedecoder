@@ -85,5 +85,5 @@ public class WsqConstant extends DecoderConstant {
 	public static final String NCM_SD_ID = "SD_ID"; /* 4,9,10,14,18 */
 
 	/// < Invalid data found when processing input
-	public static final int AVERROR_INVALIDDATA = ByteStreamUtil.getInstance().FFERRTAG('I', 'N', 'D', 'A'); 
+	public static final int AVERROR_INVALIDDATA = ByteStreamUtil.getInstance().ffErrorTag('I', 'N', 'D', 'A'); 
 }

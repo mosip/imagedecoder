@@ -12,6 +12,7 @@ import lombok.Setter;
  */
 public class JPTMessageHeader {
 	/** In-class Identifier */
+	@SuppressWarnings({ "java:S116" })
 	private long Id;
 	/** Last byte information */
 	private long lastByte;	
