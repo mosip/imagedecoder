@@ -31,7 +31,7 @@
 		<maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
 		<maven.dependency.plugin.version>3.1.2</maven.dependency.plugin.version>
 		<maven.resources.plugin.version>3.0.2</maven.resources.plugin.version>
-		
+
 		<nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
 		<spring.boot.maven.plugin.version>3.2.5</spring.boot.maven.plugin.version>
 
@@ -44,7 +44,7 @@
 		<kernel.logger.logback.version>1.2.1-java21-SNAPSHOT</kernel.logger.logback.version>
 		<mosip.imagedecoder.version>0.0.1-java21-SNAPSHOT</mosip.imagedecoder.version>
 	</properties>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -56,7 +56,7 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>io.mosip.imagedecoder</groupId>
@@ -81,8 +81,17 @@
 			<artifactId>kernel-logger-logback</artifactId>
 			<version>${kernel.logger.logback.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
+
 	</dependencies>
-	
+
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
@@ -93,7 +102,7 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -107,7 +116,7 @@
 					</compilerArgs>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
