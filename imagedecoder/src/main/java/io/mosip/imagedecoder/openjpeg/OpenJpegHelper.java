@@ -1,7 +1,11 @@
 package io.mosip.imagedecoder.openjpeg;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_EMPTY;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_IDTYPE;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_SESSIONID;
+
+import io.mosip.kernel.core.logger.spi.Logger;
+import io.mosip.imagedecoder.logger.ImageDecoderLogger;
 
 import io.mosip.imagedecoder.constant.openjpeg.OpenJpegConstant;
 import io.mosip.imagedecoder.model.openjpeg.Cio;
@@ -21,7 +25,7 @@ import io.mosip.imagedecoder.model.openjpeg.RsizCapabilities;
 import io.mosip.imagedecoder.model.openjpeg.TileInfo;
 
 public class OpenJpegHelper {
-	private Logger LOGGER = LoggerFactory.getLogger(OpenJpegHelper.class);
+	private Logger logger = ImageDecoderLogger.getLogger(OpenJpegHelper.class);
 	private J2KHelper j2k = null;
 	private JP2Helper jp2 = null;
 
@@ -50,7 +54,8 @@ public class OpenJpegHelper {
 	public String version() {
 		return OpenJpegConstant.OPENJPEG_VERSION;
 	}
-	
+
+	@SuppressWarnings({ "java:S6208"})
 	public DecompressionContextInfo createDecompression(JP2CodecFormat format) {
 		DecompressionContextInfo decompressionContextInfo = new DecompressionContextInfo();
 		decompressionContextInfo.getContextInfo().setIsDecompressor(1);
@@ -58,20 +63,20 @@ public class OpenJpegHelper {
 		case CODEC_J2K:
 		case CODEC_JPT:
 			/* get a J2K decoder handle */
-			decompressionContextInfo.getContextInfo().setJ2kHandle(this.getJ2k().j2kCreateDecompression(decompressionContextInfo));
+			decompressionContextInfo.getContextInfo()
+					.setJ2kHandle(this.getJ2k().j2kCreateDecompression(decompressionContextInfo));
 			break;
 		case CODEC_JP2:
 			/* get a JP2 decoder handle */
-			decompressionContextInfo.getContextInfo().setJp2Handle(this.getJp2().jp2CreateDecompression(decompressionContextInfo));
+			decompressionContextInfo.getContextInfo()
+					.setJp2Handle(this.getJp2().jp2CreateDecompression(decompressionContextInfo));
 			break;
 		case CODEC_UNKNOWN:
 		default:
-			decompressionContextInfo = null;
 			return null;
 		}
 
 		decompressionContextInfo.getContextInfo().setCodecFormat(format);
-
 		return decompressionContextInfo;
 	}
 
@@ -79,8 +84,7 @@ public class OpenJpegHelper {
 		if (decompressionContextInfo != null) {
 			/* destroy the codec */
 			switch (decompressionContextInfo.getContextInfo().getCodecFormat()) {
-			case CODEC_J2K:
-			case CODEC_JPT:
+			case CODEC_J2K, CODEC_JPT:
 				this.getJ2k().j2kDestroyDecompression((J2K) decompressionContextInfo.getContextInfo().getJ2kHandle());
 				break;
 			case CODEC_JP2:
@@ -90,12 +94,10 @@ public class OpenJpegHelper {
 			default:
 				break;
 			}
-			/* destroy the decompressor */
-			decompressionContextInfo = null;
 		}
 	}
 
-	public void setDefaultDecoderParameters(DecompressionParameters parameters, boolean USE_JPWL) {
+	public void setDefaultDecoderParameters(DecompressionParameters parameters, boolean useJPWL) {
 		if (parameters != null) {
 			/* default decoding parameters */
 			parameters.setCpLayer(0);
@@ -105,7 +107,7 @@ public class OpenJpegHelper {
 			parameters.setDecodeFormat(-1);
 			parameters.setCodecFormat(-1);
 			/* UniPG>> */
-			if (USE_JPWL) {
+			if (useJPWL) {
 				parameters.setJpwlCorrect(0);
 				parameters.setJpwlExpComps(OpenJpegConstant.JPWL_EXPECTED_COMPONENTS);
 				parameters.setJpwlMaxTiles(OpenJpegConstant.JPWL_MAXIMUM_TILES);
@@ -114,17 +116,19 @@ public class OpenJpegHelper {
 		}
 	}
 
-	public void setupDecoder(DecompressionContextInfo decompressionContextInfo, DecompressionParameters parameters, boolean USE_JPWL) {
+	@SuppressWarnings({ "java:S6208"})
+	public void setupDecoder(DecompressionContextInfo decompressionContextInfo, DecompressionParameters parameters,
+			boolean useJPWL) {
 		if (decompressionContextInfo != null && parameters != null) {
 			switch (decompressionContextInfo.getContextInfo().getCodecFormat()) {
 			case CODEC_J2K:
 			case CODEC_JPT:
-				this.getJ2k().j2kSetupDecoder((J2K) decompressionContextInfo.getContextInfo().getJ2kHandle(), parameters,
-						USE_JPWL);
+				this.getJ2k().j2kSetupDecoder((J2K) decompressionContextInfo.getContextInfo().getJ2kHandle(),
+						parameters, useJPWL);
 				break;
 			case CODEC_JP2:
-				this.getJp2().jp2SetupDecoder((JP2) decompressionContextInfo.getContextInfo().getJp2Handle(), parameters,
-						USE_JPWL);
+				this.getJp2().jp2SetupDecoder((JP2) decompressionContextInfo.getContextInfo().getJp2Handle(),
+						parameters, useJPWL);
 				break;
 			case CODEC_UNKNOWN:
 			default:
@@ -133,23 +137,23 @@ public class OpenJpegHelper {
 		}
 	}
 
-	public OpenJpegImage decode(DecompressionContextInfo decompressionContextInfo, Cio cio, boolean USE_JPWL) {
-		return decodeWithInfo(decompressionContextInfo, cio, null, USE_JPWL);
+	public OpenJpegImage decode(DecompressionContextInfo decompressionContextInfo, Cio cio, boolean useJPWL) {
+		return decodeWithInfo(decompressionContextInfo, cio, null, useJPWL);
 	}
 
-	public OpenJpegImage decodeWithInfo(DecompressionContextInfo decompressionContextInfo, Cio cio, CodeStreamInfo codeStreamInfo,
-			boolean USE_JPWL) {
+	public OpenJpegImage decodeWithInfo(DecompressionContextInfo decompressionContextInfo, Cio cio,
+			CodeStreamInfo codeStreamInfo, boolean useJPWL) {
 		if (decompressionContextInfo != null && cio != null) {
 			switch (decompressionContextInfo.getContextInfo().getCodecFormat()) {
 			case CODEC_J2K:
-				return this.getJ2k().j2kDecode((J2K) decompressionContextInfo.getContextInfo().getJ2kHandle(), cio, codeStreamInfo,
-						USE_JPWL);
+				return this.getJ2k().j2kDecode((J2K) decompressionContextInfo.getContextInfo().getJ2kHandle(), cio,
+						codeStreamInfo, useJPWL);
 			case CODEC_JPT:
-				return this.getJ2k().j2kDecodeJPTStream((J2K) decompressionContextInfo.getContextInfo().getJ2kHandle(), cio,
-						codeStreamInfo, USE_JPWL);
+				return this.getJ2k().j2kDecodeJPTStream((J2K) decompressionContextInfo.getContextInfo().getJ2kHandle(),
+						cio, codeStreamInfo, useJPWL);
 			case CODEC_JP2:
-				return this.getJp2().jp2Decode((JP2) decompressionContextInfo.getContextInfo().getJp2Handle(), cio, codeStreamInfo,
-						USE_JPWL);
+				return this.getJp2().jp2Decode((JP2) decompressionContextInfo.getContextInfo().getJp2Handle(), cio,
+						codeStreamInfo, useJPWL);
 			case CODEC_UNKNOWN:
 			default:
 				break;
@@ -158,13 +162,15 @@ public class OpenJpegHelper {
 		return null;
 	}
 
+	@SuppressWarnings({ "java:S6208"})
 	public CompressionContextInfo createCompression(JP2CodecFormat format) {
 		CompressionContextInfo compressionContextInfo = new CompressionContextInfo();
 		compressionContextInfo.getContextInfo().setIsDecompressor(0);
 		switch (format) {
 		case CODEC_J2K:
 			/* get a J2K coder handle */
-			compressionContextInfo.getContextInfo().setJ2kHandle(this.getJ2k().j2kCreateCompression(compressionContextInfo));
+			compressionContextInfo.getContextInfo()
+					.setJ2kHandle(this.getJ2k().j2kCreateCompression(compressionContextInfo));
 			if (compressionContextInfo.getContextInfo().getJ2kHandle() == null) {
 				compressionContextInfo = null;
 				return compressionContextInfo;
@@ -172,7 +178,8 @@ public class OpenJpegHelper {
 			break;
 		case CODEC_JP2:
 			/* get a JP2 coder handle */
-			compressionContextInfo.getContextInfo().setJp2Handle(this.getJp2().jp2CreateCompression(compressionContextInfo));
+			compressionContextInfo.getContextInfo()
+					.setJp2Handle(this.getJp2().jp2CreateCompression(compressionContextInfo));
 			if (compressionContextInfo.getContextInfo().getJp2Handle() == null) {
 				compressionContextInfo = null;
 				return compressionContextInfo;
@@ -190,6 +197,7 @@ public class OpenJpegHelper {
 		return compressionContextInfo;
 	}
 
+	@SuppressWarnings({ "java:S6208"})
 	public void destroyCompression(CompressionContextInfo compressionContextInfo) {
 		if (compressionContextInfo != null) {
 			/* destroy the codec */
@@ -206,11 +214,10 @@ public class OpenJpegHelper {
 				break;
 			}
 			/* destroy the compressor */
-			compressionContextInfo = null;
 		}
 	}
 
-	public void setDefaultEncodeParameters(CompressionParameters parameters, boolean USE_JPWL) {
+	public void setDefaultEncodeParameters(CompressionParameters parameters, boolean useJPWL) {
 		if (parameters != null) {
 			/* default coding parameters */
 			parameters.setCpCinemaMode(JP2CinemeaMode.OFF);
@@ -231,82 +238,72 @@ public class OpenJpegHelper {
 			parameters.setCpDistortionAllocation(1);
 
 			/* UniPG>> */
-			if (USE_JPWL) {
+			if (useJPWL) {
 				parameters.setJpwlEpcOn(0);
 				parameters.setJpwlHprotMH(-1);/* -1 means unassigned */
-				{
-					int i;
-					for (i = 0; i < OpenJpegConstant.JPWL_MAX_NO_TILESPECS; i++) {
-						parameters.getJpwlHprotTPHTileNo()[i] = -1; /* unassigned */
-						parameters.getJpwlHprotTPH()[i] = 0; /* absent */
-					}
+				int i;
+				for (i = 0; i < OpenJpegConstant.JPWL_MAX_NO_TILESPECS; i++) {
+					parameters.getJpwlHprotTPHTileNo()[i] = -1; /* unassigned */
+					parameters.getJpwlHprotTPH()[i] = 0; /* absent */
 				}
-				;
-				{
-					int i;
-					for (i = 0; i < OpenJpegConstant.JPWL_MAX_NO_PACKSPECS; i++) {
-						parameters.getJpwlPprotTileNo()[i] = -1; /* unassigned */
-						parameters.getJpwlPprotPacketNo()[i] = -1; /* unassigned */
-						parameters.getJpwlPprot()[i] = 0; /* absent */
-					}
+				for (i = 0; i < OpenJpegConstant.JPWL_MAX_NO_PACKSPECS; i++) {
+					parameters.getJpwlPprotTileNo()[i] = -1; /* unassigned */
+					parameters.getJpwlPprotPacketNo()[i] = -1; /* unassigned */
+					parameters.getJpwlPprot()[i] = 0; /* absent */
 				}
-				;
 				parameters.setJpwlSensSize(0); /* 0 means no ESD */
 				parameters.setJpwlSensAddr(0); /* 0 means auto */
 				parameters.setJpwlSensRange(0); /* 0 means packet */
 				parameters.setJpwlSensMH(-1); /* -1 means unassigned */
-				{
-					int i;
-					for (i = 0; i < OpenJpegConstant.JPWL_MAX_NO_TILESPECS; i++) {
-						parameters.getJpwlHprotTPHTileNo()[i] = -1; /* unassigned */
-						parameters.getJpwlSensTPH()[i] = -1; /* absent */
-					}
+				for (i = 0; i < OpenJpegConstant.JPWL_MAX_NO_TILESPECS; i++) {
+					parameters.getJpwlHprotTPHTileNo()[i] = -1; /* unassigned */
+					parameters.getJpwlSensTPH()[i] = -1; /* absent */
 				}
-				;
 			}
 			/* <<UniPG */
 		}
 	}
 
-	public void setupEncoder(CompressionContextInfo compressionContextInfo, CompressionParameters parameters, OpenJpegImage image,
-			boolean USE_JPWL) {
+	public void setupEncoder(CompressionContextInfo compressionContextInfo, CompressionParameters parameters,
+			OpenJpegImage image, boolean useJPWL) {
 		if (compressionContextInfo != null && parameters != null && image != null) {
 			switch (compressionContextInfo.getContextInfo().getCodecFormat()) {
 			case CODEC_J2K:
-				this.getJ2k().j2kSetupEncoder((J2K) compressionContextInfo.getContextInfo().getJ2kHandle(), parameters, image,
-						USE_JPWL);
+				this.getJ2k().j2kSetupEncoder((J2K) compressionContextInfo.getContextInfo().getJ2kHandle(), parameters,
+						image, useJPWL);
 				break;
 			case CODEC_JP2:
-				this.getJp2().jp2SetupEncoder((JP2) compressionContextInfo.getContextInfo().getJp2Handle(), parameters, image,
-						USE_JPWL);
+				this.getJp2().jp2SetupEncoder((JP2) compressionContextInfo.getContextInfo().getJp2Handle(), parameters,
+						image, useJPWL);
 				break;
-			case CODEC_JPT:
-			case CODEC_UNKNOWN:
+			case CODEC_JPT, CODEC_UNKNOWN:
 			default:
 				break;
 			}
 		}
 	}
 
-	public int encode(CompressionContextInfo compressionContextInfo, Cio cio, OpenJpegImage image, char[] index, boolean USE_JPWL) {
+	public int encode(CompressionContextInfo compressionContextInfo, Cio cio, OpenJpegImage image, char[] index,
+			boolean useJPWL) {
 		if (index != null)
-			LOGGER.warn(String.format(
-					"Set index to null when calling the encode function. To extract the index, use the encodeWithInfo() function. No index will be generated during this encoding"));
-		return encodeWithInfo(compressionContextInfo, cio, image, null, USE_JPWL);
+			logger.warn(LOGGER_SESSIONID, LOGGER_IDTYPE,LOGGER_EMPTY, 
+					"Set index to null when calling the encode function. To extract the index, use the encodeWithInfo() function. No index will be generated during this encoding");
+		return encodeWithInfo(compressionContextInfo, cio, image, null, useJPWL);
 	}
 
 	public int encodeWithInfo(CompressionContextInfo compressionContextInfo, Cio cio, OpenJpegImage image,
-			CodeStreamInfo codeStreamInfo, boolean USE_JPWL) {
+			CodeStreamInfo codeStreamInfo, boolean useJPWL) {
 		if (compressionContextInfo != null && cio != null && image != null) {
 			switch (compressionContextInfo.getContextInfo().getCodecFormat()) {
 			case CODEC_J2K:
-				this.getJ2k().j2kEncode((J2K) compressionContextInfo.getContextInfo().getJ2kHandle(), cio, image, codeStreamInfo,
-						USE_JPWL);
+				this.getJ2k().j2kEncode((J2K) compressionContextInfo.getContextInfo().getJ2kHandle(), cio, image,
+						codeStreamInfo, useJPWL);
+				break;
 			case CODEC_JP2:
-				this.getJp2().jp2Encode((JP2) compressionContextInfo.getContextInfo().getJp2Handle(), cio, image, codeStreamInfo,
-						USE_JPWL);
-			case CODEC_JPT:
-			case CODEC_UNKNOWN:
+				this.getJp2().jp2Encode((JP2) compressionContextInfo.getContextInfo().getJp2Handle(), cio, image,
+						codeStreamInfo, useJPWL);
+				break;
+			case CODEC_JPT, CODEC_UNKNOWN:
 			default:
 				break;
 			}

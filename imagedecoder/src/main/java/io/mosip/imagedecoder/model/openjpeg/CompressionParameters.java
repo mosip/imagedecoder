@@ -98,7 +98,6 @@ public class CompressionParameters {
 
 	/* UniPG>> */
 	/** @name JPWL encoding parameters */
-	/* @{ */
 	/** enables writing of EPC in MH, thus activating JPWL */
 	private int jpwlEpcOn;
 	/** error protection method for MH (0,1,16,32,37-128) */

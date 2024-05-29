@@ -13,5 +13,6 @@ pass
 public class TcdPass {
 	private int rate;
 	private double distortionDec;
-	private int term, length;
+	private int term;
+	private int length;
 }

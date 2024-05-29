@@ -1,18 +1,22 @@
 package io.mosip.imagedecoder.model.openjpeg;
 
-/** 
-T2 encoding mode 
-*/
+/**
+ * T2 encoding mode
+ */
 public enum J2KT2Mode {
-	THRESH_CALC (0),	/** Function called in Rate allocation process*/
-	FINAL_PASS (1);		/** Function called in Tier 2 process*/	
-			
+	THRESH_CALC(0),
+	/** Function called in Rate allocation process */
+	FINAL_PASS(1);
+
+	/** Function called in Tier 2 process */
+
 	private final int value;
 
 	J2KT2Mode(int value) {
 		this.value = value;
 	}
 
+	@SuppressWarnings({ "java:S1144" })
 	J2KT2Mode(J2KT2Mode value) {
 		this.value = value.value();
 	}

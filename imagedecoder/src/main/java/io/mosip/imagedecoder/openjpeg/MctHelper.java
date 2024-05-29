@@ -8,21 +8,20 @@ import io.mosip.imagedecoder.constant.openjpeg.OpenJpegConstant;
  */
 public class MctHelper {
 	// Static variable reference of singleInstance of type Singleton
-    private static MctHelper singleInstance = null;    
-    private MctHelper()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized MctHelper getInstance()
-	{ 
+	private static MctHelper singleInstance = null;
+
+	private MctHelper() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized MctHelper getInstance() {
 		if (singleInstance == null)
 			singleInstance = new MctHelper();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
-	
+
 	/* <summary> */
 	/* Foward reversible MCT. */
 	/* </summary> */
@@ -109,8 +108,10 @@ public class MctHelper {
 		return OpenJpegConstant.MCT_NORMS_REAL[compno];
 	}
 
-	private int fixMul(int a, int b) {
-		long temp = a * b;
+	@SuppressWarnings({ "unused"})
+	private int fixMul(int a, int b) 
+	{
+		long temp = (long)a * b;
 		temp += temp & 4096;
 		return (int) (temp >> 13);
 	}

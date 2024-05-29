@@ -11,7 +11,10 @@ import lombok.Setter;
 Tile comp
 */
 public class TcdTileComponent {
-	private int x0, y0, x1, y1;		/* dimension of component : left upper corner (x0, y0) right low corner (x1,y1) */
+	private int x0;
+	private int y0;
+	private int x1;
+	private int y1;		/* dimension of component : left upper corner (x0, y0) right low corner (x1,y1) */
 	private int noOfResolutions;		/* number of resolutions level */
 	private TcdResolution[] resolutions;	/* resolutions information */
 	private int[] iData;			/* data of the component */

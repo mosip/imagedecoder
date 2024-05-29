@@ -4,6 +4,7 @@ import io.mosip.imagedecoder.constant.openjpeg.OpenJpegConstant;
 import io.mosip.imagedecoder.model.openjpeg.MQCoder;
 import io.mosip.imagedecoder.model.openjpeg.MQCoderState;
 
+@SuppressWarnings({ "java:S3008"})
 public class MQCoderHelper {
 	/* <summary> */
 	/* This array defines all the possible states for a context. */
@@ -163,7 +164,6 @@ public class MQCoderHelper {
 	private void mqcByteIn(MQCoder mqc) {
 		if (mqc.getBpIndex() < (mqc.getEnd())) {
 			long c;
-			// if (mqc.getBp()[mqc.getBpIndex() + 1] != mqc.getBp()[mqc.getEnd()-1]) {
 			if ((mqc.getBpIndex() + 1) < (mqc.getEnd())) {
 				c = (mqc.getBp()[mqc.getBpIndex() + 1] & 0xff);
 			} else {
@@ -201,21 +201,20 @@ public class MQCoderHelper {
 	}
 
 	public MQCoder mqcCreate() {
-		MQCoder mqc = new MQCoder();
-		return mqc;
+		return new MQCoder();
 	}
 
+	@SuppressWarnings({ "java:S1186"})
 	public void mqcDestroy(MQCoder mqc) {
-		if (mqc != null) {
-			mqc = null;
-		}
 	}
 
 	public int mqcNoOfBytes(MQCoder mqc) {
 		return mqc.getBpIndex() - mqc.getStart();
 	}
 
-	public void mqcInitEncode(MQCoder mqc, byte[] bp, int bpIndex) {
+	@SuppressWarnings("unused")
+	public void mqcInitEncode(MQCoder mqc, byte[] bp, int bpIndex) 
+	{
 		mqcSetCurrentContext(mqc, 0);
 		mqc.setA(0x8000);
 		mqc.setC(0);
@@ -251,9 +250,6 @@ public class MQCoderHelper {
 	public void mqcBypassInitEncode(MQCoder mqc) {
 		mqc.setC(0);
 		mqc.setCt(8);
-		/*
-		 * if (*mqc->bp == 0xff) { mqc->ct = 7; }
-		 */
 	}
 
 	public void mqcBypassEncode(MQCoder mqc, int d) {
@@ -285,7 +281,6 @@ public class MQCoderHelper {
 			mqc.getBp()[mqc.getBpIndex()] = (byte) mqc.getC();
 			mqc.setCt(8);
 			mqc.setC(0);
-			;
 		}
 
 		return 1;

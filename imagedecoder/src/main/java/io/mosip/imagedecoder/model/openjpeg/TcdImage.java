@@ -11,6 +11,7 @@ import lombok.Setter;
 Tile Image
 */
 public class TcdImage {
-	private int tileWidth, tileHeight;			/* number of tiles in width and heigth */
+	private int tileWidth;			/* number of tiles in width */
+	private int tileHeight;			/* number of tiles in heigth */
 	private TcdTile[] tiles;		/* Tiles information */
 }

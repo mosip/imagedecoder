@@ -6,25 +6,25 @@ import io.mosip.imagedecoder.model.openjpeg.TgtTree;
 
 public class TgtHelper {
 	// Static variable reference of singleInstance of type Singleton
-    private static TgtHelper singleInstance = null;    
-    private TgtHelper()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized TgtHelper getInstance()
-	{ 
+	private static TgtHelper singleInstance = null;
+
+	private TgtHelper() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized TgtHelper getInstance() {
 		if (singleInstance == null)
 			singleInstance = new TgtHelper();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
-	/* 
-	==========================================================
-	   Tag-tree coder interface
-	==========================================================
-	*/
+
+	/*
+	 * ========================================================== Tag-tree coder
+	 * interface ==========================================================
+	 */
+	@SuppressWarnings({ "java:S1659", "java:S3776" })
 	public TgtTree tgtCreate(int numleafsh, int numleafsv) {
 		int[] nplh = new int[32];
 		int[] nplv = new int[32];
@@ -35,7 +35,7 @@ public class TgtHelper {
 		int numlvls;
 		int n;
 
-		tree = new TgtTree ();
+		tree = new TgtTree();
 		tree.setNoOfLeafSH(numleafsh);
 		tree.setNoOfLeafSV(numleafsv);
 
@@ -50,7 +50,7 @@ public class TgtHelper {
 			tree.setNoOfNodes(tree.getNoOfNodes() + n);
 			++numlvls;
 		} while (n > 1);
-		
+
 		/* ADD */
 		if (tree.getNoOfNodes() == 0) {
 			tree = null;
@@ -64,7 +64,7 @@ public class TgtHelper {
 		int nodeIndex = 0;
 		parentNodeIndex = tree.getNoOfLeafSH() * tree.getNoOfLeafSV();
 		parentNode0Index = parentNodeIndex;
-				
+
 		for (i = 0; i < numlvls - 1; ++i) {
 			for (j = 0; j < nplv[i]; ++j) {
 				k = nplh[i];
@@ -85,16 +85,15 @@ public class TgtHelper {
 				}
 			}
 		}
-		tree.getNodes()[nodeIndex].setParent (0);
-		
+		tree.getNodes()[nodeIndex].setParent(0);
+
 		tgtReset(tree);
-		
+
 		return tree;
 	}
 
 	public void tgtDestroy(TgtTree tree) {
 		tree.setNodes(null);
-		tree = null;
 	}
 
 	public void tgtReset(TgtTree tree) {
@@ -102,7 +101,7 @@ public class TgtHelper {
 
 		if (tree == null)
 			return;
-		
+
 		for (i = 0; i < tree.getNoOfNodes(); i++) {
 			tree.getNodes()[i].setValue(999);
 			tree.getNodes()[i].setLow(0);
@@ -119,6 +118,7 @@ public class TgtHelper {
 		}
 	}
 
+	@SuppressWarnings({ "java:S3776" })
 	public void tgtEncode(Bio bio, TgtTree tree, int leafNo, int threshold) {
 		TgtNode[] stack = new TgtNode[31];
 		TgtNode[] stkptr;
@@ -133,7 +133,7 @@ public class TgtHelper {
 			stkptr[stackDataIndex++] = node;
 			node = tree.getNodes()[node.getParent()];
 		}
-				
+
 		low = 0;
 		for (;;) {
 			if (low > node.getLow()) {
@@ -141,7 +141,7 @@ public class TgtHelper {
 			} else {
 				low = node.getLow();
 			}
-			
+
 			while (low < threshold) {
 				if (low >= node.getValue()) {
 					if (node.getKnown() == 0) {
@@ -153,8 +153,8 @@ public class TgtHelper {
 				BioHelper.getInstance().bioWrite(bio, 0, 1);
 				++low;
 			}
-			
-			node.setLow(low); 
+
+			node.setLow(low);
 			if (stackDataIndex == stackIndex)
 				break;
 			node = stkptr[--stackDataIndex];
@@ -173,7 +173,7 @@ public class TgtHelper {
 			stack[stackDataIndex++] = node;
 			node = tree.getNodes()[node.getParent()];
 		}
-		
+
 		low = 0;
 		for (;;) {
 			if (low > node.getLow()) {
@@ -194,7 +194,7 @@ public class TgtHelper {
 			}
 			node = stack[--stackDataIndex];
 		}
-		
+
 		return (node.getValue() < threshold) ? 1 : 0;
 	}
 }
