@@ -19,6 +19,7 @@ public enum RsizCapabilities {
 		this.value = value;
 	}
 
+	@SuppressWarnings({ "java:S1144" })
 	RsizCapabilities(RsizCapabilities value) {
 		this.value = value.value();
 	}

@@ -11,6 +11,8 @@ import lombok.Setter;
  * pi resolution
  */
 public class PiResolution {
-	private int pDX, pDY;
-	private int pWidth, pHeight;
+	private int pDX;
+	private int pDY;
+	private int pWidth;
+	private int pHeight;
 }

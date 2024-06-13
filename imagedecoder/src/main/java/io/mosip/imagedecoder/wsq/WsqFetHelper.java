@@ -1,7 +1,13 @@
 package io.mosip.imagedecoder.wsq;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_EMPTY;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_IDTYPE;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_SESSIONID;
+
+import java.text.MessageFormat;
+
+import io.mosip.kernel.core.logger.spi.Logger;
+import io.mosip.imagedecoder.logger.ImageDecoderLogger;
 
 import io.mosip.imagedecoder.constant.wsq.WsqConstant;
 import io.mosip.imagedecoder.constant.wsq.WsqErrorCode;
@@ -9,30 +15,34 @@ import io.mosip.imagedecoder.model.wsq.WsqFet;
 import io.mosip.imagedecoder.util.StringUtil;
 
 public class WsqFetHelper {
-	private Logger LOGGER = LoggerFactory.getLogger(WsqFetHelper.class);
+	private Logger logger = ImageDecoderLogger.getLogger(WsqFetHelper.class);
 
 	// Static variable reference of singleInstance of type Singleton
-    private static WsqFetHelper singleInstance = null;    
-    private WsqFetHelper()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized WsqFetHelper getInstance()
-	{ 
+	private static WsqFetHelper singleInstance = null;
+
+	private WsqFetHelper() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized WsqFetHelper getInstance() {
 		if (singleInstance == null)
 			singleInstance = new WsqFetHelper();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
-	
+
 	/*****************************************************************/
+	@SuppressWarnings({ "java:S135", "java:S1854", "java:S3626", "java:S3776" })
 	public int string2fet(WsqFet fet, char[] arrData) {
 		int ret;
-		char[] name = new char[WsqConstant.MAXFETLENGTH], value = new char[WsqConstant.MAXFETLENGTH], vptr;
+		char[] name = new char[WsqConstant.MAXFETLENGTH];
+		char[] value = new char[WsqConstant.MAXFETLENGTH];
+		char[] vptr;
 
-		int dataIndex = 0, valueIndex = 0, nameIndex = 0;
+		int dataIndex = 0;
+		int valueIndex = 0;
+		int nameIndex = 0;
 		while (arrData[dataIndex] != '\0') {
 			/* Get next name */
 			nameIndex = 0;
@@ -59,7 +69,7 @@ public class WsqFetHelper {
 
 			/* Test (name,value) pair */
 			if (new String(name).length() == 0) {
-				LOGGER.error(String.format("string2fet : empty name string found."));
+				logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE,  LOGGER_EMPTY, "string2fet : empty name string found.");
 				return (WsqErrorCode.EMPTY_STRING_FOUND.getErrorId());
 			}
 			if (new String(value).length() == 0)
@@ -69,7 +79,6 @@ public class WsqFetHelper {
 
 			/* Store name and value pair into FET. */
 			if ((ret = updateFet(name, vptr, fet)) != 0) {
-				fet = null;
 				return ret;
 			}
 		}
@@ -89,15 +98,17 @@ public class WsqFetHelper {
 	}
 
 	/***********************************************************************/
+	@SuppressWarnings({ "java:S135", "java:S3626", "java:S3776", "java:S6035" })
 	public int updateFet(char[] feature, char[] value, WsqFet fet) {
-		int ret, item;
-		int increased, incr;
+		int ret;
+		int item;
+		int increased;
+		int incr;
 
 		for (item = 0; (item < fet.getNum()); item++) {
-			if (fet.getNames()[item] != null && feature != null) {
-				if (StringUtil.stringCompare(fet.getNames()[item], new String(feature)) != 0) {
-					continue;
-				}
+			if (fet.getNames()[item] != null && feature != null
+					&& StringUtil.getInstance().stringCompare(fet.getNames()[item], new String(feature)) != 0) {
+				continue;
 			} else {
 				break;
 			}
@@ -128,6 +139,7 @@ public class WsqFetHelper {
 	}
 
 	/********************************************************************/
+	@SuppressWarnings({ "java:S1854", "java:S3516" })
 	public int reallocFet(WsqFet fet, int newlen) {
 		/* If fet not allocated ... */
 		if ((fet == null || fet.getAlloc() == 0)) {
@@ -146,12 +158,14 @@ public class WsqFetHelper {
 	}
 
 	/*******************************************************************/
+	@SuppressWarnings({ "java:S135", "java:S2629", "java:S3626" })
 	public int extractFet(StringBuilder value, char[] feature, WsqFet fet) {
 		int item;
 
 		for (item = 0; (item < fet.getNum()); item++) {
 			if (fet.getNames()[item] != null && feature != null) {
-				if (StringUtil.stringCompare(fet.getNames()[item].trim(), new String(feature).trim()) != 0) {
+				if (StringUtil.getInstance().stringCompare(fet.getNames()[item].trim(),
+						new String(feature).trim()) != 0) {
 					continue;
 				} else
 					break;
@@ -159,13 +173,14 @@ public class WsqFetHelper {
 		}
 		if (item >= fet.getNum()) {
 			if (feature != null)
-				LOGGER.error(String.format("extractFet : feature %s not found", new String(feature)));
+				logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE,  LOGGER_EMPTY, MessageFormat.format("extractFet : feature {0} not found",
+						new String(feature)));
 			return (WsqErrorCode.EMPTY_STRING_FOUND.getErrorId());
 		}
 		if (fet.getValues()[item] != null) {
 			value.append(fet.getValues()[item] + "");
 		} else
-			value = null;
+			value.append("");
 
 		return 0;
 	}

@@ -25,6 +25,7 @@ public enum ProgressionOrder {
 		this.value = value;
 	}
 
+	@SuppressWarnings({ "java:S1144" })
 	ProgressionOrder(ProgressionOrder value) {
 		this.value = value.value();
 	}

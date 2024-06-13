@@ -1,6 +1,5 @@
 package io.mosip.imagedecoder.model.openjpeg;
 
-
 /**
  * Digital cinema operation mode
  */
@@ -21,6 +20,7 @@ public enum JP2CinemeaMode {
 		this.value = value;
 	}
 
+	@SuppressWarnings({ "java:S1144" })
 	JP2CinemeaMode(JP2CinemeaMode value) {
 		this.value = value.value();
 	}

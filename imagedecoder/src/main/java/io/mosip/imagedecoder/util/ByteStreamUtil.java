@@ -28,8 +28,7 @@ public class ByteStreamUtil {
 	}
 	
 	public ByteOrder getByteOrder() {
-		ByteOrder byteOrder = ByteOrder.nativeOrder();
-		return byteOrder;
+		return ByteOrder.nativeOrder();
 	}
 
 	public int arraySize(Object[] array) {
@@ -75,7 +74,6 @@ public class ByteStreamUtil {
 	}
 
 	public int currentSize(ByteBufferContext byteBufCont) {
-		// return byteBufCont.getBuffer().capacity() - byteBufCont.getBuffer().position();
 		return byteBufCont.getBuffer().remaining();
 	}
 
@@ -203,7 +201,7 @@ public class ByteStreamUtil {
 		if (byteBufCont.getBuffer().order() == ByteOrder.BIG_ENDIAN)
 			value = ByteSwapperUtil.getInstance().swapShort((short)value);
 
-		byte b1 = (byte) (0xff & (value >> 0));
+		byte b1 = (byte) (0xff & (value));
         byte b2 = (byte) (0xff & (value >> 8));
 
         byteBufCont.getBuffer().put(b1);
@@ -218,7 +216,7 @@ public class ByteStreamUtil {
 		if (byteBufCont.getBuffer().order() == ByteOrder.BIG_ENDIAN)
 			value = ByteSwapperUtil.getInstance().swap3Bytes(value);
 
-        byteBufCont.getBuffer().put((byte) ((value >> 0) & 0xff));
+        byteBufCont.getBuffer().put((byte) ((value) & 0xff));
 		byteBufCont.getBuffer().put((byte) ((value >> 8) & 0xff));
 		byteBufCont.getBuffer().put((byte) ((value >> 16) & 0xff));
 		return byteBufCont.getBuffer().position();
@@ -363,16 +361,16 @@ public class ByteStreamUtil {
 			return a;
 	}
 
-	public int MKTAG(char a, char b, char c, char d) {
-		return ((a) | ((b) << 8) | ((c) << 16) | ((d) << 24));
+	public int makeTag(char aInfo, char bInfo, char cInfo, char dInfo) {
+		return ((aInfo) | ((bInfo) << 8) | ((cInfo) << 16) | ((dInfo) << 24));
 	}
 
-	public int MKBETAG(char a, char b, char c, char d) {
-		return ((d) | ((c) << 8) | ((b) << 16) | ((a) << 24));
+	public int makeBETag(char aInfo, char bInfo, char cInfo, char dInfo) {
+		return ((dInfo) | ((cInfo) << 8) | ((bInfo) << 16) | ((aInfo) << 24));
 	}
 
-	public int FFERRTAG(char a, char b, char c, char d) {
-		return ((d) | ((c) << 8) | ((b) << 16) | ((a) << 24)) * -1;
+	public int ffErrorTag(char aInfo, char bInfo, char cInfo, char dInfo) {
+		return ((dInfo) | ((cInfo) << 8) | ((bInfo) << 16) | ((aInfo) << 24)) * -1;
 	}
 
 	/**
@@ -418,9 +416,8 @@ public class ByteStreamUtil {
 			return get3UnsignedByteInt(byteBuffer, offset);
 		case 4:
 			return getUnsignedInt(byteBuffer, offset);
-		// return byteBuffer.getInt(offset);
 		default:
-			throw new IllegalArgumentException("Invalid num bytes " + numBytes);
+			throw new DecoderException(DecoderErrorCodes.TECHNICAL_ERROR_EXCEPTION.getErrorCode(), "Invalid num bytes " + numBytes);
 		}
 	}
 
@@ -861,10 +858,10 @@ public class ByteStreamUtil {
 		rtn += (getSignedByte(byteBuffer, offset + (1 * offInc)) << 8);
 		rtn += (getSignedByte(byteBuffer, offset + (2 * offInc)) << 16);
 		rtn += (getSignedByte(byteBuffer, offset + (3 * offInc)) << 24);
-		rtn += (getSignedByte(byteBuffer, offset + (4 * offInc)) << 32);
-		rtn += (getSignedByte(byteBuffer, offset + (5 * offInc)) << 40);
-		rtn += (getSignedByte(byteBuffer, offset + (6 * offInc)) << 48);
-		rtn += (getSignedByte(byteBuffer, offset + (7 * offInc)) << 56);
+		rtn += ((long)getSignedByte(byteBuffer, offset + (4 * offInc)) << 32l);  
+		rtn += ((long)getSignedByte(byteBuffer, offset + (5 * offInc)) << 40l);
+		rtn += ((long)getSignedByte(byteBuffer, offset + (6 * offInc)) << 48l);
+		rtn += ((long)getSignedByte(byteBuffer, offset + (7 * offInc)) << 56l);
 
 		return toUnsignedBigInteger (rtn);
 	}

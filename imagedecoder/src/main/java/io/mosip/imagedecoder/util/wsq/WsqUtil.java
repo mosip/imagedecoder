@@ -1,7 +1,13 @@
 package io.mosip.imagedecoder.util.wsq;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_EMPTY;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_IDTYPE;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_SESSIONID;
+
+import java.text.MessageFormat;
+
+import io.mosip.kernel.core.logger.spi.Logger;
+import io.mosip.imagedecoder.logger.ImageDecoderLogger;
 
 import io.mosip.imagedecoder.constant.wsq.WsqConstant;
 import io.mosip.imagedecoder.constant.wsq.WsqErrorCode;
@@ -12,14 +18,30 @@ import io.mosip.imagedecoder.model.wsq.WsqTableDtt;
 import io.mosip.imagedecoder.model.wsq.WsqWavletTree;
 
 public class WsqUtil {
-	private static Logger LOGGER = LoggerFactory.getLogger(WsqUtil.class);
+	private static Logger logger = ImageDecoderLogger.getLogger(WsqUtil.class);
+
+	// Static variable reference of singleInstance of type Singleton
+	private static WsqUtil singleInstance = null;
+
+	private WsqUtil() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized WsqUtil getInstance() {
+		if (singleInstance == null)
+			singleInstance = new WsqUtil();
+
+		return singleInstance;
+	}
 
 	/******************************************************************/
 	/* This routine converts the unsigned char data to float. In the */
 	/* process it shifts and scales the data so the values range from */
 	/* +/- 128.0 This function returns on error. */
 	/******************************************************************/
-	public static int convertImage2Floats(float[] fImageData, /* output float image data */
+	@SuppressWarnings({ "java:S1659" })
+	public int convertImage2Floats(float[] fImageData, /* output float image data */
 			float[] mShift, /* shifting parameter */
 			float[] rScale, /* scaling parameter */
 			byte[] data, /* input signed byte data */
@@ -42,7 +64,8 @@ public class WsqUtil {
 				low = data[cnt] & 0xFF;
 			sum += data[cnt] & 0xFF;
 			if (sum < overflow) {
-				LOGGER.error(String.format("convertImage2Float: overflow at %d", cnt));
+				logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+						MessageFormat.format("convertImage2Float: overflow at {0}", cnt));
 				return (WsqErrorCode.IMAGE_DATA_OVERFLOW_WILL_READING.getErrorId());
 			}
 			overflow = sum;
@@ -59,10 +82,10 @@ public class WsqUtil {
 		else
 			rScale[0] = highDiff;
 
-		rScale[0] /= (float) 128.0;
+		rScale[0] /= 128.0f;
 
 		for (cnt = 0; cnt < numOfPixels; cnt++) {
-			fImageData[cnt] = ((float) (data[cnt] & 0xFF) - mShift[0]) / rScale[0];
+			fImageData[cnt] = ((data[cnt] & 0xFF) - mShift[0]) / rScale[0];
 		}
 		return (0);
 	}
@@ -70,7 +93,8 @@ public class WsqUtil {
 	/*********************************************************/
 	/* Routine to convert image from float to signed byte array. */
 	/*********************************************************/
-	public static void convertImage2Bytes(byte[] data, /* uchar image pointer */
+	@SuppressWarnings({ "java:S1659", "unused" })
+	public void convertImage2Bytes(byte[] data, /* uchar image pointer */
 			float[] img, /* image pointer */
 			int width, /* image width */
 			int height, /* image height */
@@ -100,8 +124,9 @@ public class WsqUtil {
 	/**********************************************************/
 	/* This routine calculates the variances of the subbands. */
 	/**********************************************************/
-	public static void variance(WsqQuantization quantValues, /* quantization parameters */
-			WsqQuantizationTree quantizationTree[], /* quantization "tree" */
+	@SuppressWarnings({ "java:S1659", "java:S3776" })
+	public void variance(WsqQuantization quantValues, /* quantization parameters */
+			WsqQuantizationTree[] quantizationTree, /* quantization "tree" */
 			int qTreeLen, /* length of quantizationTree */
 			float[] fImageData, /* image pointer */
 			int width, /* image width */
@@ -193,10 +218,11 @@ public class WsqUtil {
 	/************************************************/
 	/* This routine quantizes the wavelet subbands. */
 	/************************************************/
-	public static int quantize(short[] sip, /* quantized output init in calling function with width * height */
+	@SuppressWarnings({ "java:S107", "java:S117", "java:S1659", "java:S3776", "java:S6541", "unused" })
+	public int quantize(short[] sip, /* quantized output init in calling function with width * height */
 			int[] cmpSize, /* size of quantized output */
 			WsqQuantization quantValues, /* quantization parameters */
-			WsqQuantizationTree quantizationTree[], /* quantization "tree" */
+			WsqQuantizationTree[] quantizationTree, /* quantization "tree" */
 			int qTreeLen, /* size of quantizationTree */
 			float[] fImageData, /* floating point image pointer */
 			int width, /* image width */
@@ -257,7 +283,6 @@ public class WsqUtil {
 
 		/* Set up output buffer. */
 		// should be defined in calling function
-		// sip = new short[width * height];
 		sipIndex = 0;
 
 		/* Set up 'm' table (these values are the reciprocal of 'm' in */
@@ -341,7 +366,7 @@ public class WsqUtil {
 		nK = K1;
 		nK = new int[WsqConstant.NUM_SUBBANDS];
 		for (i = 0; i < K0len; i++) {
-			nK[K0[i]] = 1;// TRUE;
+			nK[K0[i]] = 1;
 		}
 		/* Set 'Q' values. */
 		for (cnt = 0; cnt < WsqConstant.NUM_SUBBANDS; cnt++) {
@@ -376,15 +401,16 @@ public class WsqUtil {
 			}
 		}
 
-		cmpSize[0] = (int) (sipIndex - sip.length);
+		cmpSize[0] = (sipIndex - sip.length);
 		return (0);
 	}
 
 	/************************************************************************/
 	/* Compute quantized WSQ subband block sizes. */
 	/************************************************************************/
-	public static void quantizedBlockSizes(int[] qSize1, int[] qSize2, int[] qSize3, WsqQuantization quantValues,
-			WsqWavletTree wavletTree[], int waveletTreeLen, WsqQuantizationTree quantizationTree[], int qTreeLen) {
+	@SuppressWarnings({ "java:S107", "java:S117", "java:S1659", "java:S3776", "java:S6541", "unused" })
+	public void quantizedBlockSizes(int[] qSize1, int[] qSize2, int[] qSize3, WsqQuantization quantValues,
+			WsqWavletTree[] wavletTree, int waveletTreeLen, WsqQuantizationTree[] quantizationTree, int qTreeLen) {
 		int nodeIndex;
 
 		/* Compute temporary sizes of 3 WSQ subband blocks. */
@@ -411,9 +437,10 @@ public class WsqUtil {
 	/*************************************/
 	/* Routine to unquantize image data. */
 	/*************************************/
-	public static int unquantize(float[] fImageData, /* floating point image pointer */
+	@SuppressWarnings({ "java:S107", "java:S1659", "java:S3776", "java:S6541" })
+	public int unquantize(float[] fImageData, /* floating point image pointer */
 			WsqTableDqt dqtTable, /* quantization table structure */
-			WsqQuantizationTree quantizationTree[], /* quantization table structure */
+			WsqQuantizationTree[] quantizationTree, /* quantization table structure */
 			int qTreeLen, /* size of quantizationTree */
 			long[] sip, /* quantized image pointer */
 			int width, /* image width */
@@ -426,7 +453,8 @@ public class WsqUtil {
 		int cnt; /* subband counter */
 
 		if (dqtTable.getDqtDef() != 1) {
-			LOGGER.error(String.format("unquantize : quantization table parameters not defined"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+					"unquantize : quantization table parameters not defined");
 			return (WsqErrorCode.QUANTIZATION_TABLE_PARAMS_NOT_DEFINED.getErrorId());
 		}
 
@@ -442,13 +470,14 @@ public class WsqUtil {
 					if (sip[spIndex] == 0)
 						fImageData[fpIndex] = 0.0f;
 					else if (sip[spIndex] > 0)
-						fImageData[fpIndex] = (float) ((dqtTable.getQBin()[cnt] * ((float) sip[spIndex] - qBinCenter))
+						fImageData[fpIndex] = (float) ((dqtTable.getQBin()[cnt] * (sip[spIndex] - qBinCenter))
 								+ (dqtTable.getZBin()[cnt] / 2.0));
 					else if (sip[spIndex] < 0)
-						fImageData[fpIndex] = (float) ((dqtTable.getQBin()[cnt] * ((float) sip[spIndex] + qBinCenter))
+						fImageData[fpIndex] = (float) ((dqtTable.getQBin()[cnt] * (sip[spIndex] + qBinCenter))
 								- (dqtTable.getZBin()[cnt] / 2.0));
 					else {
-						LOGGER.error(String.format("unquantize : invalid quantization pixel value"));
+						logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+								"unquantize : invalid quantization pixel value");
 						return (WsqErrorCode.INVALID_QUANTIZATION_PIXEL_VALUE.getErrorId());
 					}
 					fpIndex++;
@@ -464,8 +493,9 @@ public class WsqUtil {
 	/* WSQ decompose the image. NOTE: this routine modifies and returns */
 	/* the results in "fImageData". */
 	/************************************************************************/
-	public static int wsqDecompose(float[] fImageData, int width, int height, WsqWavletTree wavletTree[],
-			int waveletTreeLen, float[] highFilter, int highSize, float[] lowFilter, int lowSize) {
+	@SuppressWarnings({ "java:S107", "java:S1659" })
+	public int wsqDecompose(float[] fImageData, int width, int height, WsqWavletTree[] wavletTree, int waveletTreeLen,
+			float[] highFilter, int highSize, float[] lowFilter, int lowSize) {
 		int numOfPixels, nodeIndex;
 		float[] fImageDataTmp;
 		int fDataIndex;
@@ -490,7 +520,8 @@ public class WsqUtil {
 
 	/************************************************************/
 	/************************************************************/
-	public static void getLets(float[] newData, int newDataIndex, /* image pointers for creating subband splits */
+	@SuppressWarnings({ "java:S107", "java:S117", "java:S1659", "java:S1854", "java:S3776", "java:S6541" })
+	public void getLets(float[] newData, int newDataIndex, /* image pointers for creating subband splits */
 			float[] oldData, int oldDataIndex, int len1, /* temporary length parameters */
 			int len2, int pitch, /* pitch gives next row_col to filter */
 			int stride, /* stride gives next pixel to filter */
@@ -693,18 +724,21 @@ public class WsqUtil {
 	/* WSQ reconstructs the image. NOTE: this routine modifies and returns */
 	/* the results in "fImageData". */
 	/************************************************************************/
-	public static int wsqReconstruct(float[] fImageData, int width, int height, WsqWavletTree wavletTree[],
-			int waveletTreeLen, WsqTableDtt dttTable) {
+	@SuppressWarnings({ "java:S1659" })
+	public int wsqReconstruct(float[] fImageData, int width, int height, WsqWavletTree[] wavletTree, int waveletTreeLen,
+			WsqTableDtt dttTable) {
 		int numOfPixels, nodeIndex;
 		float[] fImageDataTmp;
 		int fdataIndex = 0;
 
 		if (dttTable.getLowDef() != 1) {
-			LOGGER.error(String.format("wsq_reconstruct : Lopass filter coefficients not defined"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+					"wsq_reconstruct : Lopass filter coefficients not defined");
 			return (WsqErrorCode.LOW_PASS_FILTER_COEFF_NOT_DEFINED.getErrorId());
 		}
 		if (dttTable.getHighDef() != 1) {
-			LOGGER.error(String.format("wsq_reconstruct : Hipass filter coefficients not defined"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+					"wsq_reconstruct : Hipass filter coefficients not defined");
 			return (WsqErrorCode.HIGH_PASS_FILTER_COEFF_NOT_DEFINED.getErrorId());
 		}
 
@@ -722,12 +756,12 @@ public class WsqUtil {
 					wavletTree[nodeIndex].getLenX(), width, 1, dttTable.getHighFilter(), dttTable.getHighSize(),
 					dttTable.getLowFilter(), dttTable.getLowSize(), wavletTree[nodeIndex].getInvRow());
 		}
-		fImageDataTmp = null;
 		return (0);
 	}
 
 	/****************************************************************/
-	public static void joinLets(float[] newData, int newDataIndex, /* image pointers for creating subband splits */
+	@SuppressWarnings({ "java:S107", "java:S117", "java:S1659", "java:S3776", "java:S6541" })
+	public void joinLets(float[] newData, int newDataIndex, /* image pointers for creating subband splits */
 			float[] oldData, int oldDataIndex, int len1, /* temporary length parameters */
 			int len2, int pitch, /* pitch gives next row_col to filter */
 			int stride, /* stride gives next pixel to filter */
@@ -921,7 +955,7 @@ public class WsqUtil {
 								if (asym != 0 && daEven != 0) {
 									hre = 1;
 									fhre--;
-									sfac = (float) fhre;
+									sfac = fhre;
 									if (sfac == 0.0f)
 										hre = 0;
 								}
@@ -1032,7 +1066,7 @@ public class WsqUtil {
 							if (asym != 0 && daEven != 0) {
 								hre = 1;
 								fhre--;
-								sfac = (float) fhre;
+								sfac = fhre;
 								if (sfac == 0.0)
 									hre = 0;
 							}
@@ -1058,7 +1092,8 @@ public class WsqUtil {
 	/*****************************************************/
 	/* Routine to execute an integer sign determination */
 	/*****************************************************/
-	public static int intSign(int power) /* "sign" power */ {
+	@SuppressWarnings({ "java:S1659" })
+	public int intSign(int power) /* "sign" power */ {
 		int cnt, num = -1; /* counter and sign return value */
 
 		if (power == 0)
@@ -1074,7 +1109,8 @@ public class WsqUtil {
 	/* Computes size of compressed image file including headers, */
 	/* tables, and parameters. */
 	/*************************************************************/
-	public static int imageSize(int blockLen, /* length of the compressed blocks */
+	@SuppressWarnings({ "java:S117", "java:S1659", "java:S3776" })
+	public int imageSize(int blockLen, /* length of the compressed blocks */
 			short[] huffBits1, /* huffman table parameters */
 			short[] huffBits2) {
 		int totalSize, cnt;
@@ -1105,7 +1141,7 @@ public class WsqUtil {
 	/*************************************************************/
 	/* Initializes memory used by the WSQ decoder. */
 	/*************************************************************/
-	public static void initWsqDecoderResources(WsqTableDtt dttTable) {
+	public void initWsqDecoderResources(WsqTableDtt dttTable) {
 		/* Init dymanically allocated members to NULL */
 		/* for proper memory management in: */
 		/* read_transform_table() */
@@ -1118,7 +1154,7 @@ public class WsqUtil {
 	/*************************************************************/
 	/* Deallocates memory used by the WSQ decoder. */
 	/*************************************************************/
-	public static void freeWsqDecoderResources(WsqTableDtt dttTable) {
+	public void freeWsqDecoderResources(WsqTableDtt dttTable) {
 		if (dttTable.getLowFilter() != null) {
 			dttTable.setLowFilter(null);
 		}
