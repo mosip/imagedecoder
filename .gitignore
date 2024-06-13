@@ -1,0 +1,6 @@
+/.metadata/
+.sonarlint/
+*/.classpath
+*/.gitignore
+*/.project
+*/.settings/
