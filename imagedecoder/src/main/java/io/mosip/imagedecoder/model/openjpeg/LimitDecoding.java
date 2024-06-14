@@ -18,6 +18,7 @@ public enum LimitDecoding {
 		this.value = value;
 	}
 
+	@SuppressWarnings({ "java:S1144" })
 	LimitDecoding(LimitDecoding value) {
 		this.value = value.value();
 	}

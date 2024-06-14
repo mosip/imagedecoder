@@ -29,7 +29,6 @@ public class DecompressionParameters {
 	private int cpLayer;
 
 	/** @name command line encoder parameters (not used inside the library) */
-	/* @{ */
 	/** input file name */
 	private char[] infile = new char[OpenJpegConstant.MAX_PATH_LEN];
 	/** output file name */
@@ -38,19 +37,14 @@ public class DecompressionParameters {
 	private int decodeFormat;
 	/** output file format 0: PGX, 1: PxM, 2: BMP */
 	private int codecFormat;
-	/* @} */
 
-	/* UniPG>> */
 	/** @name JPWL decoding parameters */
-	/* @{ */
 	/** activates the JPWL correction capabilities */
 	private int jpwlCorrect;
 	/** expected number of components */
 	private int jpwlExpComps;
 	/** maximum number of tiles */
 	private int jpwlMaxTiles;
-	/* @} */
-	/* <<UniPG */
 
 	/**
 	 * Specify whether the decoding should be done on the entire codestream, or be

@@ -1,32 +1,36 @@
 package io.mosip.imagedecoder.wsq;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_EMPTY;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_IDTYPE;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_SESSIONID;
 
 import io.mosip.imagedecoder.constant.wsq.WsqConstant;
 import io.mosip.imagedecoder.constant.wsq.WsqErrorCode;
+import io.mosip.imagedecoder.logger.ImageDecoderLogger;
 import io.mosip.imagedecoder.model.wsq.WsqHuffCode;
+import io.mosip.kernel.core.logger.spi.Logger;
 
 public class WsqHuffHelper {
-	private Logger LOGGER = LoggerFactory.getLogger(WsqHuffHelper.class);
+	private Logger logger = ImageDecoderLogger.getLogger(WsqHuffHelper.class);
 	// Static variable reference of singleInstance of type Singleton
-    private static WsqHuffHelper singleInstance = null;    
-    private WsqHuffHelper()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized WsqHuffHelper getInstance()
-	{ 
+	private static WsqHuffHelper singleInstance = null;
+
+	private WsqHuffHelper() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized WsqHuffHelper getInstance() {
 		if (singleInstance == null)
 			singleInstance = new WsqHuffHelper();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
+
 	/**************************************************************************/
 	/* This routine defines the huffman code sizes for each difference category */
 	/**************************************************************************/
+	@SuppressWarnings({ "java:S1172" })
 	public int buildHuffSizes(WsqHuffCode[] huffcodeTable, int[] tempSize, int[] huffBits, int maxHuffCounts) {
 		int codeSize; /* code sizes */
 		int numberOfCodes = 1; /* the number codes for a given code size */
@@ -46,13 +50,6 @@ public class WsqHuffHelper {
 		}
 		huffcodeTable[tempSize[0]].setSize(0);
 
-		/*
-		int ii;
-		
-		LOGGER.debug(String.format("In buildHuffSizes:"));
-		for (ii = 0; ii < maxHuffCounts + 1; ii++)
-			LOGGER.debug(String.format("huffcode size[%d] = %d", ii, huffcodeTable[ii].getSize()));
-		*/
 		return 0;
 	}
 
@@ -83,12 +80,12 @@ public class WsqHuffHelper {
 				tempSize++;
 			} while (huffcodeTable[hcTableIndex].getSize() != tempSize);
 		} while (huffcodeTable[hcTableIndex].getSize() == tempSize);
-		return;
 	}
 
 	/*********************************************/
 	/* checkWsqHuffCodes - Checks for an all 1's code in the code table. */
 	/*********************************************/
+	@SuppressWarnings({ "java:S1659", "java:S2589" })
 	public int checkWsqHuffCodes(WsqHuffCode[] hufftable, int lastSize) {
 		int i, k;
 		int allOnes;
@@ -98,8 +95,8 @@ public class WsqHuffHelper {
 			for (k = 0; (k < hufftable[i].getSize() && allOnes != 0); k++)
 				allOnes = (allOnes != 0 && (((hufftable[i].getCode() >> k) & 0x0001) != 0)) ? 1 : 0;
 			if (allOnes != 0) {
-				LOGGER.warn(String.format(
-						"A code in the hufftable contains an : all 1's code. This image may still be  decodable. It is not compliant with the WSQ specification."));
+				logger.warn(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, 
+						"A code in the hufftable contains an : all 1's code. This image may still be  decodable. It is not compliant with the WSQ specification.");
 				return (WsqErrorCode.NON_COMPLIANT_WITH_WSQ_SPECS.getErrorId());
 			}
 		}
@@ -109,6 +106,7 @@ public class WsqHuffHelper {
 	/*********************************************/
 	/* routine to generate tables needed to decode */
 	/*********************************************/
+	@SuppressWarnings("java:S1659")
 	public void generateDecodeTable(WsqHuffCode[] huffcodeTable, long[] maxCode, long[] minCode, int[] values,
 			int[] huffBits) {
 		int i, i2 = 0; /* increment variables */

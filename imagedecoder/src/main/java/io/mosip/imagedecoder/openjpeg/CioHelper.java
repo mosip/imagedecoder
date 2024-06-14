@@ -1,7 +1,7 @@
 package io.mosip.imagedecoder.openjpeg;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.mosip.kernel.core.logger.spi.Logger;
+import io.mosip.imagedecoder.logger.ImageDecoderLogger;
 
 import io.mosip.imagedecoder.constant.openjpeg.OpenJpegConstant;
 import io.mosip.imagedecoder.model.openjpeg.Cio;
@@ -10,24 +10,30 @@ import io.mosip.imagedecoder.model.openjpeg.CodingParameters;
 import io.mosip.imagedecoder.model.openjpeg.J2K;
 import io.mosip.imagedecoder.model.openjpeg.JP2;
 
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_SESSIONID;
+
+import java.text.MessageFormat;
+
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_EMPTY;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_IDTYPE;
+
 public class CioHelper {
-	private static Logger LOGGER = LoggerFactory.getLogger(CioHelper.class);
+	private static Logger logger = ImageDecoderLogger.getLogger(CioHelper.class);
 	// Static variable reference of singleInstance of type Singleton
-    private static CioHelper singleInstance = null;    
-    private CioHelper()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized CioHelper getInstance()
-	{ 
+	private static CioHelper singleInstance = null;
+
+	private CioHelper() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized CioHelper getInstance() {
 		if (singleInstance == null)
 			singleInstance = new CioHelper();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
-	
+
 	public Cio cioOpen(CodecContextInfo codecContextInfo, byte[] buffer, int length) {
 		CodingParameters codingParameters = null;
 		Cio cio = new Cio();
@@ -45,17 +51,16 @@ public class CioHelper {
 				codingParameters = ((J2K) codecContextInfo.getContextInfo().getJ2kHandle()).getCodingParameters();
 				break;
 			case CODEC_JP2:
-				codingParameters = ((JP2) codecContextInfo.getContextInfo().getJp2Handle()).getJ2k().getCodingParameters();
+				codingParameters = ((JP2) codecContextInfo.getContextInfo().getJp2Handle()).getJ2k()
+						.getCodingParameters();
 				break;
 			default:
-				cio = null;
 				return null;
 			}
 			/* 0.1625 = 1.3/8 and 2000 bytes as a minimum for headers */
 			cio.setLength((int) (0.1625 * codingParameters.getImageSize() + 2000));
 			cio.setBuffer(new byte[cio.getLength()]);
 		} else {
-			cio = null;
 			return null;
 		}
 
@@ -69,13 +74,9 @@ public class CioHelper {
 	}
 
 	public void cioClose(Cio cio) {
-		if (cio != null) {
-			if (cio.getOpenMode() == OpenJpegConstant.STREAM_WRITE) {
-				/* destroy the allocated buffer */
-				cio.setBuffer(null);
-			}
-			/* destroy the cio */
-			cio = null;
+		if (cio != null && cio.getOpenMode() == OpenJpegConstant.STREAM_WRITE) {
+			/* destroy the allocated buffer */
+			cio.setBuffer(null);
 		}
 	}
 
@@ -123,7 +124,8 @@ public class CioHelper {
 	 */
 	public int cioByteOut(Cio cio, byte value) {
 		if (cio.getBpIndex() >= cio.getEnd()) {
-			LOGGER.error(String.format("write error" + cio.getCodecContextInfo()));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+					MessageFormat.format("cioByteOut::write error{0}", cio.getCodecContextInfo()));
 			return 0;
 		}
 		cio.setBpIndex(cio.getBpIndex() + 1);
@@ -136,8 +138,9 @@ public class CioHelper {
 	 */
 	public byte cioByteIn(Cio cio) {
 		if (cio.getBpIndex() >= cio.getEnd()) {
-			LOGGER.error(String.format("read error: passed the end of the codestream (current = %d, end = %d)",
-					cio.getBpIndex(), cio.getEnd()));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+					MessageFormat.format("read error: passed the end of the codestream current = {0}, end = {1}",
+							cio.getBpIndex(), cio.getEnd()));
 			return 0;
 		}
 		cio.setBpIndex(cio.getBpIndex() + 1);
@@ -157,8 +160,8 @@ public class CioHelper {
 	}
 
 	/*
-	 * Read some bytes. noOfBytes : number of bytes to read return : value of the n bytes
-	 * read
+	 * Read some bytes. noOfBytes : number of bytes to read return : value of the n
+	 * bytes read
 	 */
 	public long cioRead(Cio cio, int noOfBytes) {
 		int i;

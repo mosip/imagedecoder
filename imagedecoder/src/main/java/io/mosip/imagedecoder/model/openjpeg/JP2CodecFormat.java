@@ -20,6 +20,7 @@ public enum JP2CodecFormat {
 		this.value = value;
 	}
 
+	@SuppressWarnings({ "java:S1144" })
 	JP2CodecFormat(JP2CodecFormat value) {
 		this.value = value.value();
 	}

@@ -12,29 +12,54 @@ import lombok.Setter;
  */
 public class Poc {
 	/** Resolution num start, Component num start, given by POC */
-	private int resNo0, compNo0;
+	private int resNo0;
+	private int compNo0;
 	/** Layer num end,Resolution num end, Component num end, given by POC */
-	private int layNo1, resNo1, compNo1;
+	private int layNo1;
+	private int resNo1;
+	private int compNo1;
 	/** Layer num start,Precinct num start, Precinct num end */
-	private int layNo0, precNo0, precNo1;
+	private int layNo0;
+	private int precNo0;
+	private int precNo1;
 	/** Progression order enum */
-	private ProgressionOrder progressionOrder, progressionOrder1;
+	private ProgressionOrder progressionOrder;
+	private ProgressionOrder progressionOrder1;
 	/** Progression order string */
 	private char[] progressionName = new char[5];
 	/** Tile number */
 	private int tile;
 	/** Start and end values for Tile width and height */
-	private int tX0, tX1, tY0, tY1;
+	private int tX0;
+	private int tX1;
+	private int tY0;
+	private int tY1;
 	/** Start value, initialised in piInitEncode */
-	private int layS, resS, compS, prcS;
+	private int layS;
+	private int resS;
+	private int compS;
+	private int prcS;
 	/** End value, initialised in piInitEncode */
-	private int layE, resE, compE, prcE;
+	private int layE;
+	private int resE;
+	private int compE;
+	private int prcE;
 	/**
 	 * Start and end values of Tile width and height, initialised in
 	 * piInitEncode
 	 */
-	private int tXS, tXE, tYS, tYE, dX, dY;
+	private int tXS;
+	private int tXE;
+	private int tYS;
+	private int tYE;
+	private int dX;
+	private int dY;
 	/** Temporary values for Tile parts, initialised in piCreateEncode */
-	private int layTmp, resTmp, compTmp, prcTmp, tx0Tmp, ty0Tmp;
+	private int layTmp;
+	private int resTmp;
+	private int compTmp;
+	private int prcTmp;
+	private int tx0Tmp;
+	private int ty0Tmp;
 }
 

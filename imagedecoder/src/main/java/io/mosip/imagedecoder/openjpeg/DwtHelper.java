@@ -1,6 +1,8 @@
 package io.mosip.imagedecoder.openjpeg;
 
+import io.mosip.imagedecoder.constant.DecoderErrorCodes;
 import io.mosip.imagedecoder.constant.openjpeg.OpenJpegConstant;
+import io.mosip.imagedecoder.exceptions.DecoderException;
 import io.mosip.imagedecoder.model.openjpeg.Dwt;
 import io.mosip.imagedecoder.model.openjpeg.DwtV4;
 import io.mosip.imagedecoder.model.openjpeg.StepSize;
@@ -13,25 +15,26 @@ import io.mosip.imagedecoder.util.openjpeg.MathUtil;
 // DWT - Helper Implementation of a discrete wavelet transform
 public class DwtHelper {
 	// Static variable reference of singleInstance of type Singleton
-    private static DwtHelper singleInstance = null;    
-    private DwtHelper()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized DwtHelper getInstance()
-	{ 
+	private static DwtHelper singleInstance = null;
+
+	private DwtHelper() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized DwtHelper getInstance() {
 		if (singleInstance == null)
 			singleInstance = new DwtHelper();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
-	
+
+	@SuppressWarnings("unused")
 	private int[] dwtWS(int i) {
 		return new int[i * 2];
 	}
 
+	@SuppressWarnings("unused")
 	private int[] dwtWD(int i) {
 		return new int[1 + (i) * 2];
 	}
@@ -149,6 +152,7 @@ public class DwtHelper {
 		return a[(1 + (index) * 2)];
 	}
 
+	@SuppressWarnings({ "unused" })
 	private int dwtS1(int[] a, int index, int dn, int sn) {
 		if (index < 0)
 			return dwtS(a, 0);
@@ -158,6 +162,7 @@ public class DwtHelper {
 			return dwtS(a, index);
 	}
 
+	@SuppressWarnings({ "unused" })
 	private double dwtSReal(double[] a, int index, int dn, int sn) {
 		if (index < 0)
 			return dwtSReal(a, 0);
@@ -167,6 +172,7 @@ public class DwtHelper {
 			return dwtSReal(a, index);
 	}
 
+	@SuppressWarnings({ "unused" })
 	private int dwtD1(int[] a, int index, int dn, int sn) {
 		if (index < 0)
 			return dwtD(a, 0);
@@ -176,6 +182,7 @@ public class DwtHelper {
 			return dwtD(a, index);
 	}
 
+	@SuppressWarnings({ "unused" })
 	private double dwtDReal(double[] a, int index, int dn, int sn) {
 		if (index < 0)
 			return dwtDReal(a, 0);
@@ -185,6 +192,7 @@ public class DwtHelper {
 			return dwtDReal(a, index);
 	}
 
+	@SuppressWarnings({ "unused" })
 	private int dwtSS1(int[] a, int index, int dn, int sn) {
 		if (index < 0)
 			return dwtS(a, 0);
@@ -194,6 +202,7 @@ public class DwtHelper {
 			return dwtS(a, index);
 	}
 
+	@SuppressWarnings({ "unused" })
 	private double dwtSS1Real(double[] a, int index, int dn, int sn) {
 		if (index < 0)
 			return dwtSReal(a, 0);
@@ -203,6 +212,7 @@ public class DwtHelper {
 			return dwtSReal(a, index);
 	}
 
+	@SuppressWarnings({ "unused" })
 	private int dwtDD1(int[] a, int index, int dn, int sn) {
 		if (index < 0)
 			return dwtD(a, 0);
@@ -212,6 +222,7 @@ public class DwtHelper {
 			return dwtD(a, index);
 	}
 
+	@SuppressWarnings({ "unused" })
 	private double dwtDD1Real(double[] a, int index, int dn, int sn) {
 		if (index < 0)
 			return dwtDReal(a, 0);
@@ -224,6 +235,7 @@ public class DwtHelper {
 	/* <summary> */
 	/* Forward 5-3 wavelet transform in 1-Dimension. */
 	/* </summary> */
+	@SuppressWarnings({ "java:S3776" })
 	private void dwtEncode1(int[] a, int dn, int sn, int cas) {
 		int i;
 
@@ -249,6 +261,7 @@ public class DwtHelper {
 	/* <summary> */
 	/* Inverse 5-3 wavelet transform in 1-Dimension. */
 	/* </summary> */
+	@SuppressWarnings({ "java:S1659", "java:S3776" })
 	private void dwtDecode11(int[] a, int dn, int sn, int cas) {
 		int i;
 
@@ -281,18 +294,23 @@ public class DwtHelper {
 	/* <summary> */
 	/* Forward 9-7 wavelet transform in 1-dimension. */
 	/* </summary> */
+	@SuppressWarnings({ "java:S3776" })
 	private void dwtEncode1Real(double[] a, int dn, int sn, int cas) {
 		int i;
 		if (cas == 0) {
 			if ((dn > 0) || (sn > 1)) { /* NEW : CASE ONE ELEMENT */
 				for (i = 0; i < dn; i++)
-					dwtDSetReal(a, i, dwtDReal(a, i) - fixMul(dwtSReal(a, i, dn, sn) + dwtSReal(a, i + 1, dn, sn), 12993));
+					dwtDSetReal(a, i,
+							dwtDReal(a, i) - fixMul(dwtSReal(a, i, dn, sn) + dwtSReal(a, i + 1, dn, sn), 12993));
 				for (i = 0; i < sn; i++)
-					dwtSSetReal(a, i, dwtSReal(a, i) - fixMul(dwtDReal(a, i - 1, dn, sn) + dwtDReal(a, i, dn, sn), 434));
+					dwtSSetReal(a, i,
+							dwtSReal(a, i) - fixMul(dwtDReal(a, i - 1, dn, sn) + dwtDReal(a, i, dn, sn), 434));
 				for (i = 0; i < dn; i++)
-					dwtDSetReal(a, i, dwtDReal(a, i) + fixMul(dwtSReal(a, i, dn, sn) + dwtSReal(a, i + 1, dn, sn), 7233));
+					dwtDSetReal(a, i,
+							dwtDReal(a, i) + fixMul(dwtSReal(a, i, dn, sn) + dwtSReal(a, i + 1, dn, sn), 7233));
 				for (i = 0; i < sn; i++)
-					dwtSSetReal(a, i, dwtSReal(a, i) + fixMul(dwtDReal(a, i - 1, dn, sn) + dwtDReal(a, i, dn, sn), 3633));
+					dwtSSetReal(a, i,
+							dwtSReal(a, i) + fixMul(dwtDReal(a, i - 1, dn, sn) + dwtDReal(a, i, dn, sn), 3633));
 				for (i = 0; i < dn; i++)
 					dwtDSetReal(a, i, fixMul(dwtDReal(a, i), 5038)); /* 5038 */
 				for (i = 0; i < sn; i++)
@@ -301,13 +319,17 @@ public class DwtHelper {
 		} else {
 			if ((sn > 0) || (dn > 1)) { /* NEW : CASE ONE ELEMENT */
 				for (i = 0; i < dn; i++)
-					dwtSSetReal(a, i, dwtSReal(a, i) - fixMul(dwtDD1Real(a, i, dn, sn) + dwtDD1Real(a, i - 1, dn, sn), 12993));
+					dwtSSetReal(a, i,
+							dwtSReal(a, i) - fixMul(dwtDD1Real(a, i, dn, sn) + dwtDD1Real(a, i - 1, dn, sn), 12993));
 				for (i = 0; i < sn; i++)
-					dwtDSetReal(a, i, dwtDReal(a, i) - fixMul(dwtSS1Real(a, i, dn, sn) + dwtSS1Real(a, i + 1, dn, sn), 434));
+					dwtDSetReal(a, i,
+							dwtDReal(a, i) - fixMul(dwtSS1Real(a, i, dn, sn) + dwtSS1Real(a, i + 1, dn, sn), 434));
 				for (i = 0; i < dn; i++)
-					dwtSSetReal(a, i, dwtSReal(a, i) + fixMul(dwtDD1Real(a, i, dn, sn) + dwtDD1Real(a, i - 1, dn, sn), 7233));
+					dwtSSetReal(a, i,
+							dwtSReal(a, i) + fixMul(dwtDD1Real(a, i, dn, sn) + dwtDD1Real(a, i - 1, dn, sn), 7233));
 				for (i = 0; i < sn; i++)
-					dwtDSetReal(a, i, dwtDReal(a, i) + fixMul(dwtSS1Real(a, i, dn, sn) + dwtSS1Real(a, i + 1, dn, sn), 3633));
+					dwtDSetReal(a, i,
+							dwtDReal(a, i) + fixMul(dwtSS1Real(a, i, dn, sn) + dwtSS1Real(a, i + 1, dn, sn), 3633));
 				for (i = 0; i < dn; i++)
 					dwtSSetReal(a, i, fixMul(dwtSReal(a, i), 5038)); /* 5038 */
 				for (i = 0; i < sn; i++)
@@ -316,10 +338,11 @@ public class DwtHelper {
 		}
 	}
 
+	@SuppressWarnings({ "java:S1659" })
 	private void dwtEncodeStepSize(int stepSize, int noOfBps, StepSize bandNoStepSize) {
 		int p, n;
-		p = MathUtil.intFloorLog2(stepSize) - 13;
-		n = 11 - MathUtil.intFloorLog2(stepSize);
+		p = MathUtil.getInstance().intFloorLog2(stepSize) - 13;
+		n = 11 - MathUtil.getInstance().intFloorLog2(stepSize);
 		bandNoStepSize.setMant((n < 0 ? stepSize >> -n : stepSize << n) & 0x7ff);
 		bandNoStepSize.setExpn(noOfBps - p);
 	}
@@ -327,6 +350,7 @@ public class DwtHelper {
 	/* <summary> */
 	/* Forward 5-3 wavelet transform in 2-dimension. */
 	/* </summary> */
+	@SuppressWarnings({ "java:S1659" })
 	public void dwtEncode(TcdTileComponent tilec) {
 		int i, j, k;
 		int aIndex = 0;
@@ -344,13 +368,13 @@ public class DwtHelper {
 			int rw1; /* width of the resolution level once lower than computed one */
 			int rh1; /* height of the resolution level once lower than computed one */
 			int casCol; /*
-							 * 0 = non inversion on horizontal filtering 1 = inversion between low-pass and
-							 * high-pass filtering
-							 */
+						 * 0 = non inversion on horizontal filtering 1 = inversion between low-pass and
+						 * high-pass filtering
+						 */
 			int casRow; /*
-							 * 0 = non inversion on vertical filtering 1 = inversion between low-pass and
-							 * high-pass filtering
-							 */
+						 * 0 = non inversion on vertical filtering 1 = inversion between low-pass and
+						 * high-pass filtering
+						 */
 			int dn, sn;
 
 			rw = tilec.getResolutions()[l - i].getX1() - tilec.getResolutions()[l - i].getX0();
@@ -371,7 +395,6 @@ public class DwtHelper {
 				dwtEncode1(bj, dn, sn, casCol);
 				dwtDeInterLeaveVertical(bj, tilec.getIData(), ajIndex, dn, sn, w, casCol);
 			}
-			bj = null;
 
 			sn = rw1;
 			dn = rw - rw1;
@@ -383,13 +406,13 @@ public class DwtHelper {
 				dwtEncode1(bj, dn, sn, casRow);
 				dwtInterLeaveHorizontal(bj, tilec.getIData(), ajIndex, dn, sn, casRow);
 			}
-			bj = null;
 		}
 	}
 
 	/* <summary> */
 	/* Inverse 5-3 wavelet transform in 2-dimension. */
 	/* </summary> */
+	@SuppressWarnings({ "java:S1192" })
 	public void dwtDecode(TcdTileComponent tilec, int numres) {
 		dwtDecodeTile(tilec, numres, "dwtDecode1");
 	}
@@ -416,6 +439,7 @@ public class DwtHelper {
 	/* Forward 9-7 wavelet transform in 2-dimension. */
 	/* </summary> */
 
+	@SuppressWarnings({ "java:S1659", "java:S3776" })
 	public void dwtEncodeReal(TcdTileComponent tilec) {
 		int i, j, k;
 		int aIndex = 0;
@@ -433,13 +457,13 @@ public class DwtHelper {
 			int rw1; /* width of the resolution level once lower than computed one */
 			int rh1; /* height of the resolution level once lower than computed one */
 			int casCol; /*
-							 * 0 = non inversion on horizontal filtering 1 = inversion between low-pass and
-							 * high-pass filtering
-							 */
+						 * 0 = non inversion on horizontal filtering 1 = inversion between low-pass and
+						 * high-pass filtering
+						 */
 			int casRow; /*
-							 * 0 = non inversion on vertical filtering 1 = inversion between low-pass and
-							 * high-pass filtering
-							 */
+						 * 0 = non inversion on vertical filtering 1 = inversion between low-pass and
+						 * high-pass filtering
+						 */
 			int dn, sn;
 
 			rw = tilec.getResolutions()[l - i].getX1() - tilec.getResolutions()[l - i].getX0();
@@ -460,7 +484,6 @@ public class DwtHelper {
 				dwtEncode1Real(bj, dn, sn, casCol);
 				dwtDeInterLeaveRealVertical(bj, tilec.getFData(), ajIndex, dn, sn, w, casCol);
 			}
-			bj = null;
 
 			sn = rw1;
 			dn = rw - rw1;
@@ -472,13 +495,13 @@ public class DwtHelper {
 				dwtEncode1Real(bj, dn, sn, casRow);
 				dwtInterLeaveRealHorizontal(bj, tilec.getFData(), ajIndex, dn, sn, casRow);
 			}
-			bj = null;
 		}
 	}
 
 	/* <summary> */
 	/* Get gain of 9-7 wavelet transform. */
 	/* </summary> */
+	@SuppressWarnings({ "java:S1172" })
 	public int dwtGetGainReal(int orient) {
 		return 0;
 	}
@@ -490,8 +513,10 @@ public class DwtHelper {
 		return OpenJpegConstant.DWT_NORMS_REAL[orient][level];
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S3358", "java:S3776" })
 	public void dwtCalcExplicitStepSizes(TileComponentCodingParameters tccp, int prec) {
-		int noOfBands, bandNo;
+		int noOfBands;
+		int bandNo;
 		noOfBands = 3 * tccp.getNoOfResolutions() - 2;
 		for (bandNo = 0; bandNo < noOfBands; bandNo++) {
 			double stepsize;
@@ -547,7 +572,6 @@ public class DwtHelper {
 		v.setMem(h.getMem());
 
 		while (--numres != 0) {
-			// int * restrict tiledp = tilec->data;
 			int j;
 
 			++trIndex;
@@ -584,8 +608,9 @@ public class DwtHelper {
 		h.setMem(null);
 	}
 
+	@SuppressWarnings({ "java:S135", "java:S1659", "java:S3776" })
 	private void dwtV4InterLeaveHorizontal(DwtV4 w, double[] a, int aIndex, int x, int size) {
-		int waveIndex = w.getCas(); 
+		int waveIndex = w.getCas();
 		int count = w.getSn();
 		int i, k;
 		for (k = 0; k < 2; ++k) {
@@ -613,7 +638,7 @@ public class DwtHelper {
 	}
 
 	private void dwtV4InterLeaveVertical(DwtV4 w, double[] a, int aIndex, int x) {
-		int biIndex = w.getCas(); 
+		int biIndex = w.getCas();
 		int i;
 		for (i = 0; i < w.getSn(); ++i) {
 			w.getWavelet()[biIndex + i * 2].getF()[0] = a[aIndex + (i * x) + 0];
@@ -649,22 +674,22 @@ public class DwtHelper {
 	private void dwtV4DecodeStep2(V4[] l, int flIndex, V4[] w, int fwIndex, int k, int m, double c) {
 		int i;
 		for (i = 0; i < m; ++i) {
-			double tmp1_1 = l[flIndex].getF()[0];
-			double tmp1_2 = l[flIndex].getF()[1];
-			double tmp1_3 = l[flIndex].getF()[2];
-			double tmp1_4 = l[flIndex].getF()[3];
-			double tmp2_1 = w[fwIndex - 1].getF()[0];
-			double tmp2_2 = w[fwIndex - 1].getF()[1];
-			double tmp2_3 = w[fwIndex - 1].getF()[2];
-			double tmp2_4 = w[fwIndex - 1].getF()[3];
-			double tmp3_1 = w[fwIndex].getF()[0];
-			double tmp3_2 = w[fwIndex].getF()[1];
-			double tmp3_3 = w[fwIndex].getF()[2];
-			double tmp3_4 = w[fwIndex].getF()[3];
-			w[fwIndex - 1].getF()[0] = tmp2_1 + ((tmp1_1 + tmp3_1) * c);
-			w[fwIndex - 1].getF()[1] = tmp2_2 + ((tmp1_2 + tmp3_2) * c);
-			w[fwIndex - 1].getF()[2] = tmp2_3 + ((tmp1_3 + tmp3_3) * c);
-			w[fwIndex - 1].getF()[3] = tmp2_4 + ((tmp1_4 + tmp3_4) * c);
+			double tmp1One = l[flIndex].getF()[0];
+			double tmp1Two = l[flIndex].getF()[1];
+			double tmp1Three = l[flIndex].getF()[2];
+			double tmp1Four = l[flIndex].getF()[3];
+			double tmp2One = w[fwIndex - 1].getF()[0];
+			double tmp2Two = w[fwIndex - 1].getF()[1];
+			double tmp2Three = w[fwIndex - 1].getF()[2];
+			double tmp2Four = w[fwIndex - 1].getF()[3];
+			double tmp3One = w[fwIndex].getF()[0];
+			double tmp3Two = w[fwIndex].getF()[1];
+			double tmp3Three = w[fwIndex].getF()[2];
+			double tmp3Four = w[fwIndex].getF()[3];
+			w[fwIndex - 1].getF()[0] = tmp2One + ((tmp1One + tmp3One) * c);
+			w[fwIndex - 1].getF()[1] = tmp2Two + ((tmp1Two + tmp3Two) * c);
+			w[fwIndex - 1].getF()[2] = tmp2Three + ((tmp1Three + tmp3Three) * c);
+			w[fwIndex - 1].getF()[3] = tmp2Four + ((tmp1Four + tmp3Four) * c);
 			flIndex = fwIndex;
 			fwIndex += 2;
 		}
@@ -692,7 +717,8 @@ public class DwtHelper {
 	/* Inverse 9-7 wavelet transform in 1-dimension. */
 	/* </summary> */
 	private void dwtV4Decode(DwtV4 dwt) {
-		int a, b;
+		int a;
+		int b;
 		if (dwt.getCas() == 0) {
 			if (!((dwt.getDn() > 0) || (dwt.getSn() > 1))) {
 				return;
@@ -709,18 +735,19 @@ public class DwtHelper {
 		dwtV4DecodeStep1(dwt.getWavelet(), a, dwt.getSn(), OpenJpegConstant.K);
 		dwtV4DecodeStep1(dwt.getWavelet(), b, dwt.getDn(), OpenJpegConstant.C13318);
 		dwtV4DecodeStep2(dwt.getWavelet(), b, dwt.getWavelet(), a + 1, dwt.getSn(),
-				MathUtil.intMin(dwt.getSn(), dwt.getDn() - a), OpenJpegConstant.DWT_DELTA);
+				MathUtil.getInstance().intMin(dwt.getSn(), dwt.getDn() - a), OpenJpegConstant.DWT_DELTA);
 		dwtV4DecodeStep2(dwt.getWavelet(), a, dwt.getWavelet(), b + 1, dwt.getDn(),
-				MathUtil.intMin(dwt.getDn(), dwt.getSn() - b), OpenJpegConstant.DWT_GAMMA);
+				MathUtil.getInstance().intMin(dwt.getDn(), dwt.getSn() - b), OpenJpegConstant.DWT_GAMMA);
 		dwtV4DecodeStep2(dwt.getWavelet(), b, dwt.getWavelet(), a + 1, dwt.getSn(),
-				MathUtil.intMin(dwt.getSn(), dwt.getDn() - a), OpenJpegConstant.DWT_BETA);
+				MathUtil.getInstance().intMin(dwt.getSn(), dwt.getDn() - a), OpenJpegConstant.DWT_BETA);
 		dwtV4DecodeStep2(dwt.getWavelet(), a, dwt.getWavelet(), b + 1, dwt.getDn(),
-				MathUtil.intMin(dwt.getDn(), dwt.getSn() - b), OpenJpegConstant.DWT_ALPHA);
+				MathUtil.getInstance().intMin(dwt.getDn(), dwt.getSn() - b), OpenJpegConstant.DWT_ALPHA);
 	}
 
 	/* <summary> */
 	/* Inverse 9-7 wavelet transform in 2-dimension. */
 	/* </summary> */
+	@SuppressWarnings({ "java:S3776", "java:S3923" })
 	public void dwtDecodeReal(TcdTileComponent tilec, int numres) {
 		DwtV4 h = new DwtV4(); /* DwtV4 horizontal */
 		DwtV4 v = new DwtV4(); /* DwtV4 vertical */
@@ -728,8 +755,10 @@ public class DwtHelper {
 		int resIndex = 0;
 		TcdResolution[] arrResolution = tilec.getResolutions();
 
-		int rw = arrResolution[resIndex].getX1() - arrResolution[resIndex].getX0(); /* width of the resolution level computed */
-		int rh = arrResolution[resIndex].getY1() - arrResolution[resIndex].getY0(); /* height of the resolution level computed */
+		int rw = arrResolution[resIndex].getX1()
+				- arrResolution[resIndex].getX0(); /* width of the resolution level computed */
+		int rh = arrResolution[resIndex].getY1()
+				- arrResolution[resIndex].getY0(); /* height of the resolution level computed */
 
 		int w = tilec.getX1() - tilec.getX0(); // width
 
@@ -740,7 +769,6 @@ public class DwtHelper {
 		v.setWavelet(h.getWavelet());
 
 		while (--numres != 0) {
-			// float * restrict aj = (float*) tilec->data;
 			int ajIndex = 0;
 			int bufsize = (tilec.getX1() - tilec.getX0()) * (tilec.getY1() - tilec.getY0());
 			int j;
@@ -750,8 +778,10 @@ public class DwtHelper {
 			h.setSn(rw);
 			v.setSn(rh);
 
-			rw = arrResolution[resIndex].getX1() - arrResolution[resIndex].getX0(); /* width of the resolution level computed */
-			rh = arrResolution[resIndex].getY1() - arrResolution[resIndex].getY0(); /* height of the resolution level computed */
+			rw = arrResolution[resIndex].getX1()
+					- arrResolution[resIndex].getX0(); /* width of the resolution level computed */
+			rh = arrResolution[resIndex].getY1()
+					- arrResolution[resIndex].getY0(); /* height of the resolution level computed */
 
 			h.setDn(rw - h.getSn());
 			h.setCas(arrResolution[resIndex].getX0() % 2);
@@ -773,10 +803,19 @@ public class DwtHelper {
 						switch (j) {
 						case 3:
 							tilec.getFData()[ajIndex + k + w * 2] = h.getWavelet()[k].getF()[2];
+							tilec.getFData()[ajIndex + k + w * 1] = h.getWavelet()[k].getF()[1];
+							tilec.getFData()[ajIndex + k + w * 0] = h.getWavelet()[k].getF()[0];
+							break;
 						case 2:
 							tilec.getFData()[ajIndex + k + w * 1] = h.getWavelet()[k].getF()[1];
+							tilec.getFData()[ajIndex + k + w * 0] = h.getWavelet()[k].getF()[0];
+							break;
 						case 1:
 							tilec.getFData()[ajIndex + k + w * 0] = h.getWavelet()[k].getF()[0];
+							break;
+						default:
+							throw new DecoderException(DecoderErrorCodes.UNSUPPORTED_FORMAT_ERROR.getErrorCode(),
+									DecoderErrorCodes.UNSUPPORTED_FORMAT_ERROR.getErrorMessage());
 						}
 					}
 				}
@@ -822,8 +861,9 @@ public class DwtHelper {
 	 * @param b
 	 * @return Returns a * b
 	 */
+	@SuppressWarnings("unused")
 	private int fixMul(int a, int b) {
-		long temp = a * b;
+		long temp = (a * b);
 		temp += temp & 4096;
 		return (int) (temp >> 13);
 	}

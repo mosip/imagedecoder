@@ -20,6 +20,7 @@ public enum Jp2ColorSpace {
 		this.value = value;
 	}
 
+	@SuppressWarnings({ "java:S1144"})
 	Jp2ColorSpace(Jp2ColorSpace value) {
 		this.value = value.value();
 	}

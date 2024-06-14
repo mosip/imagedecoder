@@ -1,9 +1,14 @@
 package io.mosip.imagedecoder.openjpeg;
 
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_EMPTY;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_IDTYPE;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_SESSIONID;
+
+import java.text.MessageFormat;
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.mosip.kernel.core.logger.spi.Logger;
+import io.mosip.imagedecoder.logger.ImageDecoderLogger;
 
 import io.mosip.imagedecoder.constant.openjpeg.OpenJpegConstant;
 import io.mosip.imagedecoder.model.openjpeg.CodeStreamInfo;
@@ -33,23 +38,22 @@ import io.mosip.imagedecoder.model.openjpeg.TileInfo;
 import io.mosip.imagedecoder.util.openjpeg.MathUtil;
 
 public class TcdHelper {
-	private Logger LOGGER = LoggerFactory.getLogger(TcdHelper.class);
+	private Logger logger = ImageDecoderLogger.getLogger(TcdHelper.class);
 	// Static variable reference of singleInstance of type Singleton
-    private static TcdHelper singleInstance = null;    
-    private TcdHelper()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized TcdHelper getInstance()
-	{ 
+	private static TcdHelper singleInstance = null;
+
+	private TcdHelper() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized TcdHelper getInstance() {
 		if (singleInstance == null)
 			singleInstance = new TcdHelper();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
-	
+
 	/**
 	 * Create a new TCD handle
 	 */
@@ -67,11 +71,11 @@ public class TcdHelper {
 	public void tcdDestroy(Tcd tcd) {
 		if (tcd != null) {
 			tcd.setTcdImage(null);
-			tcd = null;
 		}
 	}
 
 	/* ----------------------------------------------------------------------- */
+	@SuppressWarnings({ "java:S1659", "java:S1854", "java:S2184", "java:S3776", "java:S3358", "java:S6541", "unused" })
 	public void tcdMallocEncode(Tcd tcd, OpenJpegImage image, CodingParameters codingParameters, int currentTileNo) {
 		int tileNo, compNo, resNo, bandNo, precNo, codeBlockNo;
 
@@ -87,27 +91,31 @@ public class TcdHelper {
 
 			/* cfr p59 ISO/IEC FDIS15444-1 : 2000 (18 august 2000) */
 			int p = currentTileNo % codingParameters.getTileWidth(); /* si numerotation matricielle .. */
-			int q = currentTileNo / codingParameters.getTileWidth(); /* .. coordonnees de la tile (q,p) q pour ligne et p pour colonne */
+			int q = currentTileNo / codingParameters
+					.getTileWidth(); /* .. coordonnees de la tile (q,p) q pour ligne et p pour colonne */
 
 			TcdTile tile = tcd.getTcdImage().getTiles()[0];
 
 			/* 4 borders of the tile rescale on the image if necessary */
-			tile.setX0(MathUtil.intMax(codingParameters.getTileX0() + p * codingParameters.getTileDX(), image.getX0()));
-			tile.setY0(MathUtil.intMax(codingParameters.getTileY0() + q * codingParameters.getTileDY(), image.getY0()));
-			tile.setX1(MathUtil.intMin(codingParameters.getTileX0() + (p + 1) * codingParameters.getTileDX(), image.getX1()));
-			tile.setY1(MathUtil.intMin(codingParameters.getTileY0() + (q + 1) * codingParameters.getTileDY(), image.getY1()));
+			tile.setX0(MathUtil.getInstance().intMax(codingParameters.getTileX0() + p * codingParameters.getTileDX(),
+					image.getX0()));
+			tile.setY0(MathUtil.getInstance().intMax(codingParameters.getTileY0() + q * codingParameters.getTileDY(),
+					image.getY0()));
+			tile.setX1(MathUtil.getInstance()
+					.intMin(codingParameters.getTileX0() + (p + 1) * codingParameters.getTileDX(), image.getX1()));
+			tile.setY1(MathUtil.getInstance()
+					.intMin(codingParameters.getTileY0() + (q + 1) * codingParameters.getTileDY(), image.getY1()));
 			tile.setNoOfComps(image.getNoOfComps());
-			/* tile->PPT=image->PPT; */
 
 			/* Modification of the RATE >> */
 			for (j = 0; j < tcp.getNoOfLayers(); j++) {
 				tcp.getRates()[j] = tcp.getRates()[j] != 0 ? codingParameters.getTilePartOn() != 0
-						? (((float) (tile.getNoOfComps() * (tile.getX1() - tile.getX0()) * (tile.getY1() - tile.getY0())
-								* image.getComps()[0].getPrec()))
+						? ((tile.getNoOfComps() * (tile.getX1() - tile.getX0()) * (tile.getY1() - tile.getY0())
+								* image.getComps()[0].getPrec())
 								/ (tcp.getRates()[j] * 8 * image.getComps()[0].getDX() * image.getComps()[0].getDY()))
 								- (((tcd.getCurTotalNoOfTileParts() - 1) * 14) / tcp.getNoOfLayers())
-						: ((float) (tile.getNoOfComps() * (tile.getX1() - tile.getX0()) * (tile.getY1() - tile.getY0())
-								* image.getComps()[0].getPrec()))
+						: (tile.getNoOfComps() * (tile.getX1() - tile.getX0()) * (tile.getY1() - tile.getY0())
+								* image.getComps()[0].getPrec())
 								/ (tcp.getRates()[j] * 8 * image.getComps()[0].getDX() * image.getComps()[0].getDY())
 						: 0;
 
@@ -134,10 +142,10 @@ public class TcdHelper {
 				TcdTileComponent tilec = tile.getComps()[compNo];
 
 				/* border of each tile component (global) */
-				tilec.setX0(MathUtil.intCeilDiv(tile.getX0(), image.getComps()[compNo].getDX()));
-				tilec.setY0(MathUtil.intCeilDiv(tile.getY0(), image.getComps()[compNo].getDY()));
-				tilec.setX1(MathUtil.intCeilDiv(tile.getX1(), image.getComps()[compNo].getDX()));
-				tilec.setY1(MathUtil.intCeilDiv(tile.getY1(), image.getComps()[compNo].getDY()));
+				tilec.setX0(MathUtil.getInstance().intCeilDiv(tile.getX0(), image.getComps()[compNo].getDX()));
+				tilec.setY0(MathUtil.getInstance().intCeilDiv(tile.getY0(), image.getComps()[compNo].getDY()));
+				tilec.setX1(MathUtil.getInstance().intCeilDiv(tile.getX1(), image.getComps()[compNo].getDX()));
+				tilec.setY1(MathUtil.getInstance().intCeilDiv(tile.getY1(), image.getComps()[compNo].getDY()));
 
 				tilec.setIData(new int[(tilec.getX1() - tilec.getX0()) * (tilec.getY1() - tilec.getY0())]);
 				tilec.setFData(new double[(tilec.getX1() - tilec.getX0()) * (tilec.getY1() - tilec.getY0())]);
@@ -155,10 +163,10 @@ public class TcdHelper {
 					TcdResolution res = tilec.getResolutions()[resNo];
 
 					/* border for each resolution level (global) */
-					res.setX0(MathUtil.intCeilDivPow2(tilec.getX0(), levelno));
-					res.setY0(MathUtil.intCeilDivPow2(tilec.getY0(), levelno));
-					res.setX1(MathUtil.intCeilDivPow2(tilec.getX1(), levelno));
-					res.setY1(MathUtil.intCeilDivPow2(tilec.getY1(), levelno));
+					res.setX0(MathUtil.getInstance().intCeilDivPow2(tilec.getX0(), levelno));
+					res.setY0(MathUtil.getInstance().intCeilDivPow2(tilec.getY0(), levelno));
+					res.setX1(MathUtil.getInstance().intCeilDivPow2(tilec.getX1(), levelno));
+					res.setY1(MathUtil.getInstance().intCeilDivPow2(tilec.getY1(), levelno));
 
 					res.setNoOfBands(resNo == 0 ? 1 : 3);
 					/* p. 35, table A-23, ISO/IEC FDIS154444-1 : 2000 (18 august 2000) */
@@ -170,11 +178,11 @@ public class TcdHelper {
 						pdy = 15;
 					}
 					/* p. 64, B.6, ISO/IEC FDIS15444-1 : 2000 (18 august 2000) */
-					tlprcxStart = MathUtil.intFloorDivPow2(res.getX0(), pdx) << pdx;
-					tlprcyStart = MathUtil.intFloorDivPow2(res.getY0(), pdy) << pdy;
+					tlprcxStart = MathUtil.getInstance().intFloorDivPow2(res.getX0(), pdx) << pdx;
+					tlprcyStart = MathUtil.getInstance().intFloorDivPow2(res.getY0(), pdy) << pdy;
 
-					brprcxEnd = MathUtil.intCeilDivPow2(res.getX1(), pdx) << pdx;
-					brprcyEnd = MathUtil.intCeilDivPow2(res.getY1(), pdy) << pdy;
+					brprcxEnd = MathUtil.getInstance().intCeilDivPow2(res.getX1(), pdx) << pdx;
+					brprcyEnd = MathUtil.getInstance().intCeilDivPow2(res.getY1(), pdy) << pdy;
 
 					res.setPWidth((brprcxEnd - tlprcxStart) >> pdx);
 					res.setPHeight((brprcyEnd - tlprcyStart) >> pdy);
@@ -187,16 +195,16 @@ public class TcdHelper {
 						cbgwidthexpn = pdx;
 						cbgheightexpn = pdy;
 					} else {
-						tlcbgxStart = MathUtil.intCeilDivPow2(tlprcxStart, 1);
-						tlcbgyStart = MathUtil.intCeilDivPow2(tlprcyStart, 1);
-						brcbgxEnd = MathUtil.intCeilDivPow2(brprcxEnd, 1);
-						brcbgyEnd = MathUtil.intCeilDivPow2(brprcyEnd, 1);
+						tlcbgxStart = MathUtil.getInstance().intCeilDivPow2(tlprcxStart, 1);
+						tlcbgyStart = MathUtil.getInstance().intCeilDivPow2(tlprcyStart, 1);
+						brcbgxEnd = MathUtil.getInstance().intCeilDivPow2(brprcxEnd, 1);
+						brcbgyEnd = MathUtil.getInstance().intCeilDivPow2(brprcyEnd, 1);
 						cbgwidthexpn = pdx - 1;
 						cbgheightexpn = pdy - 1;
 					}
 
-					cblkwidthexpn = MathUtil.intMin(tccp.getCodeBlockWidth(), cbgwidthexpn);
-					cblkheightexpn = MathUtil.intMin(tccp.getCodeBlockHeight(), cbgheightexpn);
+					cblkwidthexpn = MathUtil.getInstance().intMin(tccp.getCodeBlockWidth(), cbgwidthexpn);
+					cblkheightexpn = MathUtil.getInstance().intMin(tccp.getCodeBlockHeight(), cbgheightexpn);
 
 					for (bandNo = 0; bandNo < res.getNoOfBands(); bandNo++) {
 						int x0b, y0b, i;
@@ -211,16 +219,20 @@ public class TcdHelper {
 
 						if (band.getBandNo() == 0) {
 							/* band border (global) */
-							band.setX0(MathUtil.intCeilDivPow2(tilec.getX0(), levelno));
-							band.setY0(MathUtil.intCeilDivPow2(tilec.getY0(), levelno));
-							band.setX1(MathUtil.intCeilDivPow2(tilec.getX1(), levelno));
-							band.setY1(MathUtil.intCeilDivPow2(tilec.getY1(), levelno));
+							band.setX0(MathUtil.getInstance().intCeilDivPow2(tilec.getX0(), levelno));
+							band.setY0(MathUtil.getInstance().intCeilDivPow2(tilec.getY0(), levelno));
+							band.setX1(MathUtil.getInstance().intCeilDivPow2(tilec.getX1(), levelno));
+							band.setY1(MathUtil.getInstance().intCeilDivPow2(tilec.getY1(), levelno));
 						} else {
 							/* band border (global) */
-							band.setX0(MathUtil.intCeilDivPow2(tilec.getX0() - (1 << levelno) * x0b, levelno + 1));
-							band.setY0(MathUtil.intCeilDivPow2(tilec.getY0() - (1 << levelno) * y0b, levelno + 1));
-							band.setX1(MathUtil.intCeilDivPow2(tilec.getX1() - (1 << levelno) * x0b, levelno + 1));
-							band.setY1(MathUtil.intCeilDivPow2(tilec.getY1() - (1 << levelno) * y0b, levelno + 1));
+							band.setX0(MathUtil.getInstance().intCeilDivPow2(tilec.getX0() - (1 << levelno) * x0b,
+									levelno + 1));
+							band.setY0(MathUtil.getInstance().intCeilDivPow2(tilec.getY0() - (1 << levelno) * y0b,
+									levelno + 1));
+							band.setX1(MathUtil.getInstance().intCeilDivPow2(tilec.getX1() - (1 << levelno) * x0b,
+									levelno + 1));
+							band.setY1(MathUtil.getInstance().intCeilDivPow2(tilec.getY1() - (1 << levelno) * y0b,
+									levelno + 1));
 						}
 
 						ss = tccp.getStepsizes()[resNo == 0 ? 0 : 3 * (resNo - 1) + bandNo + 1];
@@ -250,15 +262,19 @@ public class TcdHelper {
 							TcdPrecinct prc = band.getPrecincts()[precNo];
 
 							/* precinct size (global) */
-							prc.setX0(MathUtil.intMax(cbgxStart, band.getX0()));
-							prc.setY0(MathUtil.intMax(cbgyStart, band.getY0()));
-							prc.setX1(MathUtil.intMin(cbgxEnd, band.getX1()));
-							prc.setY1(MathUtil.intMin(cbgyEnd, band.getY1()));
+							prc.setX0(MathUtil.getInstance().intMax(cbgxStart, band.getX0()));
+							prc.setY0(MathUtil.getInstance().intMax(cbgyStart, band.getY0()));
+							prc.setX1(MathUtil.getInstance().intMin(cbgxEnd, band.getX1()));
+							prc.setY1(MathUtil.getInstance().intMin(cbgyEnd, band.getY1()));
 
-							tlcblkxStart = MathUtil.intFloorDivPow2(prc.getX0(), cblkwidthexpn) << cblkwidthexpn;
-							tlcblkyStart = MathUtil.intFloorDivPow2(prc.getY0(), cblkheightexpn) << cblkheightexpn;
-							brcblkxEnd = MathUtil.intCeilDivPow2(prc.getX1(), cblkwidthexpn) << cblkwidthexpn;
-							brcblkyEnd = MathUtil.intCeilDivPow2(prc.getY1(), cblkheightexpn) << cblkheightexpn;
+							tlcblkxStart = MathUtil.getInstance().intFloorDivPow2(prc.getX0(),
+									cblkwidthexpn) << cblkwidthexpn;
+							tlcblkyStart = MathUtil.getInstance().intFloorDivPow2(prc.getY0(),
+									cblkheightexpn) << cblkheightexpn;
+							brcblkxEnd = MathUtil.getInstance().intCeilDivPow2(prc.getX1(),
+									cblkwidthexpn) << cblkwidthexpn;
+							brcblkyEnd = MathUtil.getInstance().intCeilDivPow2(prc.getY1(),
+									cblkheightexpn) << cblkheightexpn;
 							prc.setCWidth((brcblkxEnd - tlcblkxStart) >> cblkwidthexpn);
 							prc.setCHeight((brcblkyEnd - tlcblkyStart) >> cblkheightexpn);
 
@@ -277,15 +293,15 @@ public class TcdHelper {
 								TcdCodeBlockEncoder cblk = prc.getTcdCodeBlockEncoder()[codeBlockNo];
 
 								/* code-block size (global) */
-								cblk.setX0(MathUtil.intMax(cblkxStart, prc.getX0()));
-								cblk.setY0(MathUtil.intMax(cblkyStart, prc.getY0()));
-								cblk.setX1(MathUtil.intMin(cblkxEnd, prc.getX1()));
-								cblk.setY1(MathUtil.intMin(cblkyEnd, prc.getY1()));
+								cblk.setX0(MathUtil.getInstance().intMax(cblkxStart, prc.getX0()));
+								cblk.setY0(MathUtil.getInstance().intMax(cblkyStart, prc.getY0()));
+								cblk.setX1(MathUtil.getInstance().intMin(cblkxEnd, prc.getX1()));
+								cblk.setY1(MathUtil.getInstance().intMin(cblkyEnd, prc.getY1()));
 
 								cblk.setData(new byte[8192 + 2]);
 								/*
-								 * FIXME: mqcInitEncode and mqc_byteout underrun the buffer if we don't do this.
-								 * Why?
+								 * FIX ME: mqcInitEncode and mqc_byteout underrun the buffer if we don't do
+								 * this. Why?
 								 */
 								cblk.setDataIndex(cblk.getDataIndex() + 2);
 								cblk.setLayers(new TcdLayer[100]);
@@ -296,10 +312,9 @@ public class TcdHelper {
 				}
 			}
 		}
-
-		/* tcd_dump(stdout, tcd, &tcd->tcdImage); */
 	}
 
+	@SuppressWarnings({ "java:S125", "java:S1659", "java:S3776" })
 	public void tcdFreeEncode(Tcd tcd) {
 		int tileNo, compNo, resNo, bandNo, precNo, codeBlockNo;
 
@@ -343,6 +358,7 @@ public class TcdHelper {
 		tcd.getTcdImage().setTiles(null);
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:1854", "java:S3358", "java:S3776", "java:S6541", "unused" })
 	public void tcdInitEncode(Tcd tcd, OpenJpegImage image, CodingParameters codingParameters, int currentTileNo) {
 		int tileNo, compNo, resNo, bandNo, precNo, codeBlockNo;
 
@@ -356,23 +372,26 @@ public class TcdHelper {
 			TcdTile tile = tcd.getTcdImage().getTiles()[0];
 
 			/* 4 borders of the tile rescale on the image if necessary */
-			tile.setX0(MathUtil.intMax(codingParameters.getTileX0() + p * codingParameters.getTileDX(), image.getX0()));
-			tile.setY0(MathUtil.intMax(codingParameters.getTileY0() + q * codingParameters.getTileDY(), image.getY0()));
-			tile.setX1(MathUtil.intMin(codingParameters.getTileX0() + (p + 1) * codingParameters.getTileDX(), image.getX1()));
-			tile.setY1(MathUtil.intMin(codingParameters.getTileY0() + (q + 1) * codingParameters.getTileDY(), image.getY1()));
+			tile.setX0(MathUtil.getInstance().intMax(codingParameters.getTileX0() + p * codingParameters.getTileDX(),
+					image.getX0()));
+			tile.setY0(MathUtil.getInstance().intMax(codingParameters.getTileY0() + q * codingParameters.getTileDY(),
+					image.getY0()));
+			tile.setX1(MathUtil.getInstance()
+					.intMin(codingParameters.getTileX0() + (p + 1) * codingParameters.getTileDX(), image.getX1()));
+			tile.setY1(MathUtil.getInstance()
+					.intMin(codingParameters.getTileY0() + (q + 1) * codingParameters.getTileDY(), image.getY1()));
 
 			tile.setNoOfComps(image.getNoOfComps());
-			/* tile->PPT=image->PPT; */
 
 			/* Modification of the RATE >> */
 			for (j = 0; j < tcp.getNoOfLayers(); j++) {
 				tcp.getRates()[j] = tcp.getRates()[j] != 0 ? codingParameters.getTilePartOn() != 0
-						? (((float) (tile.getNoOfComps() * (tile.getX1() - tile.getX0()) * (tile.getY1() - tile.getY0())
-								* image.getComps()[0].getPrec()))
-								/ (tcp.getRates()[j] * 8 * image.getComps()[0].getDX() * image.getComps()[0].getDY()))
-								- (((tcd.getCurTotalNoOfTileParts() - 1) * 14) / tcp.getNoOfLayers())
-						: ((float) (tile.getNoOfComps() * (tile.getX1() - tile.getX0()) * (tile.getY1() - tile.getY0())
-								* image.getComps()[0].getPrec()))
+						? (tile.getNoOfComps() * (tile.getX1() - tile.getX0()) * (tile.getY1() - tile.getY0())
+								* image.getComps()[0].getPrec())
+								/ (tcp.getRates()[j] * 8f * image.getComps()[0].getDX() * image.getComps()[0].getDY())
+								- (((tcd.getCurTotalNoOfTileParts() - 1) * 14f) / tcp.getNoOfLayers())
+						: (tile.getNoOfComps() * (tile.getX1() - tile.getX0()) * (tile.getY1() - tile.getY0())
+								* image.getComps()[0].getPrec())
 								/ (tcp.getRates()[j] * 8 * image.getComps()[0].getDX() * image.getComps()[0].getDY())
 						: 0;
 
@@ -392,10 +411,10 @@ public class TcdHelper {
 				TcdTileComponent tilec = tile.getComps()[compNo];
 
 				/* border of each tile component (global) */
-				tilec.setX0(MathUtil.intCeilDiv(tile.getX0(), image.getComps()[compNo].getDX()));
-				tilec.setY0(MathUtil.intCeilDiv(tile.getY0(), image.getComps()[compNo].getDY()));
-				tilec.setX1(MathUtil.intCeilDiv(tile.getX1(), image.getComps()[compNo].getDX()));
-				tilec.setY1(MathUtil.intCeilDiv(tile.getY1(), image.getComps()[compNo].getDY()));
+				tilec.setX0(MathUtil.getInstance().intCeilDiv(tile.getX0(), image.getComps()[compNo].getDX()));
+				tilec.setY0(MathUtil.getInstance().intCeilDiv(tile.getY0(), image.getComps()[compNo].getDY()));
+				tilec.setX1(MathUtil.getInstance().intCeilDiv(tile.getX1(), image.getComps()[compNo].getDX()));
+				tilec.setY1(MathUtil.getInstance().intCeilDiv(tile.getY1(), image.getComps()[compNo].getDY()));
 
 				tilec.setIData(new int[(tilec.getX1() - tilec.getX0()) * (tilec.getY1() - tilec.getY0())]);
 				tilec.setFData(new double[(tilec.getX1() - tilec.getX0()) * (tilec.getY1() - tilec.getY0())]);
@@ -412,10 +431,10 @@ public class TcdHelper {
 					TcdResolution res = tilec.getResolutions()[resNo];
 
 					/* border for each resolution level (global) */
-					res.setX0(MathUtil.intCeilDivPow2(tilec.getX0(), levelno));
-					res.setY0(MathUtil.intCeilDivPow2(tilec.getY0(), levelno));
-					res.setX1(MathUtil.intCeilDivPow2(tilec.getX1(), levelno));
-					res.setY1(MathUtil.intCeilDivPow2(tilec.getY1(), levelno));
+					res.setX0(MathUtil.getInstance().intCeilDivPow2(tilec.getX0(), levelno));
+					res.setY0(MathUtil.getInstance().intCeilDivPow2(tilec.getY0(), levelno));
+					res.setX1(MathUtil.getInstance().intCeilDivPow2(tilec.getX1(), levelno));
+					res.setY1(MathUtil.getInstance().intCeilDivPow2(tilec.getY1(), levelno));
 					res.setNoOfBands(resNo == 0 ? 1 : 3);
 
 					/* p. 35, table A-23, ISO/IEC FDIS154444-1 : 2000 (18 august 2000) */
@@ -427,10 +446,10 @@ public class TcdHelper {
 						pdy = 15;
 					}
 					/* p. 64, B.6, ISO/IEC FDIS15444-1 : 2000 (18 august 2000) */
-					tlprcxStart = MathUtil.intFloorDivPow2(res.getX0(), pdx) << pdx;
-					tlprcyStart = MathUtil.intFloorDivPow2(res.getY0(), pdy) << pdy;
-					brprcxEnd = MathUtil.intCeilDivPow2(res.getX1(), pdx) << pdx;
-					brprcyEnd = MathUtil.intCeilDivPow2(res.getY1(), pdy) << pdy;
+					tlprcxStart = MathUtil.getInstance().intFloorDivPow2(res.getX0(), pdx) << pdx;
+					tlprcyStart = MathUtil.getInstance().intFloorDivPow2(res.getY0(), pdy) << pdy;
+					brprcxEnd = MathUtil.getInstance().intCeilDivPow2(res.getX1(), pdx) << pdx;
+					brprcyEnd = MathUtil.getInstance().intCeilDivPow2(res.getY1(), pdy) << pdy;
 
 					res.setPWidth((brprcxEnd - tlprcxStart) >> pdx);
 					res.setPHeight((brprcyEnd - tlprcyStart) >> pdy);
@@ -443,16 +462,16 @@ public class TcdHelper {
 						cbgwidthexpn = pdx;
 						cbgheightexpn = pdy;
 					} else {
-						tlcbgxStart = MathUtil.intCeilDivPow2(tlprcxStart, 1);
-						tlcbgyStart = MathUtil.intCeilDivPow2(tlprcyStart, 1);
-						brcbgxEnd = MathUtil.intCeilDivPow2(brprcxEnd, 1);
-						brcbgyEnd = MathUtil.intCeilDivPow2(brprcyEnd, 1);
+						tlcbgxStart = MathUtil.getInstance().intCeilDivPow2(tlprcxStart, 1);
+						tlcbgyStart = MathUtil.getInstance().intCeilDivPow2(tlprcyStart, 1);
+						brcbgxEnd = MathUtil.getInstance().intCeilDivPow2(brprcxEnd, 1);
+						brcbgyEnd = MathUtil.getInstance().intCeilDivPow2(brprcyEnd, 1);
 						cbgwidthexpn = pdx - 1;
 						cbgheightexpn = pdy - 1;
 					}
 
-					cblkwidthexpn = MathUtil.intMin(tccp.getCodeBlockWidth(), cbgwidthexpn);
-					cblkheightexpn = MathUtil.intMin(tccp.getCodeBlockHeight(), cbgheightexpn);
+					cblkwidthexpn = MathUtil.getInstance().intMin(tccp.getCodeBlockWidth(), cbgwidthexpn);
+					cblkheightexpn = MathUtil.getInstance().intMin(tccp.getCodeBlockHeight(), cbgheightexpn);
 
 					for (bandNo = 0; bandNo < res.getNoOfBands(); bandNo++) {
 						int x0b, y0b;
@@ -467,15 +486,19 @@ public class TcdHelper {
 
 						if (band.getBandNo() == 0) {
 							/* band border */
-							band.setX0(MathUtil.intCeilDivPow2(tilec.getX0(), levelno));
-							band.setY0(MathUtil.intCeilDivPow2(tilec.getY0(), levelno));
-							band.setX1(MathUtil.intCeilDivPow2(tilec.getX1(), levelno));
-							band.setY1(MathUtil.intCeilDivPow2(tilec.getY1(), levelno));
+							band.setX0(MathUtil.getInstance().intCeilDivPow2(tilec.getX0(), levelno));
+							band.setY0(MathUtil.getInstance().intCeilDivPow2(tilec.getY0(), levelno));
+							band.setX1(MathUtil.getInstance().intCeilDivPow2(tilec.getX1(), levelno));
+							band.setY1(MathUtil.getInstance().intCeilDivPow2(tilec.getY1(), levelno));
 						} else {
-							band.setX0(MathUtil.intCeilDivPow2(tilec.getX0() - (1 << levelno) * x0b, levelno + 1));
-							band.setY0(MathUtil.intCeilDivPow2(tilec.getY0() - (1 << levelno) * y0b, levelno + 1));
-							band.setX1(MathUtil.intCeilDivPow2(tilec.getX1() - (1 << levelno) * x0b, levelno + 1));
-							band.setY1(MathUtil.intCeilDivPow2(tilec.getY1() - (1 << levelno) * y0b, levelno + 1));
+							band.setX0(MathUtil.getInstance().intCeilDivPow2(tilec.getX0() - (1 << levelno) * x0b,
+									levelno + 1));
+							band.setY0(MathUtil.getInstance().intCeilDivPow2(tilec.getY0() - (1 << levelno) * y0b,
+									levelno + 1));
+							band.setX1(MathUtil.getInstance().intCeilDivPow2(tilec.getX1() - (1 << levelno) * x0b,
+									levelno + 1));
+							band.setY1(MathUtil.getInstance().intCeilDivPow2(tilec.getY1() - (1 << levelno) * y0b,
+									levelno + 1));
 						}
 
 						ss = tccp.getStepsizes()[resNo == 0 ? 0 : 3 * (resNo - 1) + bandNo + 1];
@@ -483,7 +506,7 @@ public class TcdHelper {
 								: DwtHelper.getInstance().dwtGetGain(band.getBandNo());
 						noOfBps = image.getComps()[compNo].getPrec() + gain;
 						band.setStepSize(
-								(float) ((1.0 + ss.getMant() / 2048.0) * Math.pow(2.0, noOfBps - ss.getExpn())));
+								(float) ((1.0 + ss.getMant() / 2048.0) * Math.pow(2.0, (double)noOfBps - ss.getExpn())));
 						band.setNoOfBps(ss.getExpn() + tccp.getNoOfGaurdBits() - 1); /* WHY -1 ? */
 
 						for (precNo = 0; precNo < res.getPWidth() * res.getPHeight(); precNo++) {
@@ -497,15 +520,19 @@ public class TcdHelper {
 							TcdPrecinct prc = band.getPrecincts()[precNo];
 
 							/* precinct size (global) */
-							prc.setX0(MathUtil.intMax(cbgxStart, band.getX0()));
-							prc.setY0(MathUtil.intMax(cbgyStart, band.getY0()));
-							prc.setX1(MathUtil.intMin(cbgxEnd, band.getX1()));
-							prc.setY1(MathUtil.intMin(cbgyEnd, band.getY1()));
+							prc.setX0(MathUtil.getInstance().intMax(cbgxStart, band.getX0()));
+							prc.setY0(MathUtil.getInstance().intMax(cbgyStart, band.getY0()));
+							prc.setX1(MathUtil.getInstance().intMin(cbgxEnd, band.getX1()));
+							prc.setY1(MathUtil.getInstance().intMin(cbgyEnd, band.getY1()));
 
-							tlcblkxStart = MathUtil.intFloorDivPow2(prc.getX0(), cblkwidthexpn) << cblkwidthexpn;
-							tlcblkyStart = MathUtil.intFloorDivPow2(prc.getY0(), cblkheightexpn) << cblkheightexpn;
-							brcblkxEnd = MathUtil.intCeilDivPow2(prc.getX1(), cblkwidthexpn) << cblkwidthexpn;
-							brcblkyEnd = MathUtil.intCeilDivPow2(prc.getY1(), cblkheightexpn) << cblkheightexpn;
+							tlcblkxStart = MathUtil.getInstance().intFloorDivPow2(prc.getX0(),
+									cblkwidthexpn) << cblkwidthexpn;
+							tlcblkyStart = MathUtil.getInstance().intFloorDivPow2(prc.getY0(),
+									cblkheightexpn) << cblkheightexpn;
+							brcblkxEnd = MathUtil.getInstance().intCeilDivPow2(prc.getX1(),
+									cblkwidthexpn) << cblkwidthexpn;
+							brcblkyEnd = MathUtil.getInstance().intCeilDivPow2(prc.getY1(),
+									cblkheightexpn) << cblkheightexpn;
 							prc.setCWidth((brcblkxEnd - tlcblkxStart) >> cblkwidthexpn);
 							prc.setCHeight((brcblkyEnd - tlcblkyStart) >> cblkheightexpn);
 
@@ -531,13 +558,13 @@ public class TcdHelper {
 								TcdCodeBlockEncoder cblk = prc.getTcdCodeBlockEncoder()[codeBlockNo];
 
 								/* code-block size (global) */
-								cblk.setX0(MathUtil.intMax(cblkxStart, prc.getX0()));
-								cblk.setY0(MathUtil.intMax(cblkyStart, prc.getY0()));
-								cblk.setX1(MathUtil.intMin(cblkxEnd, prc.getX1()));
-								cblk.setY1(MathUtil.intMin(cblkyEnd, prc.getY1()));
+								cblk.setX0(MathUtil.getInstance().intMax(cblkxStart, prc.getX0()));
+								cblk.setY0(MathUtil.getInstance().intMax(cblkyStart, prc.getY0()));
+								cblk.setX1(MathUtil.getInstance().intMin(cblkxEnd, prc.getX1()));
+								cblk.setY1(MathUtil.getInstance().intMin(cblkyEnd, prc.getY1()));
 								cblk.setData(new byte[8192 + 2]);
 								/*
-								 * FIXME: mqcInitEncode and mqc_byteout underrun the buffer if we don't do this.
+								 * FIX ME: mqcInitEncode and mqc_byteout underrun the buffer if we don't do this.
 								 * Why?
 								 */
 								cblk.setDataIndex(cblk.getDataIndex() + 2);
@@ -549,10 +576,9 @@ public class TcdHelper {
 				} /* resNo */
 			} /* compNo */
 		} /* tileNo */
-
-		/* tcd_dump(stdout, tcd, &tcd->tcdImage); */
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S3626", "java:S3776"})
 	public void tcdMallocDecode(Tcd tcd, OpenJpegImage image, CodingParameters codingParameters) {
 		int i, j, tileNo, p, q;
 		long x0 = 0, y0 = 0, x1 = 0, y1 = 0, w, h;
@@ -567,7 +593,7 @@ public class TcdHelper {
 		 * tile really present in the codestream
 		 */
 
-		for (j = 0; j < codingParameters.getTileNoSize(); j++) {			
+		for (j = 0; j < codingParameters.getTileNoSize(); j++) {
 			tileNo = codingParameters.getTileNo()[j];
 			tcd.getTcdImage().getTiles()[codingParameters.getTileNo()[tileNo]] = new TcdTile();
 			TcdTile tile = tcd.getTcdImage().getTiles()[codingParameters.getTileNo()[tileNo]];
@@ -589,27 +615,32 @@ public class TcdHelper {
 				tilec = tile.getComps()[i];
 
 				p = tileNo % codingParameters.getTileWidth(); /* si numerotation matricielle .. */
-				q = tileNo / codingParameters.getTileWidth(); /* .. coordonnees de la tile (q,p) q pour ligne et p pour colonne */
+				q = tileNo / codingParameters
+						.getTileWidth(); /* .. coordonnees de la tile (q,p) q pour ligne et p pour colonne */
 
 				/* 4 borders of the tile rescale on the image if necessary */
-				tile.setX0(MathUtil.intMax(codingParameters.getTileX0() + p * codingParameters.getTileDX(), image.getX0()));
-				tile.setY0(MathUtil.intMax(codingParameters.getTileY0() + q * codingParameters.getTileDY(), image.getY0()));
-				tile.setX1(MathUtil.intMin(codingParameters.getTileX0() + (p + 1) * codingParameters.getTileDX(), image.getX1()));
-				tile.setY1(MathUtil.intMin(codingParameters.getTileY0() + (q + 1) * codingParameters.getTileDY(), image.getY1()));
+				tile.setX0(MathUtil.getInstance()
+						.intMax(codingParameters.getTileX0() + p * codingParameters.getTileDX(), image.getX0()));
+				tile.setY0(MathUtil.getInstance()
+						.intMax(codingParameters.getTileY0() + q * codingParameters.getTileDY(), image.getY0()));
+				tile.setX1(MathUtil.getInstance()
+						.intMin(codingParameters.getTileX0() + (p + 1) * codingParameters.getTileDX(), image.getX1()));
+				tile.setY1(MathUtil.getInstance()
+						.intMin(codingParameters.getTileY0() + (q + 1) * codingParameters.getTileDY(), image.getY1()));
 
-				tilec.setX0(MathUtil.intCeilDiv(tile.getX0(), image.getComps()[i].getDX()));
-				tilec.setY0(MathUtil.intCeilDiv(tile.getY0(), image.getComps()[i].getDY()));
-				tilec.setX1(MathUtil.intCeilDiv(tile.getX1(), image.getComps()[i].getDX()));
-				tilec.setY1(MathUtil.intCeilDiv(tile.getY1(), image.getComps()[i].getDY()));
+				tilec.setX0(MathUtil.getInstance().intCeilDiv(tile.getX0(), image.getComps()[i].getDX()));
+				tilec.setY0(MathUtil.getInstance().intCeilDiv(tile.getY0(), image.getComps()[i].getDY()));
+				tilec.setX1(MathUtil.getInstance().intCeilDiv(tile.getX1(), image.getComps()[i].getDX()));
+				tilec.setY1(MathUtil.getInstance().intCeilDiv(tile.getY1(), image.getComps()[i].getDY()));
 
-				x0 = j == 0 ? tilec.getX0() : MathUtil.intMin((int) x0, tilec.getX0());
-				y0 = j == 0 ? tilec.getY0() : MathUtil.intMin((int) y0, tilec.getX0());
-				x1 = j == 0 ? tilec.getX1() : MathUtil.intMax((int) x1, tilec.getX1());
-				y1 = j == 0 ? tilec.getY1() : MathUtil.intMax((int) y1, tilec.getY1());
+				x0 = j == 0 ? tilec.getX0() : MathUtil.getInstance().intMin((int) x0, tilec.getX0());
+				y0 = j == 0 ? tilec.getY0() : MathUtil.getInstance().intMin((int) y0, tilec.getX0());
+				x1 = j == 0 ? tilec.getX1() : MathUtil.getInstance().intMax((int) x1, tilec.getX1());
+				y1 = j == 0 ? tilec.getY1() : MathUtil.getInstance().intMax((int) y1, tilec.getY1());
 			}
 
-			w = MathUtil.intCeilDivPow2((int) (x1 - x0), image.getComps()[i].getFactor());
-			h = MathUtil.intCeilDivPow2((int) (y1 - y0), image.getComps()[i].getFactor());
+			w = MathUtil.getInstance().intCeilDivPow2((int) (x1 - x0), image.getComps()[i].getFactor());
+			h = MathUtil.getInstance().intCeilDivPow2((int) (y1 - y0), image.getComps()[i].getFactor());
 
 			image.getComps()[i].setWidth((int) w);
 			image.getComps()[i].setHeight((int) h);
@@ -618,6 +649,7 @@ public class TcdHelper {
 		}
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S1854", "java:S3776", "java:S6541", "unused"})
 	public void tcdMallocDecodeTile(Tcd tcd, OpenJpegImage image, CodingParameters codingParameters, int tileNo,
 			CodeStreamInfo codeStreamInfo) {
 		int compNo, resNo, bandNo, precNo, codeBlockNo;
@@ -636,10 +668,10 @@ public class TcdHelper {
 			TcdTileComponent tilec = tile.getComps()[compNo];
 
 			/* border of each tile component (global) */
-			tilec.setX0(MathUtil.intCeilDiv(tile.getX0(), image.getComps()[compNo].getDX()));
-			tilec.setY0(MathUtil.intCeilDiv(tile.getY0(), image.getComps()[compNo].getDY()));
-			tilec.setX1(MathUtil.intCeilDiv(tile.getX1(), image.getComps()[compNo].getDX()));
-			tilec.setY1(MathUtil.intCeilDiv(tile.getY1(), image.getComps()[compNo].getDY()));
+			tilec.setX0(MathUtil.getInstance().intCeilDiv(tile.getX0(), image.getComps()[compNo].getDX()));
+			tilec.setY0(MathUtil.getInstance().intCeilDiv(tile.getY0(), image.getComps()[compNo].getDY()));
+			tilec.setX1(MathUtil.getInstance().intCeilDiv(tile.getX1(), image.getComps()[compNo].getDX()));
+			tilec.setY1(MathUtil.getInstance().intCeilDiv(tile.getY1(), image.getComps()[compNo].getDY()));
 
 			tilec.setNoOfResolutions(tccp.getNoOfResolutions());
 			tilec.setResolutions(new TcdResolution[tilec.getNoOfResolutions()]);
@@ -656,10 +688,10 @@ public class TcdHelper {
 				TcdResolution res = tilec.getResolutions()[resNo];
 
 				/* border for each resolution level (global) */
-				res.setX0(MathUtil.intCeilDivPow2(tilec.getX0(), levelno));
-				res.setY0(MathUtil.intCeilDivPow2(tilec.getY0(), levelno));
-				res.setX1(MathUtil.intCeilDivPow2(tilec.getX1(), levelno));
-				res.setY1(MathUtil.intCeilDivPow2(tilec.getY1(), levelno));
+				res.setX0(MathUtil.getInstance().intCeilDivPow2(tilec.getX0(), levelno));
+				res.setY0(MathUtil.getInstance().intCeilDivPow2(tilec.getY0(), levelno));
+				res.setX1(MathUtil.getInstance().intCeilDivPow2(tilec.getX1(), levelno));
+				res.setY1(MathUtil.getInstance().intCeilDivPow2(tilec.getY1(), levelno));
 				res.setNoOfBands(resNo == 0 ? 1 : 3);
 
 				/* p. 35, table A-23, ISO/IEC FDIS154444-1 : 2000 (18 august 2000) */
@@ -672,10 +704,10 @@ public class TcdHelper {
 				}
 
 				/* p. 64, B.6, ISO/IEC FDIS15444-1 : 2000 (18 august 2000) */
-				tlprcxStart = MathUtil.intFloorDivPow2(res.getX0(), pdx) << pdx;
-				tlprcyStart = MathUtil.intFloorDivPow2(res.getY0(), pdy) << pdy;
-				brprcxEnd = MathUtil.intCeilDivPow2(res.getX1(), pdx) << pdx;
-				brprcyEnd = MathUtil.intCeilDivPow2(res.getY1(), pdy) << pdy;
+				tlprcxStart = MathUtil.getInstance().intFloorDivPow2(res.getX0(), pdx) << pdx;
+				tlprcyStart = MathUtil.getInstance().intFloorDivPow2(res.getY0(), pdy) << pdy;
+				brprcxEnd = MathUtil.getInstance().intCeilDivPow2(res.getX1(), pdx) << pdx;
+				brprcyEnd = MathUtil.getInstance().intCeilDivPow2(res.getY1(), pdy) << pdy;
 
 				res.setPWidth((res.getX0() == res.getX1()) ? 0 : ((brprcxEnd - tlprcxStart) >> pdx));
 				res.setPHeight((res.getY0() == res.getY1()) ? 0 : ((brprcyEnd - tlprcyStart) >> pdy));
@@ -688,16 +720,16 @@ public class TcdHelper {
 					cbgwidthexpn = pdx;
 					cbgheightexpn = pdy;
 				} else {
-					tlcbgxStart = MathUtil.intCeilDivPow2(tlprcxStart, 1);
-					tlcbgyStart = MathUtil.intCeilDivPow2(tlprcyStart, 1);
-					brcbgxEnd = MathUtil.intCeilDivPow2(brprcxEnd, 1);
-					brcbgyEnd = MathUtil.intCeilDivPow2(brprcyEnd, 1);
+					tlcbgxStart = MathUtil.getInstance().intCeilDivPow2(tlprcxStart, 1);
+					tlcbgyStart = MathUtil.getInstance().intCeilDivPow2(tlprcyStart, 1);
+					brcbgxEnd = MathUtil.getInstance().intCeilDivPow2(brprcxEnd, 1);
+					brcbgyEnd = MathUtil.getInstance().intCeilDivPow2(brprcyEnd, 1);
 					cbgwidthexpn = pdx - 1;
 					cbgheightexpn = pdy - 1;
 				}
 
-				cblkwidthexpn = MathUtil.intMin(tccp.getCodeBlockWidth(), cbgwidthexpn);
-				cblkheightexpn = MathUtil.intMin(tccp.getCodeBlockHeight(), cbgheightexpn);
+				cblkwidthexpn = MathUtil.getInstance().intMin(tccp.getCodeBlockWidth(), cbgwidthexpn);
+				cblkheightexpn = MathUtil.getInstance().intMin(tccp.getCodeBlockHeight(), cbgheightexpn);
 
 				for (bandNo = 0; bandNo < res.getNoOfBands(); bandNo++) {
 					res.getBands()[bandNo] = new TcdBand();
@@ -712,25 +744,29 @@ public class TcdHelper {
 
 					if (band.getBandNo() == 0) {
 						/* band border (global) */
-						band.setX0(MathUtil.intCeilDivPow2(tilec.getX0(), levelno));
-						band.setY0(MathUtil.intCeilDivPow2(tilec.getY0(), levelno));
-						band.setX1(MathUtil.intCeilDivPow2(tilec.getX1(), levelno));
-						band.setY1(MathUtil.intCeilDivPow2(tilec.getY1(), levelno));
+						band.setX0(MathUtil.getInstance().intCeilDivPow2(tilec.getX0(), levelno));
+						band.setY0(MathUtil.getInstance().intCeilDivPow2(tilec.getY0(), levelno));
+						band.setX1(MathUtil.getInstance().intCeilDivPow2(tilec.getX1(), levelno));
+						band.setY1(MathUtil.getInstance().intCeilDivPow2(tilec.getY1(), levelno));
 					} else {
 						/* band border (global) */
-						band.setX0(MathUtil.intCeilDivPow2(tilec.getX0() - (1 << levelno) * x0b, levelno + 1));
-						band.setY0(MathUtil.intCeilDivPow2(tilec.getY0() - (1 << levelno) * y0b, levelno + 1));
-						band.setX1(MathUtil.intCeilDivPow2(tilec.getX1() - (1 << levelno) * x0b, levelno + 1));
-						band.setY1(MathUtil.intCeilDivPow2(tilec.getY1() - (1 << levelno) * y0b, levelno + 1));
+						band.setX0(MathUtil.getInstance().intCeilDivPow2(tilec.getX0() - (1 << levelno) * x0b,
+								levelno + 1));
+						band.setY0(MathUtil.getInstance().intCeilDivPow2(tilec.getY0() - (1 << levelno) * y0b,
+								levelno + 1));
+						band.setX1(MathUtil.getInstance().intCeilDivPow2(tilec.getX1() - (1 << levelno) * x0b,
+								levelno + 1));
+						band.setY1(MathUtil.getInstance().intCeilDivPow2(tilec.getY1() - (1 << levelno) * y0b,
+								levelno + 1));
 					}
 
 					ss = tccp.getStepsizes()[resNo == 0 ? 0 : 3 * (resNo - 1) + bandNo + 1];
-						
+
 					gain = tccp.getQmfbid() == 0 ? DwtHelper.getInstance().dwtGetGainReal(band.getBandNo())
 							: DwtHelper.getInstance().dwtGetGain(band.getBandNo());
 					noOfBps = image.getComps()[compNo].getPrec() + gain;
 					band.setStepSize(
-							(float) (((1.0 + ss.getMant() / 2048.0) * Math.pow(2.0, noOfBps - ss.getExpn())) * 0.5));
+							(float) (((1.0 + ss.getMant() / 2048.0) * Math.pow(2.0, (double)noOfBps - ss.getExpn())) * 0.5));
 					band.setNoOfBps(ss.getExpn() + tccp.getNoOfGaurdBits() - 1); /* WHY -1 ? */
 
 					band.setPrecincts(new TcdPrecinct[res.getPWidth() * res.getPHeight()]);
@@ -745,15 +781,18 @@ public class TcdHelper {
 
 						TcdPrecinct prc = band.getPrecincts()[precNo];
 						/* precinct size (global) */
-						prc.setX0(MathUtil.intMax(cbgxStart, band.getX0()));
-						prc.setY0(MathUtil.intMax(cbgyStart, band.getY0()));
-						prc.setX1(MathUtil.intMin(cbgxEnd, band.getX1()));
-						prc.setY1(MathUtil.intMin(cbgyEnd, band.getY1()));
+						prc.setX0(MathUtil.getInstance().intMax(cbgxStart, band.getX0()));
+						prc.setY0(MathUtil.getInstance().intMax(cbgyStart, band.getY0()));
+						prc.setX1(MathUtil.getInstance().intMin(cbgxEnd, band.getX1()));
+						prc.setY1(MathUtil.getInstance().intMin(cbgyEnd, band.getY1()));
 
-						tlcblkxStart = MathUtil.intFloorDivPow2(prc.getX0(), cblkwidthexpn) << cblkwidthexpn;
-						tlcblkyStart = MathUtil.intFloorDivPow2(prc.getY0(), cblkheightexpn) << cblkheightexpn;
-						brcblkxEnd = MathUtil.intCeilDivPow2(prc.getX1(), cblkwidthexpn) << cblkwidthexpn;
-						brcblkyEnd = MathUtil.intCeilDivPow2(prc.getY1(), cblkheightexpn) << cblkheightexpn;
+						tlcblkxStart = MathUtil.getInstance().intFloorDivPow2(prc.getX0(),
+								cblkwidthexpn) << cblkwidthexpn;
+						tlcblkyStart = MathUtil.getInstance().intFloorDivPow2(prc.getY0(),
+								cblkheightexpn) << cblkheightexpn;
+						brcblkxEnd = MathUtil.getInstance().intCeilDivPow2(prc.getX1(), cblkwidthexpn) << cblkwidthexpn;
+						brcblkyEnd = MathUtil.getInstance().intCeilDivPow2(prc.getY1(),
+								cblkheightexpn) << cblkheightexpn;
 						prc.setCWidth((brcblkxEnd - tlcblkxStart) >> cblkwidthexpn);
 						prc.setCHeight((brcblkyEnd - tlcblkyStart) >> cblkheightexpn);
 
@@ -773,22 +812,22 @@ public class TcdHelper {
 							cblk.setData(null);
 							cblk.setSegs(null);
 							/* code-block size (global) */
-							cblk.setX0(MathUtil.intMax(cblkxStart, prc.getX0()));
-							cblk.setY0(MathUtil.intMax(cblkyStart, prc.getY0()));
-							cblk.setX1(MathUtil.intMin(cblkxEnd, prc.getX1()));
-							cblk.setY1(MathUtil.intMin(cblkyEnd, prc.getY1()));
+							cblk.setX0(MathUtil.getInstance().intMax(cblkxStart, prc.getX0()));
+							cblk.setY0(MathUtil.getInstance().intMax(cblkyStart, prc.getY0()));
+							cblk.setX1(MathUtil.getInstance().intMin(cblkxEnd, prc.getX1()));
+							cblk.setY1(MathUtil.getInstance().intMin(cblkyEnd, prc.getY1()));
 							cblk.setNoOfSegs(0);
 						}
 					} /* precNo */
 				} /* bandNo */
 			} /* resNo */
 		} /* compNo */
-		/* tcd_dump(stdout, tcd, &tcd->tcdImage); */
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S1854", "java:S3776", "java:S6541"})
 	private void tcdMakeLayerFixed(Tcd tcd, int layno, int final1) {
 		int compNo, resNo, bandNo, precNo, codeBlockNo;
-		int value; /* , matrice[tcdTcp->numlayers][tcdTile.getComps()[0].numresolutions][3]; */
+		int value; 
 		int[][][] matrice = new int[10][10][3];
 		int i, j, k;
 
@@ -801,8 +840,8 @@ public class TcdHelper {
 			for (i = 0; i < tcdTcp.getNoOfLayers(); i++) {
 				for (j = 0; j < tilec.getNoOfResolutions(); j++) {
 					for (k = 0; k < 3; k++) {
-						matrice[i][j][k] = (int) (codingParameters.getMatrice()[i * tilec.getNoOfResolutions() * 3 + j * 3 + k]
-								* (float) (tcd.getImage().getComps()[compNo].getPrec() / 16.0));
+						matrice[i][j][k] = (int) (codingParameters.getMatrice()[i * tilec.getNoOfResolutions() * 3
+								+ j * 3 + k] * (float) (tcd.getImage().getComps()[compNo].getPrec() / 16.0));
 					}
 				}
 			}
@@ -883,6 +922,7 @@ public class TcdHelper {
 		}
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S3776", "java:S6541" })
 	private void tcdMakeLayer(Tcd tcd, int layno, double thresh, int final1) {
 		int compNo, resNo, bandNo, precNo, codeBlockNo, passno;
 
@@ -958,6 +998,7 @@ public class TcdHelper {
 		}
 	}
 
+	@SuppressWarnings({ "java:S135", "java:S1659", "java:S3626", "java:S3776", "java:S6541" })
 	private int tcdRateAllocate(Tcd tcd, byte[] dest, int len, CodeStreamInfo codeStreamInfo) {
 		int compNo, resNo, bandNo, precNo, codeBlockNo, passno, layno;
 		double min, max;
@@ -1023,17 +1064,16 @@ public class TcdHelper {
 				} /* bandNo */
 			} /* resNo */
 
-			maxSE += (((double) (1 << tcd.getImage().getComps()[compNo].getPrec()) - 1.0)
-					* ((double) (1 << tcd.getImage().getComps()[compNo].getPrec()) - 1.0))
-					* ((double) (tilec.getNoOfPixels()));
+			maxSE += (((1 << tcd.getImage().getComps()[compNo].getPrec()) - 1.0)
+					* ((1 << tcd.getImage().getComps()[compNo].getPrec()) - 1.0)) * (tilec.getNoOfPixels());
 		} /* compNo */
 
 		/* index file */
 		if (codeStreamInfo != null) {
-			TileInfo tile_info = codeStreamInfo.getTileInfo()[tcd.getTcdTileNo()];
-			tile_info.setNoOfPixel(tcdTile.getNoOfPixels());
-			tile_info.setDistortionTile(tcdTile.getDistortionTile());
-			tile_info.setThresh(new double[tcdTcp.getNoOfLayers()]);
+			TileInfo tileInfo = codeStreamInfo.getTileInfo()[tcd.getTcdTileNo()];
+			tileInfo.setNoOfPixel(tcdTile.getNoOfPixels());
+			tileInfo.setDistortionTile(tcdTile.getDistortionTile());
+			tileInfo.setThresh(new double[tcdTcp.getNoOfLayers()]);
 		}
 
 		for (layno = 0; layno < tcdTcp.getNoOfLayers(); layno++) {
@@ -1041,16 +1081,16 @@ public class TcdHelper {
 			double hi = max;
 			int success = 0;
 			int maxlen = tcdTcp.getRates()[layno] != 0
-					? MathUtil.intMin(((int) Math.ceil(tcdTcp.getRates()[layno])), len)
+					? MathUtil.getInstance().intMin(((int) Math.ceil(tcdTcp.getRates()[layno])), len)
 					: len;
-			double goodthresh = 0;
-			double stable_thresh = 0;
+			double goodThresh = 0;
+			double stableThresh = 0;
 			int i;
 			double distotarget; /* fixed_quality */
 
 			/* fixed_quality */
 			distotarget = tcdTile.getDistortionTile()
-					- ((K * maxSE) / Math.pow((float) 10, tcdTcp.getDistortionRatio()[layno] / 10));
+					- ((K * maxSE) / Math.pow(10, tcdTcp.getDistortionRatio()[layno] / 10));
 
 			/*
 			 * Don't try to find an optimal threshold but rather take everything not
@@ -1060,7 +1100,8 @@ public class TcdHelper {
 			 */
 			if (((codingParameters.getDistortionAllocation() == 1) && (tcdTcp.getRates()[layno] > 0))
 					|| ((codingParameters.getFixedQuality() == 1) && (tcdTcp.getDistortionRatio()[layno] > 0))) {
-				Tier2 t2 = Tier2Helper.getInstance().tier2Create(tcd.getCodecContextInfo(), tcd.getImage(), codingParameters);
+				Tier2 t2 = Tier2Helper.getInstance().tier2Create(tcd.getCodecContextInfo(), tcd.getImage(),
+						codingParameters);
 				double thresh = 0;
 
 				for (i = 0; i < 128; i++) {
@@ -1072,9 +1113,9 @@ public class TcdHelper {
 
 					if (codingParameters.getFixedQuality() != 0) { /* fixed_quality */
 						if (codingParameters.getCinemaMode().value() != 0) {
-							l = Tier2Helper.getInstance().tier2EncodePackets(t2, tcd.getTcdTileNo(), tcdTile, layno + 1, dest,
-									maxlen, codeStreamInfo, tcd.getCurTilePartNo(), tcd.getTilePartPosition(), tcd.getCurPiNo(),
-									J2KT2Mode.THRESH_CALC, tcd.getCurTotalNoOfTileParts());
+							l = Tier2Helper.getInstance().tier2EncodePackets(t2, tcd.getTcdTileNo(), tcdTile, layno + 1,
+									dest, maxlen, codeStreamInfo, tcd.getCurTilePartNo(), tcd.getTilePartPosition(),
+									tcd.getCurPiNo(), J2KT2Mode.THRESH_CALC, tcd.getCurTotalNoOfTileParts());
 							if (l == -999) {
 								lo = thresh;
 								continue;
@@ -1083,7 +1124,7 @@ public class TcdHelper {
 										: cumDistortion[layno - 1] + tcdTile.getDistortionLayer()[layno];
 								if (distoachieved < distotarget) {
 									hi = thresh;
-									stable_thresh = thresh;
+									stableThresh = thresh;
 									continue;
 								} else {
 									lo = thresh;
@@ -1094,34 +1135,30 @@ public class TcdHelper {
 									: (cumDistortion[layno - 1] + tcdTile.getDistortionLayer()[layno]);
 							if (distoachieved < distotarget) {
 								hi = thresh;
-								stable_thresh = thresh;
+								stableThresh = thresh;
 								continue;
 							}
 							lo = thresh;
 						}
 					} else {
-						l = Tier2Helper.getInstance().tier2EncodePackets(t2, tcd.getTcdTileNo(), tcdTile, layno + 1, dest, maxlen,
-								codeStreamInfo, tcd.getCurTilePartNo(), tcd.getTilePartPosition(), tcd.getCurPiNo(),
-								J2KT2Mode.THRESH_CALC, tcd.getCurTotalNoOfTileParts());
-						/* TODO: what to do with l ??? seek / tell ??? */
-						/*
-						 * opj_event_msg(tcd->codecContextInfo, EVT_INFO, "rate alloc: len=%d, max=%d\n", l,
-						 * maxlen);
-						 */
+						l = Tier2Helper.getInstance().tier2EncodePackets(t2, tcd.getTcdTileNo(), tcdTile, layno + 1,
+								dest, maxlen, codeStreamInfo, tcd.getCurTilePartNo(), tcd.getTilePartPosition(),
+								tcd.getCurPiNo(), J2KT2Mode.THRESH_CALC, tcd.getCurTotalNoOfTileParts());
+						/* TO DO: what to do with l ??? seek / tell ??? */
 						if (l == -999) {
 							lo = thresh;
 							continue;
 						}
 						hi = thresh;
-						stable_thresh = thresh;
+						stableThresh = thresh;
 					}
 				}
 				success = 1;
-				goodthresh = stable_thresh == 0 ? thresh : stable_thresh;
+				goodThresh = stableThresh == 0 ? thresh : stableThresh;
 				Tier2Helper.getInstance().tier2Destroy(t2);
 			} else {
 				success = 1;
-				goodthresh = min;
+				goodThresh = min;
 			}
 
 			if (success == 0) {
@@ -1129,9 +1166,9 @@ public class TcdHelper {
 			}
 
 			if (codeStreamInfo != null) { /* Threshold for Marcela Index */
-				codeStreamInfo.getTileInfo()[tcd.getTcdTileNo()].getThresh()[layno] = goodthresh;
+				codeStreamInfo.getTileInfo()[tcd.getTcdTileNo()].getThresh()[layno] = goodThresh;
 			}
-			tcdMakeLayer(tcd, layno, goodthresh, 1);
+			tcdMakeLayer(tcd, layno, goodThresh, 1);
 
 			/* fixed_quality */
 			cumDistortion[layno] = (layno == 0) ? tcdTile.getDistortionLayer()[0]
@@ -1141,6 +1178,7 @@ public class TcdHelper {
 		return 1;
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S3776", "java:S6541" })
 	public int tcdEncodeTile(Tcd tcd, int tileNo, byte[] dest, int len, CodeStreamInfo codeStreamInfo) {
 		int compNo;
 		int l, i, numpacks = 0;
@@ -1192,12 +1230,13 @@ public class TcdHelper {
 
 				int adjust = image.getComps()[compNo].getSgnd() != 0 ? 0
 						: 1 << (image.getComps()[compNo].getPrec() - 1);
-				int offsetX = MathUtil.intCeilDiv(image.getX0(), image.getComps()[compNo].getDX());
-				int offsetY = MathUtil.intCeilDiv(image.getY0(), image.getComps()[compNo].getDY());
+				int offsetX = MathUtil.getInstance().intCeilDiv(image.getX0(), image.getComps()[compNo].getDX());
+				int offsetY = MathUtil.getInstance().intCeilDiv(image.getY0(), image.getComps()[compNo].getDY());
 
 				TcdTileComponent tilec = tile.getComps()[compNo];
 				int tw = tilec.getX1() - tilec.getX0();
-				int w = MathUtil.intCeilDiv(image.getX1() - image.getX0(), image.getComps()[compNo].getDX());
+				int w = MathUtil.getInstance().intCeilDiv(image.getX1() - image.getX0(),
+						image.getComps()[compNo].getDX());
 
 				/* extract tile data */
 
@@ -1263,7 +1302,8 @@ public class TcdHelper {
 			if (codeStreamInfo != null) {
 				codeStreamInfo.setIndexWrite(0);
 			}
-			if (codingParameters.getDistortionAllocation() != 0 || codingParameters.getFixedQuality() != 0) { /* fixed_quality */
+			if (codingParameters.getDistortionAllocation() != 0
+					|| codingParameters.getFixedQuality() != 0) { /* fixed_quality */
 				/* Normal Rate/distortion allocation */
 				tcdRateAllocate(tcd, dest, len, codeStreamInfo);
 			} else {
@@ -1279,8 +1319,9 @@ public class TcdHelper {
 		}
 
 		t2 = Tier2Helper.getInstance().tier2Create(tcd.getCodecContextInfo(), image, codingParameters);
-		l = Tier2Helper.getInstance().tier2EncodePackets(t2, tileNo, tile, tcdTcp.getNoOfLayers(), dest, len, codeStreamInfo,
-				tcd.getTilePartNo(), tcd.getTilePartPosition(), tcd.getCurPiNo(), J2KT2Mode.FINAL_PASS, tcd.getCurTotalNoOfTileParts());
+		l = Tier2Helper.getInstance().tier2EncodePackets(t2, tileNo, tile, tcdTcp.getNoOfLayers(), dest, len,
+				codeStreamInfo, tcd.getTilePartNo(), tcd.getTilePartPosition(), tcd.getCurPiNo(), J2KT2Mode.FINAL_PASS,
+				tcd.getCurTotalNoOfTileParts());
 		Tier2Helper.getInstance().tier2Destroy(t2);
 
 		/*---------------CLEAN-------------------*/
@@ -1299,8 +1340,8 @@ public class TcdHelper {
 		return l;
 	}
 
-	public int tcdDecodeTile(Tcd tcd, byte[] src, int len, int tileNo, CodeStreamInfo codeStreamInfo,
-			boolean USE_JPWL) {
+	@SuppressWarnings({ "java:S1659", "java:S3776", "java:S6541" })
+	public int tcdDecodeTile(Tcd tcd, byte[] src, int len, int tileNo, CodeStreamInfo codeStreamInfo, boolean useJPWL) {
 		int l;
 		int compNo;
 		int eof = 0;
@@ -1346,14 +1387,16 @@ public class TcdHelper {
 		/*--------------TIER2------------------*/
 
 		tier2Time = System.currentTimeMillis(); /* time needed to decode a tile */
-		t2 = Tier2Helper.getInstance().tier2Create(tcd.getCodecContextInfo(), tcd.getImage(), tcd.getCodingParameters());
-		l = Tier2Helper.getInstance().tier2DecodePackets(t2, src, len, tileNo, tile, codeStreamInfo, USE_JPWL);
+		t2 = Tier2Helper.getInstance().tier2Create(tcd.getCodecContextInfo(), tcd.getImage(),
+				tcd.getCodingParameters());
+		l = Tier2Helper.getInstance().tier2DecodePackets(t2, src, len, tileNo, tile, codeStreamInfo, useJPWL);
 		Tier2Helper.getInstance().tier2Destroy(t2);
 		tier2Time = System.currentTimeMillis() - tier2Time;
+		logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, MessageFormat.format("tier2Time {0}", tier2Time));
 
 		if (l == -999) {
 			eof = 1;
-			LOGGER.error(String.format("tcd_decode: incomplete bistream"));
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "tcd_decode: incomplete bistream");
 		}
 
 		/*------------------TIER1-----------------*/
@@ -1369,6 +1412,7 @@ public class TcdHelper {
 		}
 		Tier1Helper.getInstance().tier1Destroy(t1);
 		tier1Time = System.currentTimeMillis() - tier1Time;
+		logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, MessageFormat.format("tier1Time{0}", tier1Time));
 
 		/*----------------DWT---------------------*/
 
@@ -1378,11 +1422,11 @@ public class TcdHelper {
 			int numres2decode;
 
 			if (tcd.getCodingParameters().getReduce() != 0) {
-				tcd.getImage().getComps()[compNo]
-						.setResNoDecoded(tile.getComps()[compNo].getNoOfResolutions() - tcd.getCodingParameters().getReduce() - 1);
+				tcd.getImage().getComps()[compNo].setResNoDecoded(
+						tile.getComps()[compNo].getNoOfResolutions() - tcd.getCodingParameters().getReduce() - 1);
 				if (tcd.getImage().getComps()[compNo].getResNoDecoded() < 0) {
-					LOGGER.error(String.format(
-							"Error decoding tile. The number of resolutions to remove [%d+1] is higher than the number of resolutions in the original codestream [%d] Modify the cp_reduce parameter.",
+					logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE,LOGGER_EMPTY, MessageFormat.format(
+							"Error decoding tile. The number of resolutions to remove {0} is higher than the number of resolutions in the original codestream {1} Modify the cp_reduce parameter.",
 							tcd.getCodingParameters().getReduce(), tile.getComps()[compNo].getNoOfResolutions()));
 					return 0;
 				}
@@ -1398,17 +1442,18 @@ public class TcdHelper {
 			}
 		}
 		dwtTime = System.currentTimeMillis() - dwtTime;
+		logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, MessageFormat.format("dwtTime{0}", dwtTime));
 
 		/*----------------MCT-------------------*/
 
 		if (tcd.getTcp().getMct() != 0) {
 			int n = (tile.getComps()[0].getX1() - tile.getComps()[0].getX0())
 					* (tile.getComps()[0].getY1() - tile.getComps()[0].getY0());
-			if (tcd.getTcp().getTccps()[0].getQmfbid() == 1) //Lossless
+			if (tcd.getTcp().getTccps()[0].getQmfbid() == 1) // Lossless
 			{
 				MctHelper.getInstance().mctDecode(tile.getComps()[0].getIData(), tile.getComps()[1].getIData(),
 						tile.getComps()[2].getIData(), n);
-			} else  //Lossy
+			} else // Lossy
 			{
 				MctHelper.getInstance().mctDecodeReal(tile.getComps()[0].getFData(), tile.getComps()[1].getFData(),
 						tile.getComps()[2].getFData(), n);
@@ -1427,8 +1472,8 @@ public class TcdHelper {
 			int tw = tilec.getX1() - tilec.getX0();
 			int w = imagec.getWidth();
 
-			int offsetX = MathUtil.intCeilDivPow2(imagec.getX0(), imagec.getFactor());
-			int offsetY = MathUtil.intCeilDivPow2(imagec.getY0(), imagec.getFactor());
+			int offsetX = MathUtil.getInstance().intCeilDivPow2(imagec.getX0(), imagec.getFactor());
+			int offsetY = MathUtil.getInstance().intCeilDivPow2(imagec.getY0(), imagec.getFactor());
 
 			int i, j;
 			if (imagec.getData() == null) {
@@ -1440,7 +1485,8 @@ public class TcdHelper {
 					for (i = res.getX0(); i < res.getX1(); ++i) {
 						int v = tilec.getIData()[i - res.getX0() + (j - res.getY0()) * tw];
 						v += adjust;
-						imagec.getData()[(i - offsetX) + (j - offsetY) * w] = MathUtil.intClamp(v, min, max);
+						imagec.getData()[(i - offsetX) + (j - offsetY) * w] = MathUtil.getInstance().intClamp(v, min,
+								max);
 					}
 				}
 			} else {
@@ -1449,7 +1495,8 @@ public class TcdHelper {
 						double tmp = tilec.getFData()[i - res.getX0() + (j - res.getY0()) * tw];
 						int v = (int) leftRightIntDouble(tmp);
 						v += adjust;
-						imagec.getData()[(i - offsetX) + (j - offsetY) * w] = MathUtil.intClamp(v, min, max);
+						imagec.getData()[(i - offsetX) + (j - offsetY) * w] = MathUtil.getInstance().intClamp(v, min,
+								max);
 					}
 				}
 			}
@@ -1458,6 +1505,7 @@ public class TcdHelper {
 		}
 
 		tileTime = System.currentTimeMillis() - tileTime; /* time needed to decode a tile */
+		logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, MessageFormat.format("tileTime{0}", tileTime));
 
 		if (eof != 0) {
 			return 0;
@@ -1479,6 +1527,7 @@ public class TcdHelper {
 		tcdImage.setTiles(null);
 	}
 
+	@SuppressWarnings({ "java:S1659", "java:S3776" })
 	public void tcdFreeDecodeTile(Tcd tcd, int tileNo) {
 		int compNo, resNo, bandNo, precNo;
 

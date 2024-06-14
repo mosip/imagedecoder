@@ -1,7 +1,13 @@
 package io.mosip.imagedecoder.wsq;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_EMPTY;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_IDTYPE;
+import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_SESSIONID;
+
+import java.text.MessageFormat;
+
+import io.mosip.kernel.core.logger.spi.Logger;
+import io.mosip.imagedecoder.logger.ImageDecoderLogger;
 
 import io.mosip.imagedecoder.constant.wsq.WsqConstant;
 import io.mosip.imagedecoder.constant.wsq.WsqErrorCode;
@@ -18,6 +24,7 @@ import io.mosip.imagedecoder.model.wsq.WsqTableDtt;
 import io.mosip.imagedecoder.model.wsq.WsqWavletTree;
 import io.mosip.imagedecoder.util.ByteStreamUtil;
 import io.mosip.imagedecoder.util.wsq.WsqUtil;
+
 /**
  * The Class WSQDecoder Helper does the decoding of WSQ image information
  * 
@@ -25,36 +32,43 @@ import io.mosip.imagedecoder.util.wsq.WsqUtil;
  * 
  */
 public class WsqDecoderHelper {
-	private Logger LOGGER = LoggerFactory.getLogger(WsqDecoderHelper.class);
+	private Logger logger = ImageDecoderLogger.getLogger(WsqDecoderHelper.class);
 	// Static variable reference of singleInstance of type Singleton
-    private static WsqDecoderHelper singleInstance = null;    
-	private WsqDecoderHelper()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized WsqDecoderHelper getInstance()
-	{ 
+	private static WsqDecoderHelper singleInstance = null;
+
+	private WsqDecoderHelper() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized WsqDecoderHelper getInstance() {
 		if (singleInstance == null)
 			singleInstance = new WsqDecoderHelper();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
-	
+
+	/* next byte of data */
+	private int code = 0;
+	/* stuffed byte of data */
+	private int code2 = 0;
+
 	/***************************************************************************/
 	/* WSQ Decoder routine. Takes an WSQ compressed memory buffer and decodes */
 	/* it, returning the reconstructed pixmap. */
 	/***************************************************************************/
+	@SuppressWarnings({ "java:S3776" })
 	public WsqInfo wsqDecode(byte[] iData, int iLen) {
-		code = 0; 
-		code2 = 0; 
-		
+		code = 0;
+		code2 = 0;
+
 		WsqErrorCode errorCode;
-		int ret, i;
+		int ret;
+		int i;
 		int[] marker = new int[1]; /* WSQ marker */
 		int numOfPixels; /* image size and counter */
-		int width, height; /* image parameters */
+		int width;/* image parameters */
+		int height; /* image parameters */
 		int[] ppi = new int[1]; /* ppi */
 		int[] lossy = new int[1]; /* lossy */
 		StringBuilder colorSpace = new StringBuilder();/* ColorSpace */
@@ -67,26 +81,24 @@ public class WsqDecoderHelper {
 		WsqTableDtt dttTable = new WsqTableDtt();
 		WsqTableDqt dqtTable = new WsqTableDqt();
 		WsqHeaderForm wsqHeaderForm = new WsqHeaderForm();
-		// WsqQuantization quantizationValues = new WsqQuantization();
 		WsqWavletTree[] wavletTree = new WsqWavletTree[WsqConstant.W_TREELEN];
 		WsqQuantizationTree[] quantizationTree = new WsqQuantizationTree[WsqConstant.Q_TREELEN];
 
-		WsqUtil.initWsqDecoderResources(dttTable);
+		WsqUtil.getInstance().initWsqDecoderResources(dttTable);
 
 		/* Set memory buffer pointers. */
 		ByteBufferContext currentBuffer = new ByteBufferContext();
 		ByteStreamUtil.getInstance().init(currentBuffer, iData, iData.length);
 
-
 		/* Read the SOI marker. */
 		if ((ret = WsqTableIOHelper.getInstance().getWsqMarker(marker, WsqConstant.SOI_WSQ, currentBuffer)) != 0) {
-			errorCode = WsqErrorCode.fromErrorCode(ret+"");
+			errorCode = WsqErrorCode.fromErrorCode(ret + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
 
 		/* Read in supporting tables up to the SOF marker. */
 		if ((ret = WsqTableIOHelper.getInstance().getWsqMarker(marker, WsqConstant.TBLS_N_SOF, currentBuffer)) != 0) {
-			errorCode = WsqErrorCode.fromErrorCode(ret+"");
+			errorCode = WsqErrorCode.fromErrorCode(ret + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
 
@@ -97,22 +109,24 @@ public class WsqDecoderHelper {
 		}
 
 		while (marker[0] != WsqConstant.SOF_WSQ) {
-			if ((ret = WsqTableIOHelper.getInstance().getWsqTable(marker, dttTable, dqtTable, dhtTable, currentBuffer)) != 0) {
-				WsqUtil.freeWsqDecoderResources(dttTable);
-				errorCode = WsqErrorCode.fromErrorCode(ret+"");
+			if ((ret = WsqTableIOHelper.getInstance().getWsqTable(marker, dttTable, dqtTable, dhtTable,
+					currentBuffer)) != 0) {
+				WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
+				errorCode = WsqErrorCode.fromErrorCode(ret + "");
 				throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 			}
-			if ((ret = WsqTableIOHelper.getInstance().getWsqMarker(marker, WsqConstant.TBLS_N_SOF, currentBuffer)) != 0) {
-				WsqUtil.freeWsqDecoderResources(dttTable);
-				errorCode = WsqErrorCode.fromErrorCode(ret+"");
+			if ((ret = WsqTableIOHelper.getInstance().getWsqMarker(marker, WsqConstant.TBLS_N_SOF,
+					currentBuffer)) != 0) {
+				WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
+				errorCode = WsqErrorCode.fromErrorCode(ret + "");
 				throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 			}
 		}
 
 		/* Read in the Frame Header. */
 		if ((ret = WsqTableIOHelper.getInstance().getWsqHeaderForm(wsqHeaderForm, currentBuffer)) != 0) {
-			WsqUtil.freeWsqDecoderResources(dttTable);
-			errorCode = WsqErrorCode.fromErrorCode(ret+"");
+			WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
+			errorCode = WsqErrorCode.fromErrorCode(ret + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
 
@@ -120,45 +134,40 @@ public class WsqDecoderHelper {
 		height = wsqHeaderForm.getHeight();
 		numOfPixels = width * height;
 
-		WsqFet nistcom = new WsqFet();
-		nistcom = WsqFetHelper.getInstance().allocFet(WsqConstant.MAXFETS);
+		WsqFet nistcom = WsqFetHelper.getInstance().allocFet(WsqConstant.MAXFETS);
 		if ((ret = WsqFetInfoHelper.getInstance().getNistComments(nistcom, iData, iLen)) != 0) {
-			WsqUtil.freeWsqDecoderResources(dttTable);
-			errorCode = WsqErrorCode.fromErrorCode(ret+"");
+			WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
+			errorCode = WsqErrorCode.fromErrorCode(ret + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
 
 		if ((ret = WsqFetInfoHelper.getInstance().getWsqPPI(nistcom, ppi)) != 0) {
-			WsqUtil.freeWsqDecoderResources(dttTable);
-			errorCode = WsqErrorCode.fromErrorCode(ret+"");
+			WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
+			errorCode = WsqErrorCode.fromErrorCode(ret + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
 
 		if ((ret = WsqFetInfoHelper.getInstance().getWsqLossyFlag(nistcom, lossy)) != 0) {
-			WsqUtil.freeWsqDecoderResources(dttTable);
-			errorCode = WsqErrorCode.fromErrorCode(ret+"");
+			WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
+			errorCode = WsqErrorCode.fromErrorCode(ret + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
 
 		if ((ret = WsqFetInfoHelper.getInstance().getWsqBitRate(nistcom, bitRate)) != 0) {
-			WsqUtil.freeWsqDecoderResources(dttTable);
-			errorCode = WsqErrorCode.fromErrorCode(ret+"");
+			WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
+			errorCode = WsqErrorCode.fromErrorCode(ret + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
 
 		if ((ret = WsqFetInfoHelper.getInstance().getWsqColorSpace(nistcom, colorSpace)) != 0) {
-			WsqUtil.freeWsqDecoderResources(dttTable);
-			errorCode = WsqErrorCode.fromErrorCode(ret+"");
+			WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
+			errorCode = WsqErrorCode.fromErrorCode(ret + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
 
-		//LOGGER.debug(String.format("SOI, tables, and frame header read"));
-
 		/* Build WSQ decomposition trees. */
-		WsqTreeHelper.getInstance().buildWsqTrees(wavletTree, WsqConstant.W_TREELEN, quantizationTree, WsqConstant.Q_TREELEN, width,
-				height);
-
-		//LOGGER.debug(String.format("Tables for wavelet decomposition finished"));
+		WsqTreeHelper.getInstance().buildWsqTrees(wavletTree, WsqConstant.W_TREELEN, quantizationTree,
+				WsqConstant.Q_TREELEN, width, height);
 
 		/* Allocate working memory. */
 		qData = new long[numOfPixels];
@@ -166,59 +175,48 @@ public class WsqDecoderHelper {
 		/* Decode the Huffman encoded data blocks. */
 		if ((ret = decodeHuffmanData(qData, qdataIndex, dttTable, dqtTable, dhtTable, currentBuffer, wsqHeaderForm,
 				quantizationTree)) != 0) {
-			qData = null;
-			WsqUtil.freeWsqDecoderResources(dttTable);
-			errorCode = WsqErrorCode.fromErrorCode(ret+"");
+			WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
+			errorCode = WsqErrorCode.fromErrorCode(ret + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
 
-		//LOGGER.debug(String.format("Quantized WSQ subband data blocks read and Huffman decoded"));
-
 		fdata = new float[width * height];
 		if (dqtTable.getDqtDef() != 1) {
-			LOGGER.error(String.format("unquantize : quantization table parameters not defined"));
-			errorCode = WsqErrorCode.fromErrorCode(WsqErrorCode.QUANTIZATION_TABLE_PARAMS_NOT_DEFINED.getErrorId()+"");
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+					"unquantize : quantization table parameters not defined");
+			errorCode = WsqErrorCode
+					.fromErrorCode(WsqErrorCode.QUANTIZATION_TABLE_PARAMS_NOT_DEFINED.getErrorId() + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
 
 		/* Decode the quantize wavelet subband data. */
-		if ((ret = WsqUtil.unquantize(fdata, dqtTable, quantizationTree, WsqConstant.Q_TREELEN, qData, width,
-				height)) != 0) {
-			qData = null;
-			WsqUtil.freeWsqDecoderResources(dttTable);
-			errorCode = WsqErrorCode.fromErrorCode(ret+"");
+		if ((ret = WsqUtil.getInstance().unquantize(fdata, dqtTable, quantizationTree, WsqConstant.Q_TREELEN, qData,
+				width, height)) != 0) {
+			WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
+			errorCode = WsqErrorCode.fromErrorCode(ret + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
-
-		//LOGGER.debug(String.format("WSQ subband data blocks unquantized"));
 
 		/* Done with quantized wavelet subband data. */
-		qData = null;
-
-		if ((ret = WsqUtil.wsqReconstruct(fdata, width, height, wavletTree, WsqConstant.W_TREELEN, dttTable)) != 0) {
-			qData = null;
-			WsqUtil.freeWsqDecoderResources(dttTable);
-			errorCode = WsqErrorCode.fromErrorCode(ret+"");
+		if ((ret = WsqUtil.getInstance().wsqReconstruct(fdata, width, height, wavletTree, WsqConstant.W_TREELEN,
+				dttTable)) != 0) {
+			WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
+			errorCode = WsqErrorCode.fromErrorCode(ret + "");
 			throw new DecoderException(errorCode.getErrorCode(), errorCode.getErrorMessage());
 		}
-
-		//LOGGER.debug(String.format("Tables for wavelet decomposition finished"));
 
 		cData = new byte[numOfPixels];
 
 		/* Convert floating point pixels to unsigned char pixels. */
-		WsqUtil.convertImage2Bytes(cData, fdata, width, height, wsqHeaderForm.getMShift()[0],
+		WsqUtil.getInstance().convertImage2Bytes(cData, fdata, width, height, wsqHeaderForm.getMShift()[0],
 				wsqHeaderForm.getRScale()[0]);
 
 		/* Done with floating point pixels. */
-		qData = null;
 
-		WsqUtil.freeWsqDecoderResources(dttTable);
-
-		//LOGGER.debug(String.format("Doubleing point pixels converted to unsigned char"));
+		WsqUtil.getInstance().freeWsqDecoderResources(dttTable);
 
 		/* Assign reconstructed pixmap and attributes to output pointers. */
-		WsqInfo info = new WsqInfo ();
+		WsqInfo info = new WsqInfo();
 		info.setData(cData);
 		info.setWidth(width);
 		info.setHeight(height);
@@ -235,6 +233,7 @@ public class WsqDecoderHelper {
 	/***************************************************************************/
 	/* Routine to decode an entire "block" of encoded data from memory buffer. */
 	/***************************************************************************/
+	@SuppressWarnings({ "java:S107", "java:S654", "java:S1659", "java:S1854", "java:S3776", "java:S6541" })
 	private int decodeHuffmanData(long[] ip, /* image pointer */
 			int[] qdataIndex, /* image pointer index */
 			WsqTableDtt dttTable, /* transform table pointer */
@@ -269,9 +268,11 @@ public class WsqDecoderHelper {
 			if (marker[0] != 0) {
 				blkNo++;
 				while (marker[0] != WsqConstant.SOB_WSQ) {
-					if ((ret = WsqTableIOHelper.getInstance().getWsqTable(marker, dttTable, dqtTable, dhtTable, currentBuffer)) != 0)
+					if ((ret = WsqTableIOHelper.getInstance().getWsqTable(marker, dttTable, dqtTable, dhtTable,
+							currentBuffer)) != 0)
 						return ret;
-					if ((ret = WsqTableIOHelper.getInstance().getWsqMarker(marker, WsqConstant.TBLS_N_SOB, currentBuffer)) != 0)
+					if ((ret = WsqTableIOHelper.getInstance().getWsqMarker(marker, WsqConstant.TBLS_N_SOB,
+							currentBuffer)) != 0)
 						return ret;
 				}
 
@@ -286,25 +287,26 @@ public class WsqDecoderHelper {
 					return ret;
 
 				if (dhtTable[huffTableId[0]].getTableDef() != 1) {
-					LOGGER.debug(String.format("decodeHuffmanData : huffman table {%d} undefined.", huffTableId[0]));
+					logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+							MessageFormat.format("decodeHuffmanData : huffman table {0} undefined.", huffTableId[0]));
 					return (WsqErrorCode.ENCODED_DATA_WRONG.getErrorId());
 				}
 
 				/* the next two routines reconstruct the huffman tables */
 				hufftable = new WsqHuffCode[WsqConstant.MAX_HUFFCOUNTS_WSQ + 1];
-				if ((ret = WsqHuffHelper.getInstance().buildHuffSizes(hufftable, lastSize, dhtTable[huffTableId[0]].getHuffBits(),
-						WsqConstant.MAX_HUFFCOUNTS_WSQ)) != 0)
+				if ((ret = WsqHuffHelper.getInstance().buildHuffSizes(hufftable, lastSize,
+						dhtTable[huffTableId[0]].getHuffBits(), WsqConstant.MAX_HUFFCOUNTS_WSQ)) != 0)
 					return ret;
 
 				WsqHuffHelper.getInstance().buildHuffCodes(hufftable);
 				if ((ret = WsqHuffHelper.getInstance().checkWsqHuffCodes(hufftable, lastSize[0])) != 0)
-					LOGGER.debug(String.format("huffTableId = %d", huffTableId));
+					logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+							MessageFormat.format("huffTableId = {0}", huffTableId[0]));
 
 				/* this routine builds a set of three tables used in decoding */
 				/* the compressed data */
 				WsqHuffHelper.getInstance().generateDecodeTable(hufftable, maxCode, minCode, value,
 						dhtTable[huffTableId[0]].getHuffBits());
-				hufftable = null;
 				bitCount[0] = 0;
 				marker[0] = 0;
 			}
@@ -316,31 +318,33 @@ public class WsqDecoderHelper {
 
 			if (nodeptr[0] == -1) {
 				while (marker[0] == WsqConstant.COM_WSQ && blkNo == 3) {
-					if ((ret = WsqTableIOHelper.getInstance().getWsqTable(marker, dttTable, dqtTable, dhtTable, currentBuffer)) != 0)
+					if ((ret = WsqTableIOHelper.getInstance().getWsqTable(marker, dttTable, dqtTable, dhtTable,
+							currentBuffer)) != 0)
 						return ret;
-					if ((ret = WsqTableIOHelper.getInstance().getWsqMarker(marker, WsqConstant.ANY_WSQ, currentBuffer)) != 0)
+					if ((ret = WsqTableIOHelper.getInstance().getWsqMarker(marker, WsqConstant.ANY_WSQ,
+							currentBuffer)) != 0)
 						return ret;
 				}
 				continue;
 			}
 
 			if (ipc > ipcMx) {
-				LOGGER.debug(String.format(
-						"decodeHuffmanData [1]: Decoded data extends past image buffer. Encoded data appears corrupt or non-standard."));
+				logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+						"decodeHuffmanData [1]: Decoded data extends past image buffer. Encoded data appears corrupt or non-standard.");
 				return (WsqErrorCode.ENCODED_DATA_WRONG.getErrorId());
 			}
 
 			if (nodeptr[0] > 0 && nodeptr[0] <= 100) {
 				ipc += nodeptr[0];
 				if (ipc > ipcMx) {
-					LOGGER.debug(String.format(
-							"decodeHuffmanData [2]: Decoded data extends past image buffer. Encoded data appears corrupt or non-standard."));
+					logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+							"decodeHuffmanData [2]: Decoded data extends past image buffer. Encoded data appears corrupt or non-standard.");
 					return (WsqErrorCode.ENCODED_DATA_WRONG.getErrorId());
 				}
 				for (n = 0; n < nodeptr[0]; n++)
 					ip[qdataIndex[0]++] = 0; /* z run */
 			} else if (nodeptr[0] > 106 && nodeptr[0] < 0xff) {
-				ip[qdataIndex[0]++] = nodeptr[0] - 180;
+				ip[qdataIndex[0]++] = (long) nodeptr[0] - 180;
 				ipc++;
 			} else if (nodeptr[0] == 101) {
 				if ((ret = getWsqNextBits(tBits, marker, currentBuffer, bitCount, 8)) != 0)
@@ -367,8 +371,8 @@ public class WsqDecoderHelper {
 					return ret;
 				ipc += tBits[0];
 				if (ipc > ipcMx) {
-					LOGGER.debug(String.format(
-							"decodeHuffmanData [3]: Decoded data extends past image buffer. Encoded data appears corrupt or non-standard."));
+					logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+							"decodeHuffmanData [3]: Decoded data extends past image buffer. Encoded data appears corrupt or non-standard.");
 					return (WsqErrorCode.ENCODED_DATA_WRONG.getErrorId());
 				}
 				n = (int) tBits[0];
@@ -379,15 +383,16 @@ public class WsqDecoderHelper {
 					return ret;
 				ipc += tBits[0];
 				if (ipc > ipcMx) {
-					LOGGER.debug(String.format(
-							"decodeHuffmanData [4]: Decoded data extends past image buffer. Encoded data appears corrupt or non-standard."));
+					logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+							"decodeHuffmanData [4]: Decoded data extends past image buffer. Encoded data appears corrupt or non-standard.");
 					return (WsqErrorCode.ENCODED_DATA_WRONG.getErrorId());
 				}
 				n = (int) tBits[0];
 				while (n-- != 0)
 					ip[qdataIndex[0]++] = 0;
 			} else {
-				LOGGER.debug(String.format("decodeHuffmanData : Invalid code %d (%x}", nodeptr[0], nodeptr[0]));
+				logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY,
+						MessageFormat.format("decodeHuffmanData : Invalid code {0} ", nodeptr[0]));
 				return (WsqErrorCode.INVALID_CODE_INHUFFMAN_DATA.getErrorId());
 			}
 		}
@@ -398,6 +403,7 @@ public class WsqDecoderHelper {
 	/**********************************************************/
 	/* Routine to decode the encoded data from memory buffer. */
 	/**********************************************************/
+	@SuppressWarnings({ "java:S107", "java:S654", "java:S1659", "java:S1854", "java:S3776", "java:S6541" })
 	private int decodeData(int[] huffmanNode, /* returned huffman code category */
 			long[] minCode, /* points to minimum code value for */
 			/* a given code length */
@@ -411,11 +417,13 @@ public class WsqDecoderHelper {
 			int[] bitCount, /* marks the bit to receive from the input byte */
 			int[] marker) {
 		int ret = 0;
-		int inx, inx2; /* increment variables */
-		long[] code = new long[1], tBits = new long[1]; /*
-														 * becomes a huffman code word (one bit at a time)
-														 */
-		if ((ret = getWsqNextBits(code, marker, currentBuffer, bitCount, 1)) != 0)
+		/* increment variables */
+		int inx, inx2;
+		/*
+		 * becomes a huffman code word (one bit at a time)
+		 */
+		long[] huffmanCode = new long[1], tBits = new long[1];
+		if ((ret = getWsqNextBits(huffmanCode, marker, currentBuffer, bitCount, 1)) != 0)
 			return ret;
 
 		if (marker[0] != 0) {
@@ -423,18 +431,18 @@ public class WsqDecoderHelper {
 			return ret;
 		}
 
-		for (inx = 1; code[0] > maxCode[inx]; inx++) {
+		for (inx = 1; huffmanCode[0] > maxCode[inx]; inx++) {
 			if ((ret = getWsqNextBits(tBits, marker, currentBuffer, bitCount, 1)) != 0)
 				return ret;
 
-			code[0] = (code[0] << 1) + tBits[0];
+			huffmanCode[0] = (huffmanCode[0] << 1) + tBits[0];
 			if (marker[0] != 0) {
 				huffmanNode[0] = -1;
 				return (0);
 			}
 		}
 		inx2 = value[inx];
-		inx2 = (int) (inx2 + (code[0] - minCode[inx]));
+		inx2 = (int) (inx2 + (huffmanCode[0] - minCode[inx]));
 
 		huffmanNode[0] = huffvalues[inx2];
 		return ret;
@@ -443,9 +451,8 @@ public class WsqDecoderHelper {
 	/****************************************************************/
 	/* Routine to get nextbit(s) of data stream from memory buffer. */
 	/****************************************************************/
-	private static int code = 0; /* next byte of data */
-	private static int code2 = 0; /* stuffed byte of data */
 
+	@SuppressWarnings({ "java:S2696" })
 	private int getWsqNextBits(long[] bits, /* returned bits */
 			int[] marker, /* returned marker */
 			ByteBufferContext currentBuffer, /* points to current byte in input buffer */
@@ -459,7 +466,7 @@ public class WsqDecoderHelper {
 		/*
 		 * used to "mask out" n number of bits from data stream
 		 */
-		int[] bit_mask = { 0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff };
+		int[] bitMask = { 0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff };
 		if (bitCount[0] == 0) {
 			code = (int) ByteStreamUtil.getInstance().getUByte(currentBuffer);
 			bitCount[0] = 8;
@@ -471,15 +478,15 @@ public class WsqDecoderHelper {
 					return (0);
 				}
 				if (code2 != 0x00) {
-					LOGGER.debug(String.format("getWsqNextBits : No stuffed zeros"));
+					logger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "getWsqNextBits : No stuffed zeros");
 					return (WsqErrorCode.NO_STUFFED_ZEROS.getErrorId());
 				}
 			}
 		}
 		if (bitsRequested <= bitCount[0]) {
-			bits[0] = (code >> (bitCount[0] - bitsRequested)) & (bit_mask[bitsRequested]);
+			bits[0] = (code >> (bitCount[0] - bitsRequested)) & (bitMask[bitsRequested]);
 			bitCount[0] -= bitsRequested;
-			code &= bit_mask[bitCount[0]];
+			code &= bitMask[bitCount[0]];
 		} else {
 			bitsNeeded = bitsRequested - bitCount[0];
 			bits[0] = code << bitsNeeded;
