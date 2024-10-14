@@ -3,11 +3,9 @@ package io.mosip.imagedecoder.constant.openjpeg;
 import io.mosip.imagedecoder.constant.DecoderConstant;
 import io.mosip.imagedecoder.model.openjpeg.J2KProgressionOrder;
 import io.mosip.imagedecoder.model.openjpeg.ProgressionOrder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 @SuppressWarnings({ "java:S2386"})
 public class OpenJpegConstant extends DecoderConstant {
 	public static final String OPENJPEG_VERSION = "1.3.0";

@@ -31,7 +31,7 @@ public enum J2KT2Mode {
 				return c;
 			}
 		}
-		throw new IllegalArgumentException(value + "");
+		throw new IllegalArgumentException("No enum constant for value: " + value);
 	}
 
 	@Override

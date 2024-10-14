@@ -8,6 +8,7 @@ public final class ImageDecoderLogger {
 	 * Instantiates a new ImageDecoder logger.
 	 */
 	private ImageDecoderLogger() {
+		throw new IllegalStateException("ImageDecoderLogger class");
 	}
 
 	/**

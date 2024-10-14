@@ -7,10 +7,8 @@ import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_SESSIONID;
 import java.text.MessageFormat;
 import java.util.Arrays;
 
-import io.mosip.kernel.core.logger.spi.Logger;
-import io.mosip.imagedecoder.logger.ImageDecoderLogger;
-
 import io.mosip.imagedecoder.constant.openjpeg.OpenJpegConstant;
+import io.mosip.imagedecoder.logger.ImageDecoderLogger;
 import io.mosip.imagedecoder.model.openjpeg.CodeStreamInfo;
 import io.mosip.imagedecoder.model.openjpeg.CodecContextInfo;
 import io.mosip.imagedecoder.model.openjpeg.CodingParameters;
@@ -36,6 +34,7 @@ import io.mosip.imagedecoder.model.openjpeg.Tier2;
 import io.mosip.imagedecoder.model.openjpeg.TileComponentCodingParameters;
 import io.mosip.imagedecoder.model.openjpeg.TileInfo;
 import io.mosip.imagedecoder.util.openjpeg.MathUtil;
+import io.mosip.kernel.core.logger.spi.Logger;
 
 public class TcdHelper {
 	private Logger logger = ImageDecoderLogger.getLogger(TcdHelper.class);

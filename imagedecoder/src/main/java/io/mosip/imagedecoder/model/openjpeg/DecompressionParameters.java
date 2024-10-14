@@ -2,15 +2,13 @@ package io.mosip.imagedecoder.model.openjpeg;
 
 import io.mosip.imagedecoder.constant.openjpeg.OpenJpegConstant;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
 
-@Getter
-@Setter
-@Data
 /**
  * Decompression parameters
  */
+@Data
+@ToString
 public class DecompressionParameters {
 	/**
 	 * Set the number of highest resolution levels to be discarded. The image
@@ -54,4 +52,37 @@ public class DecompressionParameters {
 	 * only the main header is decoded;
 	 */
 	private LimitDecoding cpLimitDecoding;
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof DecompressionParameters))
+			return false;
+		DecompressionParameters that = (DecompressionParameters) obj;
+		return cpReduce == that.cpReduce && cpLayer == that.cpLayer && decodeFormat == that.decodeFormat
+				&& codecFormat == that.codecFormat && jpwlCorrect == that.jpwlCorrect
+				&& jpwlExpComps == that.jpwlExpComps && jpwlMaxTiles == that.jpwlMaxTiles && canEqual(that)
+				&& java.util.Arrays.equals(infile, that.infile) && java.util.Arrays.equals(outfile, that.outfile)
+				&& cpLimitDecoding == that.cpLimitDecoding;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = cpReduce;
+		result = 31 * result + cpLayer;
+		result = 31 * result + java.util.Arrays.hashCode(infile);
+		result = 31 * result + java.util.Arrays.hashCode(outfile);
+		result = 31 * result + decodeFormat;
+		result = 31 * result + codecFormat;
+		result = 31 * result + jpwlCorrect;
+		result = 31 * result + jpwlExpComps;
+		result = 31 * result + jpwlMaxTiles;
+		result = 31 * result + (cpLimitDecoding != null ? cpLimitDecoding.hashCode() : 0);
+		return result;
+	}
+
+	public boolean canEqual(Object obj) {
+		return obj instanceof DecompressionParameters;
+	}
 }

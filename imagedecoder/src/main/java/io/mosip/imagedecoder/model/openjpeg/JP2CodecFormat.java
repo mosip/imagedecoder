@@ -35,7 +35,7 @@ public enum JP2CodecFormat {
 				return c;
 			}
 		}
-		throw new IllegalArgumentException(value + "");
+		throw new IllegalArgumentException("No enum constant for value: " + value);
 	}
 
 	@Override

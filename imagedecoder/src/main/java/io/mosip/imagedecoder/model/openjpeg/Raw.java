@@ -1,15 +1,16 @@
 package io.mosip.imagedecoder.model.openjpeg;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Arrays;
+import java.util.Objects;
 
-@Getter
-@Setter
-@Data
+import lombok.Data;
+import lombok.ToString;
+
 /**
-RAW encoding operations
-*/
+ * RAW encoding operations
+ */
+@Data
+@ToString
 public class Raw {
 	/** temporary buffer where bits are coded or decoded */
 	private int c;
@@ -27,4 +28,26 @@ public class Raw {
 	private int start;
 	/** pointer to the end of the buffer */
 	private int end;
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof Raw))
+			return false;
+		Raw that = (Raw) obj;
+		return canEqual(that) && c == that.c && ct == that.ct && lengthMax == that.lengthMax && length == that.length
+				&& bpIndex == that.bpIndex && start == that.start && end == that.end && Arrays.equals(bp, that.bp);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = Objects.hash(c, ct, lengthMax, length, bpIndex, start, end);
+		result = 31 * result + Arrays.hashCode(bp);
+		return result;
+	}
+
+	public boolean canEqual(Object obj) {
+		return obj instanceof Raw;
+	}
 }
