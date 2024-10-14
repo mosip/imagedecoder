@@ -47,7 +47,7 @@ public enum J2kStatus {
 				return c;
 			}
 		}
-		throw new IllegalArgumentException(value + "");
+		throw new IllegalArgumentException("No enum constant for value: " + value);
 	}
 
 	@Override

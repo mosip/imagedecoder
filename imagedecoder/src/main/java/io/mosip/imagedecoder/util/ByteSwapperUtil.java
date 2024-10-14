@@ -2,20 +2,20 @@ package io.mosip.imagedecoder.util;
 
 public class ByteSwapperUtil {
 	// Static variable reference of singleInstance of type Singleton
-    private static ByteSwapperUtil singleInstance = null;    
-    private ByteSwapperUtil()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized ByteSwapperUtil getInstance()
-	{ 
+	private static ByteSwapperUtil singleInstance = null;
+
+	private ByteSwapperUtil() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized ByteSwapperUtil getInstance() {
 		if (singleInstance == null)
 			singleInstance = new ByteSwapperUtil();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
+
 	/**
 	 * Byte swap a single short value.
 	 * 
@@ -26,7 +26,7 @@ public class ByteSwapperUtil {
 		int b1 = value & 0xff;
 		int b2 = (value >> 8) & 0xff;
 
-		return (short) (b1 << 8 | b2); 
+		return (short) (b1 << 8 | b2);
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class ByteSwapperUtil {
 		int b2 = (value >> 8) & 0xff;
 		int b3 = (value >> 16) & 0xff;
 
-		return b1 << 16 | b2 << 8 | b3; 
+		return b1 << 16 | b2 << 8 | b3;
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class ByteSwapperUtil {
 		int b3 = (value >> 16) & 0xff;
 		int b4 = (value >> 24) & 0xff;
 
-		return b1 << 24 | b2 << 16 | b3 << 8 | b4; 
+		return b1 << 24 | b2 << 16 | b3 << 8 | b4;
 	}
 
 	/**
@@ -74,7 +74,9 @@ public class ByteSwapperUtil {
 		long b7 = (value >> 48) & 0xff;
 		long b8 = (value >> 56) & 0xff;
 
-		return b1 << 56 | b2 << 48 | b3 << 40 | b4 << 32 | b5 << 24 | b6 << 16 | b7 << 8 | b8; 
+		//System.out.printf("Swapped values: [%016X, %016X, %016X, %016X, %016X, %016X, %016X, %016X]%n", b1, b2, b3, b4, b5, b6, b7, b8);
+		
+		return b1 << 56 | b2 << 48 | b3 << 40 | b4 << 32 | b5 << 24 | b6 << 16 | b7 << 8 | b8;
 	}
 
 	/**

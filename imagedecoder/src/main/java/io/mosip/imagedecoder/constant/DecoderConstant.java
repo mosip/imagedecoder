@@ -1,7 +1,7 @@
 package io.mosip.imagedecoder.constant;
 
 public class DecoderConstant {
-	protected DecoderConstant() {
+	public DecoderConstant() {
 		throw new IllegalStateException("DecoderConstant class");
 	}
 

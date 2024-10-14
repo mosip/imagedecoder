@@ -35,7 +35,7 @@ public enum Jp2ColorSpace {
 				return c;
 			}
 		}
-		throw new IllegalArgumentException(value + "");
+		throw new IllegalArgumentException("No enum constant for value: " + value);
 	}
 
 	@Override

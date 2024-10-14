@@ -1,16 +1,17 @@
 package io.mosip.imagedecoder.model.openjpeg;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import io.mosip.imagedecoder.constant.openjpeg.OpenJpegConstant;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
 
-@Getter
-@Setter
-@Data
 /**
  * Coding parameters
  */
+@Data
+@ToString
 public class CodingParameters {
 	/** Digital cinema profile */
 	private JP2CinemeaMode cinemaMode;
@@ -130,4 +131,57 @@ public class CodingParameters {
 	/** maximum number of tiles at the decoder */
 	private int maxTiles;
 	// USE_JPWL END
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof CodingParameters))
+			return false;
+		CodingParameters that = (CodingParameters) obj;
+		return maxCompSize == that.maxCompSize && imageSize == that.imageSize && tilePartOn == that.tilePartOn
+				&& tilePartFlag == that.tilePartFlag && tilePartPosition == that.tilePartPosition
+				&& distortionAllocation == that.distortionAllocation && fixedAllocation == that.fixedAllocation
+				&& fixedQuality == that.fixedQuality && reduce == that.reduce && layer == that.layer
+				&& tileX0 == that.tileX0 && tileY0 == that.tileY0 && tileDX == that.tileDX && tileDY == that.tileDY
+				&& tileWidth == that.tileWidth && tileHeight == that.tileHeight && tileNoSize == that.tileNoSize
+				&& ppmDataIndex == that.ppmDataIndex && ppm == that.ppm && ppmStore == that.ppmStore
+				&& ppmPrevious == that.ppmPrevious && ppmLength == that.ppmLength && epcOn == that.epcOn
+				&& epbOn == that.epbOn && esdOn == that.esdOn && infoOn == that.infoOn && redOn == that.redOn
+				&& hprotMH == that.hprotMH && sensSize == that.sensSize && sensAddr == that.sensAddr
+				&& sensRange == that.sensRange && sensMH == that.sensMH && correct == that.correct
+				&& expComps == that.expComps && maxTiles == that.maxTiles && Arrays.equals(comment, that.comment)
+				&& Arrays.equals(tileNo, that.tileNo) && Arrays.equals(ppmData, that.ppmData)
+				&& Arrays.equals(ppmDataFirst, that.ppmDataFirst) && Arrays.equals(tcps, that.tcps)
+				&& Arrays.equals(matrice, that.matrice) && Arrays.equals(hprotTPHTileNo, that.hprotTPHTileNo)
+				&& Arrays.equals(hprotTPH, that.hprotTPH) && Arrays.equals(pprotTileNo, that.pprotTileNo)
+				&& Arrays.equals(pprotPacketNo, that.pprotPacketNo) && Arrays.equals(pprot, that.pprot)
+				&& Arrays.equals(sensTPHTileNo, that.sensTPHTileNo) && Arrays.equals(sensTPH, that.sensTPH);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = Objects.hash(maxCompSize, imageSize, tilePartOn, tilePartFlag, tilePartPosition,
+				distortionAllocation, fixedAllocation, fixedQuality, reduce, layer, tileX0, tileY0, tileDX, tileDY,
+				tileWidth, tileHeight, tileNoSize, ppmDataIndex, ppm, ppmStore, ppmPrevious, ppmLength, epcOn, epbOn,
+				esdOn, infoOn, redOn, hprotMH, sensSize, sensAddr, sensRange, sensMH, correct, expComps, maxTiles);
+		result = 31 * result + Arrays.hashCode(comment);
+		result = 31 * result + Arrays.hashCode(tileNo);
+		result = 31 * result + Arrays.hashCode(ppmData);
+		result = 31 * result + Arrays.hashCode(ppmDataFirst);
+		result = 31 * result + Arrays.hashCode(tcps);
+		result = 31 * result + Arrays.hashCode(matrice);
+		result = 31 * result + Arrays.hashCode(hprotTPHTileNo);
+		result = 31 * result + Arrays.hashCode(hprotTPH);
+		result = 31 * result + Arrays.hashCode(pprotTileNo);
+		result = 31 * result + Arrays.hashCode(pprotPacketNo);
+		result = 31 * result + Arrays.hashCode(pprot);
+		result = 31 * result + Arrays.hashCode(sensTPHTileNo);
+		result = 31 * result + Arrays.hashCode(sensTPH);
+		return result;
+	}
+
+	public boolean canEqual(Object other) {
+		return other instanceof CodingParameters;
+	}
 }
