@@ -78,34 +78,36 @@ public class OpenJpegDecoder implements IImageDecoderApi {
 								System.arraycopy(image.getComps()[i].getData(), 0, outImage, nIndex, totalSize);
 							nIndex += totalSize;
 						}
+						responseInfo.setAllInfo(requestInfo.isAllInfo());
 						responseInfo.setImageType(DecoderConstant.IMAGE_TYPE_JP2000);
 						responseInfo.setImageWidth(width + "");
 						responseInfo.setImageHeight(height + "");
 
-						if (components > 0 && components < 4) {
-							responseInfo.setImageLossless(transform == 1 ? "1" : "0");
-							if (resolutionBox != null) {
-								responseInfo.setImageDpiHorizontal(resolutionBox.getHorizontalResolution() + "");
-								responseInfo.setImageDpiVertical(resolutionBox.getVerticalResolution() + "");
-							} else {
-								responseInfo.setImageDpiHorizontal(-1 + "");
-								responseInfo.setImageDpiVertical(-1 + "");
+						if (requestInfo.isAllInfo()) {
+							if (components > 0 && components < 4) {
+								responseInfo.setImageLossless(transform == 1 ? "1" : "0");
+								if (resolutionBox != null) {
+									responseInfo.setImageDpiHorizontal(resolutionBox.getHorizontalResolution() + "");
+									responseInfo.setImageDpiVertical(resolutionBox.getVerticalResolution() + "");
+								} else {
+									responseInfo.setImageDpiHorizontal(-1 + "");
+									responseInfo.setImageDpiVertical(-1 + "");
+								}
+								if (image.getColorSpace() == Jp2ColorSpace.CLRSPC_GRAY) {
+									responseInfo.setImageColorSpace("GRAY" + "");
+									responseInfo.setImageDepth((8 * components) + "");
+								} else if (image.getColorSpace() == Jp2ColorSpace.CLRSPC_SRGB) {
+									responseInfo.setImageColorSpace("RGB" + "");
+									responseInfo.setImageDepth((8 * components) + "");
+								}
+								responseInfo.setImageSize(totalSizeWithComp + "");
+								responseInfo.setImageData(Base64UrlUtil.getInstance()
+										.encodeToURLSafeBase64(ImageUtil.getInstance().integersToBytes(outImage)) + "");
+								responseInfo.setImageAspectRatio(
+										ImageUtil.getInstance().calculateAspectRatio(width, height) + "");
+								responseInfo.setImageCompressionRatio(ImageUtil.getInstance().calculateCompressionRatio(
+										width, height, components, requestInfo.getImageData().length) + " : 1");
 							}
-							if (image.getColorSpace() == Jp2ColorSpace.CLRSPC_GRAY) {
-								responseInfo.setImageColorSpace("GRAY" + "");
-								responseInfo.setImageDepth((8 * components) + "");
-							} else if (image.getColorSpace() == Jp2ColorSpace.CLRSPC_SRGB) {
-								responseInfo.setImageColorSpace("RGB" + "");
-								responseInfo.setImageDepth((8 * components) + "");
-							}
-							responseInfo.setImageSize(totalSizeWithComp + "");
-							responseInfo.setImageData(Base64UrlUtil.getInstance()
-									.encodeToURLSafeBase64(ImageUtil.getInstance().integersToBytes(outImage)) + "");
-							responseInfo.setImageAspectRatio(
-									ImageUtil.getInstance().calculateAspectRatio(width, height) + "");
-							responseInfo
-									.setImageCompressionRatio(ImageUtil.getInstance().calculateCompressionRatio(width,
-											height, components, requestInfo.getImageData().length) + " : 1");
 						}
 
 						if (requestInfo.isBufferedImage()) {

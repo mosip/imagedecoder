@@ -36,21 +36,23 @@ public class WsqDecoder implements IImageDecoderApi {
 			WsqInfo wsqInfo = WsqDecoderHelper.getInstance().wsqDecode(requestInfo.getImageData(),
 					requestInfo.getImageData().length);
 
+			responseInfo.setAllInfo(requestInfo.isAllInfo());
 			responseInfo.setImageType(DecoderConstant.IMAGE_TYPE_WSQ);
 			responseInfo.setImageWidth(wsqInfo.getWidth() + "");
 			responseInfo.setImageHeight(wsqInfo.getHeight() + "");
-			responseInfo.setImageLossless(wsqInfo.getLossyFlag() == 1 ? "0" : "1");
-			responseInfo.setImageDepth(wsqInfo.getDepth() + "");
-			responseInfo.setImageDpiHorizontal(wsqInfo.getPpi() + "");
-			responseInfo.setImageDpiVertical(wsqInfo.getPpi() + "");
-			responseInfo.setImageBitRate(String.format("%.2f", wsqInfo.getBitRate()) + "");
-			responseInfo.setImageSize(wsqInfo.getData().length + "");
-			responseInfo.setImageData(Base64UrlUtil.getInstance().encodeToURLSafeBase64(wsqInfo.getData()) + "");
-			responseInfo.setImageColorSpace(wsqInfo.getColorSpace() + "");
-			responseInfo.setImageAspectRatio(
-					ImageUtil.getInstance().calculateAspectRatio(wsqInfo.getWidth(), wsqInfo.getHeight()) + "");
-
-			responseInfo.setImageCompressionRatio(getCompressionRatio(requestInfo, wsqInfo));
+			if (requestInfo.isAllInfo()) {
+				responseInfo.setImageLossless(wsqInfo.getLossyFlag() == 1 ? "0" : "1");
+				responseInfo.setImageDepth(wsqInfo.getDepth() + "");
+				responseInfo.setImageDpiHorizontal(wsqInfo.getPpi() + "");
+				responseInfo.setImageDpiVertical(wsqInfo.getPpi() + "");
+				responseInfo.setImageBitRate(String.format("%.2f", wsqInfo.getBitRate()) + "");
+				responseInfo.setImageSize(wsqInfo.getData().length + "");
+				responseInfo.setImageData(Base64UrlUtil.getInstance().encodeToURLSafeBase64(wsqInfo.getData()) + "");
+				responseInfo.setImageColorSpace(wsqInfo.getColorSpace() + "");
+				responseInfo.setImageAspectRatio(
+						ImageUtil.getInstance().calculateAspectRatio(wsqInfo.getWidth(), wsqInfo.getHeight()) + "");
+				responseInfo.setImageCompressionRatio(getCompressionRatio(requestInfo, wsqInfo));
+			}
 			if (requestInfo.isBufferedImage()) {
 				responseInfo.setBufferedImage(getBufferedImage(wsqInfo));
 			}

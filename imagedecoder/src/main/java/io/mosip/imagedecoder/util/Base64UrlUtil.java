@@ -15,21 +15,20 @@ public class Base64UrlUtil {
 	}
 
 	// Static variable reference of singleInstance of type Singleton
-    private static Base64UrlUtil singleInstance = null;    
-	private Base64UrlUtil()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized Base64UrlUtil getInstance()
-	{ 
+	private static Base64UrlUtil singleInstance = null;
+
+	private Base64UrlUtil() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized Base64UrlUtil getInstance() {
 		if (singleInstance == null)
 			singleInstance = new Base64UrlUtil();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
-	
+
 	public String encodeToURLSafeBase64(byte[] data) {
 		if (isNullEmpty(data)) {
 			return null;

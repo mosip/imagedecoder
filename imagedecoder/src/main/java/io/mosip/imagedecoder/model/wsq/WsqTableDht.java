@@ -1,13 +1,12 @@
 package io.mosip.imagedecoder.model.wsq;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import io.mosip.imagedecoder.constant.wsq.WsqConstant;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
 
-@Getter
-@Setter
-@Data
 /*
  * A distributed hash table (DHT) is a distributed system that provides a lookup
  * service similar to a hash table: key–value pairs are stored in a DHT, and any
@@ -22,8 +21,33 @@ import lombok.Setter;
  * continual node arrivals, departures, and failures.
  * 
  */
+@Data
+@ToString
 public class WsqTableDht {
 	private int tableDef;
 	private int[] huffBits = new int[WsqConstant.MAX_HUFFBITS];
 	private int[] huffValues = new int[WsqConstant.MAX_HUFFCOUNTS_WSQ + 1];
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof WsqTableDht))
+			return false;
+		WsqTableDht that = (WsqTableDht) obj;
+		return tableDef == that.tableDef && Arrays.equals(huffBits, that.huffBits)
+				&& Arrays.equals(huffValues, that.huffValues);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = Objects.hash(tableDef);
+		result = 31 * result + Arrays.hashCode(huffBits);
+		result = 31 * result + Arrays.hashCode(huffValues);
+		return result;
+	}
+
+	public boolean canEqual(Object other) {
+		return other instanceof WsqTableDht;
+	}
 }

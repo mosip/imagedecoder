@@ -12,21 +12,20 @@ import io.mosip.imagedecoder.model.ByteBufferContext;
 
 public class ByteStreamUtil {
 	// Static variable reference of singleInstance of type Singleton
-    private static ByteStreamUtil singleInstance = null;    
-    private ByteStreamUtil()
-	{ 
-		super ();
-	} 
-  
-	//synchronized method to control simultaneous access 
-	public static synchronized ByteStreamUtil getInstance()
-	{ 
+	private static ByteStreamUtil singleInstance = null;
+
+	private ByteStreamUtil() {
+		super();
+	}
+
+	// synchronized method to control simultaneous access
+	public static synchronized ByteStreamUtil getInstance() {
 		if (singleInstance == null)
 			singleInstance = new ByteStreamUtil();
-  
-        return singleInstance;
+
+		return singleInstance;
 	}
-	
+
 	public ByteOrder getByteOrder() {
 		return ByteOrder.nativeOrder();
 	}
@@ -37,8 +36,9 @@ public class ByteStreamUtil {
 
 	public void init(ByteBufferContext byteBufCont, byte[] buf, int bufSize) {
 		if (bufSize < 0)
-			throw new DecoderException(DecoderErrorCodes.INVALID_DATA_ERROR.getErrorCode(), DecoderErrorCodes.INVALID_DATA_ERROR.getErrorMessage());
-		
+			throw new DecoderException(DecoderErrorCodes.INVALID_DATA_ERROR.getErrorCode(),
+					DecoderErrorCodes.INVALID_DATA_ERROR.getErrorMessage());
+
 		byteBufCont.setBuffer(ByteBuffer.wrap(buf));
 		byteBufCont.getBuffer().rewind();
 	}
@@ -128,26 +128,26 @@ public class ByteStreamUtil {
 
 	public long putByte(ByteBufferContext byteBufCont, int value) throws IOException {
 		if (byteBufCont.getBuffer().remaining() < 1)
-            throw new IOException("not enough space in buffer to write signed byte");
-		
-		byteBufCont.getBuffer().put((byte)value);
+			throw new IOException("not enough space in buffer to write signed byte");
+
+		byteBufCont.getBuffer().put((byte) value);
 		return byteBufCont.getBuffer().position();
 	}
 
 	public long putShort(ByteBufferContext byteBufCont, int value) throws IOException {
 		if (byteBufCont.getBuffer().remaining() < 2)
-            throw new IOException("not enough space in buffer to write signed short");
+			throw new IOException("not enough space in buffer to write signed short");
 
 		if (byteBufCont.getBuffer().order() == ByteOrder.BIG_ENDIAN)
-			value = ByteSwapperUtil.getInstance().swapShort((short)value);
+			value = ByteSwapperUtil.getInstance().swapShort((short) value);
 
-		byteBufCont.getBuffer().putShort((short)value);
+		byteBufCont.getBuffer().putShort((short) value);
 		return byteBufCont.getBuffer().position();
 	}
 
 	public long put3Bytes(ByteBufferContext byteBufCont, int value) throws IOException {
 		if (byteBufCont.getBuffer().remaining() < 3)
-            throw new IOException("not enough space in buffer to write signed 3 bytes");
+			throw new IOException("not enough space in buffer to write signed 3 bytes");
 
 		if (byteBufCont.getBuffer().order() == ByteOrder.BIG_ENDIAN)
 			value = ByteSwapperUtil.getInstance().swap3Bytes(value);
@@ -160,7 +160,7 @@ public class ByteStreamUtil {
 
 	public long putInt(ByteBufferContext byteBufCont, int value) throws IOException {
 		if (byteBufCont.getBuffer().remaining() < 4)
-            throw new IOException("not enough space in buffer to write signed Integer");
+			throw new IOException("not enough space in buffer to write signed Integer");
 
 		if (byteBufCont.getBuffer().order() == ByteOrder.BIG_ENDIAN)
 			value = ByteSwapperUtil.getInstance().swapInt(value);
@@ -171,7 +171,7 @@ public class ByteStreamUtil {
 
 	public long putLong(ByteBufferContext byteBufCont, long value) throws IOException {
 		if (byteBufCont.getBuffer().remaining() < 8)
-            throw new IOException("not enough space in buffer to write signed Long");
+			throw new IOException("not enough space in buffer to write signed Long");
 
 		if (byteBufCont.getBuffer().order() == ByteOrder.BIG_ENDIAN)
 			value = ByteSwapperUtil.getInstance().swapLong(value);
@@ -182,41 +182,41 @@ public class ByteStreamUtil {
 
 	public long putUByte(ByteBufferContext byteBufCont, int value) throws IOException {
 		if (byteBufCont.getBuffer().remaining() < 1)
-            throw new IOException("not enough space in buffer to write unsigned byte");
-		
+			throw new IOException("not enough space in buffer to write unsigned byte");
+
 		if (value > 255)
-            throw new IOException("int value exceeds maximum unsigned byte value of 255!");
-		
-		byteBufCont.getBuffer().put((byte)(value & 0xff));
+			throw new IOException("int value exceeds maximum unsigned byte value of 255!");
+
+		byteBufCont.getBuffer().put((byte) (value & 0xff));
 		return byteBufCont.getBuffer().position();
 	}
 
 	public long putUShort(ByteBufferContext byteBufCont, int value) throws IOException {
 		if (byteBufCont.getBuffer().remaining() < 2)
-            throw new IOException("not enough space in buffer to write unsigned short");
+			throw new IOException("not enough space in buffer to write unsigned short");
 
 		if (value > 65535)
-            throw new IOException("int value exceeds maximum unsigned short value of 65535!");
-		
+			throw new IOException("int value exceeds maximum unsigned short value of 65535!");
+
 		if (byteBufCont.getBuffer().order() == ByteOrder.BIG_ENDIAN)
-			value = ByteSwapperUtil.getInstance().swapShort((short)value);
+			value = ByteSwapperUtil.getInstance().swapShort((short) value);
 
 		byte b1 = (byte) (0xff & (value));
-        byte b2 = (byte) (0xff & (value >> 8));
+		byte b2 = (byte) (0xff & (value >> 8));
 
-        byteBufCont.getBuffer().put(b1);
-        byteBufCont.getBuffer().put(b2);
-        return byteBufCont.getBuffer().position();
+		byteBufCont.getBuffer().put(b1);
+		byteBufCont.getBuffer().put(b2);
+		return byteBufCont.getBuffer().position();
 	}
 
 	public long putU3Bytes(ByteBufferContext byteBufCont, int value) throws IOException {
 		if (byteBufCont.getBuffer().remaining() < 3)
-            throw new IOException("not enough space in buffer to write unsigned 3 bytes");
+			throw new IOException("not enough space in buffer to write unsigned 3 bytes");
 
 		if (byteBufCont.getBuffer().order() == ByteOrder.BIG_ENDIAN)
 			value = ByteSwapperUtil.getInstance().swap3Bytes(value);
 
-        byteBufCont.getBuffer().put((byte) ((value) & 0xff));
+		byteBufCont.getBuffer().put((byte) ((value) & 0xff));
 		byteBufCont.getBuffer().put((byte) ((value >> 8) & 0xff));
 		byteBufCont.getBuffer().put((byte) ((value >> 16) & 0xff));
 		return byteBufCont.getBuffer().position();
@@ -224,7 +224,7 @@ public class ByteStreamUtil {
 
 	public long putUInt(ByteBufferContext byteBufCont, long value) throws IOException {
 		if (byteBufCont.getBuffer().remaining() < 4)
-            throw new IOException("not enough space in buffer to write unsigned Integer");
+			throw new IOException("not enough space in buffer to write unsigned Integer");
 
 		if (byteBufCont.getBuffer().order() == ByteOrder.BIG_ENDIAN)
 			value = ByteSwapperUtil.getInstance().swapLong(value);
@@ -403,7 +403,7 @@ public class ByteStreamUtil {
 	 * Read an unsigned variable length int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the variable length int
-	 * @param offset Offset at which to read the value
+	 * @param offset     Offset at which to read the value
 	 * @return The unsigned long
 	 */
 	public long getUnsignedVarInt(ByteBuffer byteBuffer, int offset, int numBytes) {
@@ -417,7 +417,8 @@ public class ByteStreamUtil {
 		case 4:
 			return getUnsignedInt(byteBuffer, offset);
 		default:
-			throw new DecoderException(DecoderErrorCodes.TECHNICAL_ERROR_EXCEPTION.getErrorCode(), "Invalid num bytes " + numBytes);
+			throw new DecoderException(DecoderErrorCodes.TECHNICAL_ERROR_EXCEPTION.getErrorCode(),
+					"Invalid num bytes " + numBytes);
 		}
 	}
 
@@ -425,7 +426,7 @@ public class ByteStreamUtil {
 	 * Read an Signed variable length int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the variable length int
-	 * @param offset Offset at which to read the value
+	 * @param offset     Offset at which to read the value
 	 * @return The Signed long
 	 */
 	public long getSignedVarInt(ByteBuffer byteBuffer, int offset, int numBytes) {
@@ -473,7 +474,7 @@ public class ByteStreamUtil {
 	 * Read an unsigned byte from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to read the byte
+	 * @param offset     Offset at which to read the byte
 	 * @return The unsigned byte as an int
 	 */
 	public int getUnsignedByte(ByteBuffer byteBuffer, int offset) {
@@ -484,7 +485,7 @@ public class ByteStreamUtil {
 	 * Read an Signed byte from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to read the byte
+	 * @param offset     Offset at which to read the byte
 	 * @return The Signed byte as an int
 	 */
 	public int getSignedByte(ByteBuffer byteBuffer, int offset) {
@@ -521,7 +522,7 @@ public class ByteStreamUtil {
 	 * Read an unsigned short from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the short
-	 * @param offset Offset at which to read the short
+	 * @param offset     Offset at which to read the short
 	 * @return The unsigned short as an int
 	 */
 	public int getUnsignedShort(ByteBuffer byteBuffer, int offset) {
@@ -532,7 +533,7 @@ public class ByteStreamUtil {
 	 * Read an Signed short from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the short
-	 * @param offset Offset at which to read the short
+	 * @param offset     Offset at which to read the short
 	 * @return The Signed short as an int
 	 */
 	public int getSignedShort(ByteBuffer byteBuffer, int offset) {
@@ -563,7 +564,7 @@ public class ByteStreamUtil {
 	 * Read a 3 Unsigned byte int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param order  the order of the bytes of the int
+	 * @param order      the order of the bytes of the int
 	 * @return The int
 	 */
 	public int get3UnsignedByteInt(ByteBuffer byteBuffer, ByteOrder order) {
@@ -577,7 +578,7 @@ public class ByteStreamUtil {
 	 * Read a 3 Signed byte int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param order  the order of the bytes of the int
+	 * @param order      the order of the bytes of the int
 	 * @return The int
 	 */
 	public int get3SignedByteInt(ByteBuffer byteBuffer, ByteOrder order) {
@@ -591,7 +592,7 @@ public class ByteStreamUtil {
 	 * Read a 3 Unsigned byte int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
+	 * @param offset     Offset at which to start reading the int
 	 * @return The int
 	 */
 	public int get3UnsignedByteInt(ByteBuffer byteBuffer, int offset) {
@@ -602,7 +603,7 @@ public class ByteStreamUtil {
 	 * Read a 3 Signed byte int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
+	 * @param offset     Offset at which to start reading the int
 	 * @return The int
 	 */
 	public int get3SignedByteInt(ByteBuffer byteBuffer, int offset) {
@@ -613,12 +614,11 @@ public class ByteStreamUtil {
 	 * Read a 3 Unsigned byte int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
-	 * @param order  the order of the bytes of the int
+	 * @param offset     Offset at which to start reading the int
+	 * @param order      the order of the bytes of the int
 	 * @return The int
 	 */
 	public int get3UnsignedByteInt(ByteBuffer byteBuffer, int offset, ByteOrder order) {
-
 		int offInc = 1;
 		if (order == ByteOrder.BIG_ENDIAN) {
 			offInc = -1;
@@ -635,21 +635,24 @@ public class ByteStreamUtil {
 	 * Read a 3 Signed byte int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
-	 * @param order  the order of the bytes of the int
+	 * @param offset     Offset at which to start reading the int
+	 * @param order      the order of the bytes of the int
 	 * @return The int
 	 */
 	public int get3SignedByteInt(ByteBuffer byteBuffer, int offset, ByteOrder order) {
 		int offInc = 1;
-		if (order == ByteOrder.BIG_ENDIAN) {
-			offInc = -1;
-			offset += 2;
-		}
+	    if (order == ByteOrder.BIG_ENDIAN) {
+	        offInc = -1;
+	        offset += 2;
+	    }
 
-		int rtn = getSignedByte(byteBuffer, offset);
-		rtn += (getSignedByte(byteBuffer, offset + (1 * offInc)) << 8);
-		rtn += (getSignedByte(byteBuffer, offset + (2 * offInc)) << 16);
-		return rtn;
+	    // Read the three bytes
+	    int b1 = getUnsignedByte(byteBuffer, offset);
+	    int b2 = getUnsignedByte(byteBuffer, offset + (1 * offInc));
+	    int b3 = getSignedByte(byteBuffer, offset + (2 * offInc)); // Use signed for the highest byte
+
+	    // Combine them into a 24-bit signed integer
+	    return (b3 << 16) | (b2 << 8) | b1;
 	}
 
 	/**
@@ -676,7 +679,7 @@ public class ByteStreamUtil {
 	 * Read a Unsigned int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param order  the order of the bytes of the int
+	 * @param order      the order of the bytes of the int
 	 * @return The long
 	 */
 	public long getUnsignedInt(ByteBuffer byteBuffer, ByteOrder order) {
@@ -690,7 +693,7 @@ public class ByteStreamUtil {
 	 * Read a Signed int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param order  the order of the bytes of the int
+	 * @param order      the order of the bytes of the int
 	 * @return The long
 	 */
 	public long getSignedInt(ByteBuffer byteBuffer, ByteOrder order) {
@@ -704,7 +707,7 @@ public class ByteStreamUtil {
 	 * Read a Unsigned int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
+	 * @param offset     Offset at which to start reading the int
 	 * @return The long
 	 */
 	public long getUnsignedInt(ByteBuffer byteBuffer, int offset) {
@@ -715,7 +718,7 @@ public class ByteStreamUtil {
 	 * Read a Signed byte int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
+	 * @param offset     Offset at which to start reading the int
 	 * @return The long
 	 */
 	public long getSignedInt(ByteBuffer byteBuffer, int offset) {
@@ -726,12 +729,11 @@ public class ByteStreamUtil {
 	 * Read a Unsigned int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
-	 * @param order  the order of the bytes of the int
+	 * @param offset     Offset at which to start reading the int
+	 * @param order      the order of the bytes of the int
 	 * @return The long
 	 */
 	public long getUnsignedInt(ByteBuffer byteBuffer, int offset, ByteOrder order) {
-
 		int offInc = 1;
 		if (order == ByteOrder.BIG_ENDIAN) {
 			offInc = -1;
@@ -749,23 +751,35 @@ public class ByteStreamUtil {
 	 * Read a Signed int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
-	 * @param order  the order of the bytes of the int
+	 * @param offset     Offset at which to start reading the int
+	 * @param order      the order of the bytes of the int
 	 * @return The long
 	 */
 	public long getSignedInt(ByteBuffer byteBuffer, int offset, ByteOrder order) {
-
 		int offInc = 1;
-		if (order == ByteOrder.BIG_ENDIAN) {
-			offInc = -1;
-			offset += 3;
-		}
+	    if (order == ByteOrder.BIG_ENDIAN) {
+	        offInc = -1;
+	        offset += 3;
+	    }
 
-		long rtn = getSignedByte(byteBuffer, offset);
-		rtn += (getSignedByte(byteBuffer, offset + (1 * offInc)) << 8);
-		rtn += (getSignedByte(byteBuffer, offset + (2 * offInc)) << 16);
-		rtn += (getSignedByte(byteBuffer, offset + (3 * offInc)) << 24);
-		return rtn;
+	    // Retrieve the bytes and construct the integer
+	    int byte1 = getSignedByte(byteBuffer, offset);
+	    int byte2 = getSignedByte(byteBuffer, offset + (1 * offInc));
+	    int byte3 = getSignedByte(byteBuffer, offset + (2 * offInc));
+	    int byte4 = getSignedByte(byteBuffer, offset + (3 * offInc));
+
+	    // Combine the bytes correctly to form a 32-bit signed integer
+	    long rtn = byte1 & 0xFF; // Keep the least significant byte as is
+	    rtn |= (byte2 & 0xFF) << 8;
+	    rtn |= (byte3 & 0xFF) << 16;
+	    rtn |= (byte4 & 0xFF) << 24;
+
+	    // Sign-extend if necessary (to handle negative values)
+	    if ((rtn & 0x80000000L) != 0) {
+	        rtn |= 0xFFFFFFFF00000000L; // Extend the sign bit to the full 64-bit long
+	    }
+
+	    return rtn;
 	}
 
 	/**
@@ -792,7 +806,7 @@ public class ByteStreamUtil {
 	 * Read a Unsigned Long from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param order  the order of the bytes of the int
+	 * @param order      the order of the bytes of the int
 	 * @return The BigInteger
 	 */
 	public BigInteger getUnsignedLong(ByteBuffer byteBuffer, ByteOrder order) {
@@ -806,7 +820,7 @@ public class ByteStreamUtil {
 	 * Read a Signed Long from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param order  the order of the bytes of the int
+	 * @param order      the order of the bytes of the int
 	 * @return The BigInteger
 	 */
 	public BigInteger getSignedLong(ByteBuffer byteBuffer, ByteOrder order) {
@@ -820,7 +834,7 @@ public class ByteStreamUtil {
 	 * Read a Unsigned Long from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
+	 * @param offset     Offset at which to start reading the int
 	 * @return The BigInteger
 	 */
 	public BigInteger getUnsignedLong(ByteBuffer byteBuffer, int offset) {
@@ -831,7 +845,7 @@ public class ByteStreamUtil {
 	 * Read a Signed byte int from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
+	 * @param offset     Offset at which to start reading the int
 	 * @return The BigInteger
 	 */
 	public BigInteger getSignedLong(ByteBuffer byteBuffer, int offset) {
@@ -842,67 +856,81 @@ public class ByteStreamUtil {
 	 * Read a Unsigned Long from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
-	 * @param order  the order of the bytes of the int
+	 * @param offset     Offset at which to start reading the int
+	 * @param order      the order of the bytes of the int
 	 * @return The BigInteger
 	 */
 	public BigInteger getUnsignedLong(ByteBuffer byteBuffer, int offset, ByteOrder order) {
-
-		int offInc = 1;
 		if (order == ByteOrder.BIG_ENDIAN) {
-			offInc = -1;
-			offset += 8;
-		}
-
-		long rtn = getSignedByte(byteBuffer, offset);
-		rtn += (getSignedByte(byteBuffer, offset + (1 * offInc)) << 8);
-		rtn += (getSignedByte(byteBuffer, offset + (2 * offInc)) << 16);
-		rtn += (getSignedByte(byteBuffer, offset + (3 * offInc)) << 24);
-		rtn += ((long)getSignedByte(byteBuffer, offset + (4 * offInc)) << 32l);  
-		rtn += ((long)getSignedByte(byteBuffer, offset + (5 * offInc)) << 40l);
-		rtn += ((long)getSignedByte(byteBuffer, offset + (6 * offInc)) << 48l);
-		rtn += ((long)getSignedByte(byteBuffer, offset + (7 * offInc)) << 56l);
-
-		return toUnsignedBigInteger (rtn);
+	        // Read in Big Endian order
+	        return BigInteger.valueOf(byteBuffer.get(offset) & 0xFF)
+	                         .shiftLeft(56)
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 1) & 0xFF).shiftLeft(48))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 2) & 0xFF).shiftLeft(40))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 3) & 0xFF).shiftLeft(32))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 4) & 0xFF).shiftLeft(24))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 5) & 0xFF).shiftLeft(16))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 6) & 0xFF).shiftLeft(8))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 7) & 0xFF));
+	    } else {
+	        // Read in Little Endian order
+	        return BigInteger.valueOf(byteBuffer.get(offset + 7) & 0xFF)
+	                         .shiftLeft(56)
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 6) & 0xFF).shiftLeft(48))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 5) & 0xFF).shiftLeft(40))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 4) & 0xFF).shiftLeft(32))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 3) & 0xFF).shiftLeft(24))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 2) & 0xFF).shiftLeft(16))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset + 1) & 0xFF).shiftLeft(8))
+	                         .or(BigInteger.valueOf(byteBuffer.get(offset) & 0xFF));
+	    }
 	}
 
 	public BigInteger toUnsignedBigInteger(long i) {
-	    if (i >= 0L)
-	        return BigInteger.valueOf(i);
-	    else {
-	        int upper = (int) (i >>> 32);
-	        int lower = (int) i;
+		if (i >= 0L)
+			return BigInteger.valueOf(i);
+		else {
+			int upper = (int) (i >>> 32);
+			int lower = (int) i;
 
-	        // return (upper << 32) + lower
-	        return (BigInteger.valueOf(Integer.toUnsignedLong(upper))).shiftLeft(32).
-	            add(BigInteger.valueOf(Integer.toUnsignedLong(lower)));
-	    }
+			return (BigInteger.valueOf(Integer.toUnsignedLong(upper))).shiftLeft(32)
+					.add(BigInteger.valueOf(Integer.toUnsignedLong(lower)));
+		}
 	}
+
 	/**
 	 * Read a Signed Long from a byteBuffer
 	 * 
 	 * @param byteBuffer Buffer containing the bytes
-	 * @param offset Offset at which to start reading the int
-	 * @param order  the order of the bytes of the int
+	 * @param offset     Offset at which to start reading the int
+	 * @param order      the order of the bytes of the int
 	 * @return The BigInteger
 	 */
 	public BigInteger getSignedLong(ByteBuffer byteBuffer, int offset, ByteOrder order) {
+		long value;
+	    
+	    if (order == ByteOrder.BIG_ENDIAN) {
+	        value = ((long)(byteBuffer.get(offset) & 0xFF) << 56) |
+	                ((long)(byteBuffer.get(offset + 1) & 0xFF) << 48) |
+	                ((long)(byteBuffer.get(offset + 2) & 0xFF) << 40) |
+	                ((long)(byteBuffer.get(offset + 3) & 0xFF) << 32) |
+	                ((long)(byteBuffer.get(offset + 4) & 0xFF) << 24) |
+	                ((long)(byteBuffer.get(offset + 5) & 0xFF) << 16) |
+	                ((long)(byteBuffer.get(offset + 6) & 0xFF) << 8) |
+	                ((long)(byteBuffer.get(offset + 7) & 0xFF));
+	    } else {
+	        value = ((long)(byteBuffer.get(offset + 7) & 0xFF) << 56) |
+	                ((long)(byteBuffer.get(offset + 6) & 0xFF) << 48) |
+	                ((long)(byteBuffer.get(offset + 5) & 0xFF) << 40) |
+	                ((long)(byteBuffer.get(offset + 4) & 0xFF) << 32) |
+	                ((long)(byteBuffer.get(offset + 3) & 0xFF) << 24) |
+	                ((long)(byteBuffer.get(offset + 2) & 0xFF) << 16) |
+	                ((long)(byteBuffer.get(offset + 1) & 0xFF) << 8) |
+	                ((long)(byteBuffer.get(offset) & 0xFF));
+	    }
 
-		int offInc = 1;
-		if (order == ByteOrder.BIG_ENDIAN) {
-			offInc = -1;
-			offset += 8;
-		}
-
-		BigInteger rtn = BigInteger.valueOf(getSignedByte(byteBuffer, offset));
-		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (1 * offInc))).shiftLeft(8)));
-		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (2 * offInc))).shiftLeft(16)));
-		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (3 * offInc))).shiftLeft(24)));
-		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (4 * offInc))).shiftLeft(32)));
-		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (5 * offInc))).shiftLeft(40)));
-		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (7 * offInc))).shiftLeft(48)));
-		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (8 * offInc))).shiftLeft(56)));
-		return rtn;
+	    // Convert to signed BigInteger, handling negative values correctly
+	    return BigInteger.valueOf(value);
 	}
 
 	/**
@@ -932,13 +960,13 @@ public class ByteStreamUtil {
 	public int asSignedShort(short s) {
 		return s;
 	}
-	
+
 	public int memCompare(int[] a, int[] b, int sz) {
-	    for (int i = 0; i < sz; i++) {
-	        if (a[i] != b[i]) {
-	            return a[i] - b[i];
-	        }
-	    }
-	    return 0;
+		for (int i = 0; i < sz; i++) {
+			if (a[i] != b[i]) {
+				return a[i] - b[i];
+			}
+		}
+		return 0;
 	}
 }

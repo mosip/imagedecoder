@@ -1,17 +1,17 @@
 package io.mosip.imagedecoder.model.openjpeg;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Arrays;
+import java.util.Objects;
 
-@Getter
-@Setter
-@Data
+import lombok.Data;
+import lombok.ToString;
+
 /**
-Tile coding parameters : 
-this structure is used to store coding/decoding parameters common to all
-tiles (information like COD, COC in main header)
-*/
+ * Tile coding parameters : this structure is used to store coding/decoding
+ * parameters common to all tiles (information like COD, COC in main header)
+ */
+@Data
+@ToString
 public class Tcp {
 	/** 1 : first part-tile of a tile */
 	private int first;
@@ -46,4 +46,36 @@ public class Tcp {
 	private float[] distortionRatio = new float[100];
 	/** tile-component coding parameters */
 	private TileComponentCodingParameters[] tccps;
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		Tcp tcp = (Tcp) o;
+		return first == tcp.first && codingStyle == tcp.codingStyle && noOfLayers == tcp.noOfLayers && mct == tcp.mct
+				&& noOfPocs == tcp.noOfPocs && isPoc == tcp.isPoc && pptDataIndex == tcp.pptDataIndex && ppt == tcp.ppt
+				&& pptStore == tcp.pptStore && pptLength == tcp.pptLength && Arrays.equals(rates, tcp.rates)
+				&& Arrays.equals(pocs, tcp.pocs) && Arrays.equals(pptData, tcp.pptData)
+				&& Arrays.equals(pptDataFirst, tcp.pptDataFirst) && Arrays.equals(distortionRatio, tcp.distortionRatio)
+				&& Arrays.equals(tccps, tcp.tccps) && Objects.equals(progressionOrder, tcp.progressionOrder);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = Objects.hash(first, codingStyle, progressionOrder, noOfLayers, mct, noOfPocs, isPoc, pptDataIndex,
+				ppt, pptStore, pptLength);
+		result = 31 * result + Arrays.hashCode(rates);
+		result = 31 * result + Arrays.hashCode(pocs);
+		result = 31 * result + Arrays.hashCode(pptData);
+		result = 31 * result + Arrays.hashCode(pptDataFirst);
+		result = 31 * result + Arrays.hashCode(distortionRatio);
+		result = 31 * result + Arrays.hashCode(tccps);
+		return result;
+	}
+
+	public boolean canEqual(Object other) {
+		return other instanceof Tcp;
+	}
 }

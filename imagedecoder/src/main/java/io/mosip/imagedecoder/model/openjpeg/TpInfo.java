@@ -1,15 +1,15 @@
 package io.mosip.imagedecoder.model.openjpeg;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Objects;
 
-@Getter
-@Setter
-@Data
+import lombok.Data;
+import lombok.ToString;
+
 /**
  * Index structure : Information concerning tile-parts
  */
+@Data
+@ToString
 public class TpInfo {
 	/** start position of tile part */
 	private int tpStartPosition;
@@ -21,4 +21,25 @@ public class TpInfo {
 	private int tpStartPacket;
 	/** number of packets of tile part */
 	private int tpNoOfPackets;
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		TpInfo tpInfo = (TpInfo) o;
+		return tpStartPosition == tpInfo.tpStartPosition && tpEndHeader == tpInfo.tpEndHeader
+				&& tpEndPosition == tpInfo.tpEndPosition && tpStartPacket == tpInfo.tpStartPacket
+				&& tpNoOfPackets == tpInfo.tpNoOfPackets;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(tpStartPosition, tpEndHeader, tpEndPosition, tpStartPacket, tpNoOfPackets);
+	}
+
+	public boolean canEqual(Object other) {
+		return other instanceof TpInfo;
+	}
 }

@@ -34,7 +34,7 @@ public enum RsizCapabilities {
 				return c;
 			}
 		}
-		throw new IllegalArgumentException(value + "");
+		throw new IllegalArgumentException("No enum constant for value: " + value);
 	}
 
 	@Override

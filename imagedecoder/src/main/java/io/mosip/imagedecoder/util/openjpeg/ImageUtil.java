@@ -224,6 +224,7 @@ public class ImageUtil {
 			}
 		} catch (Exception ex) {
 			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "fromJ2kImage", ex);
+			throw ex;
 		}
 		return dib;
 	}
