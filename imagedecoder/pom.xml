@@ -15,7 +15,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 		<org.slf4j.version>1.7.25</org.slf4j.version>
 		<kernel.version>1.2.0.1-B1</kernel.version>
-		<jackson-databind.version>2.11.1</jackson-databind.version>
+		<jackson-databind.version>2.12.7.1</jackson-databind.version>
 		<jackson-core.version>2.11.1</jackson-core.version>
     </properties>
 
