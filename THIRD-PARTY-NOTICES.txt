@@ -47,7 +47,7 @@ Homepage: https://maven.apache.org/plugins
 ================================================================================
 Package: pl.project13.maven:git-commit-id-plugin
 Version: 3.0.1
-License: Apache License 2.0
+License: GNU Lesser General Public License v3.0 (LGPL-3.0)
 Homepage: https://github.com/git-commit-id/git-commit-id-maven-plugin
 ================================================================================
 
@@ -89,8 +89,8 @@ Homepage: https://github.com/FasterXML/jackson-databind
 ================================================================================
 Package: org.junit.vintage:junit-vintage-engine
 Version: Not specified
-License: EPL-1.0 (Inferred)
-Homepage: https://junit.org
+License: Eclipse Public License 2.0 (EPL-2.0)
+Homepage: https://junit.org/junit5/
 ================================================================================
 
 ================================================================================
@@ -147,20 +147,6 @@ Package: io.mosip.imagedecoder:imagedecoder
 Version: 0.10.0-beta.1
 License: MPL-2.0
 Homepage: https://github.com/mosip
-================================================================================
-
-================================================================================
-Package: GitHub Actions Workflow – maven-build.yml
-Version: master-java21
-License: MIT License (Inferred)
-Homepage: https://github.com/mosip/kattu
-================================================================================
-
-================================================================================
-Package: GitHub Actions Workflow – maven-publish-to-nexus.yml
-Version: master-java21
-License: MIT License (Inferred)
-Homepage: https://github.com/mosip/kattu
 ================================================================================
 
 Full license texts and additional details for each of the above packages are available in the license/ directory of this repository. Please refer to those files or the original source of each package for complete legal terms and conditions.
