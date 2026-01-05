@@ -1,0 +1,83 @@
+================================================================================
+COPYRIGHT NOTICES
+================================================================================
+
+This software includes components from the following open source projects.
+All copyright notices must be preserved as required by their respective licenses.
+
+================================================================================
+1. SLF4J (MIT License)
+================================================================================
+Copyright (c) 2004-2022 QOS.ch Sarl (Switzerland)
+All rights reserved.
+
+Packages: org.slf4j:jcl-over-slf4j, org.slf4j:jul-to-slf4j
+License: MIT License
+Homepage: https://www.slf4j.org
+Full license text: See LICENSE-MIT.txt
+
+================================================================================
+2. Jackson (Apache License 2.0)
+================================================================================
+Copyright 2007- Tatu Saloranta (tatu.saloranta@iki.fi)
+Copyright 2008-present FasterXML, LLC
+
+Packages: com.fasterxml.jackson.core:jackson-core, jackson-databind
+License: Apache License 2.0
+Homepage: https://github.com/FasterXML/jackson-core
+Full license text: See LICENSE-APACHE-2.0.txt
+
+NOTICE: This product includes Jackson software developed by
+FasterXML, LLC (http://fasterxml.com/).
+
+================================================================================
+3. JUnit 5 (Eclipse Public License 2.0)
+================================================================================
+Copyright (c) 2015-present The JUnit Team
+Eclipse Public License - v 2.0
+
+Package: org.junit.vintage:junit-vintage-engine
+License: Eclipse Public License 2.0
+Homepage: https://junit.org/junit5/
+Full license text: See LICENSE-EPL-2.0.txt
+
+================================================================================
+4. Apache Maven Plugins (Apache License 2.0)
+================================================================================
+Apache Maven
+Copyright 2001-2019 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+Packages: maven-source-plugin, maven-gpg-plugin, maven-assembly-plugin,
+          maven-compiler-plugin, maven-javadoc-plugin, maven-surefire-plugin,
+          maven-jar-plugin, maven-dependency-plugin
+License: Apache License 2.0
+Homepage: https://maven.apache.org/plugins/
+Full license text: See LICENSE-APACHE-2.0.txt
+
+================================================================================
+5. git-commit-id-plugin (LGPL-3.0)
+================================================================================
+Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+
+Package: pl.project13.maven:git-commit-id-plugin
+License: GNU Lesser General Public License v3.0
+Homepage: https://github.com/git-commit-id/git-commit-id-maven-plugin
+Full license text: See LICENSE-LGPL-3.0.txt
+
+================================================================================
+6. MOSIP Kernel (Mozilla Public License 2.0)
+================================================================================
+Copyright (c) MOSIP
+
+Packages: io.mosip.kernel:kernel-bom, kernel-core, kernel-logger-logback,
+          io.mosip.imagedecoder:imagedecoder
+License: Mozilla Public License 2.0
+Homepage: https://github.com/mosip/commons
+Full license text: See LICENSE-MPL-2.0.txt
+
+================================================================================
+END OF COPYRIGHT NOTICES
+================================================================================
