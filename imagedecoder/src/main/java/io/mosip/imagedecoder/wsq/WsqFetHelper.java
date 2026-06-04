@@ -161,7 +161,6 @@ public class WsqFetHelper {
 	@SuppressWarnings({ "java:S135", "java:S2629", "java:S3626" })
 	public int extractFet(StringBuilder value, char[] feature, WsqFet fet) {
 		int item;
-
 		for (item = 0; (item < fet.getNum()); item++) {
 			if (fet.getNames()[item] != null && feature != null) {
 				if (StringUtil.getInstance().stringCompare(fet.getNames()[item].trim(),

@@ -53,6 +53,12 @@ public class ByteStreamUtil {
 
 	public int getBufferU(ByteBufferContext byteBufCont, byte[] target, int size) {
 		int pos = byteBufCont.getBuffer().position();
+		 // Validate that the requested size does not exceed remaining bytes
+	    int remaining = byteBufCont.getBuffer().remaining();
+	    if (size > remaining) {
+	    	size = remaining;
+    	}
+	    
 		System.arraycopy(byteBufCont.getBuffer().array(), pos, target, 0, size);
 		byteBufCont.getBuffer().position(pos + size);
 		return size;
@@ -60,6 +66,11 @@ public class ByteStreamUtil {
 
 	public int getBufferU(ByteBufferContext byteBufCont, byte[] target, int dstPos, int size) {
 		int pos = byteBufCont.getBuffer().position();
+		 // Validate that the requested size does not exceed remaining bytes
+	    int remaining = byteBufCont.getBuffer().remaining();
+	    if (size > remaining) {
+	    	size = remaining;
+    	}
 		System.arraycopy(byteBufCont.getBuffer().array(), pos, target, dstPos, size);
 		byteBufCont.getBuffer().position(pos + size);
 		return size;

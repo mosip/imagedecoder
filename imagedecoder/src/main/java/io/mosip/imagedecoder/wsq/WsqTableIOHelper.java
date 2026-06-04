@@ -6,12 +6,11 @@ import static io.mosip.imagedecoder.constant.DecoderConstant.LOGGER_SESSIONID;
 
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-
-import io.mosip.kernel.core.logger.spi.Logger;
-import io.mosip.imagedecoder.logger.ImageDecoderLogger;
+import java.util.Arrays;
 
 import io.mosip.imagedecoder.constant.wsq.WsqConstant;
 import io.mosip.imagedecoder.constant.wsq.WsqErrorCode;
+import io.mosip.imagedecoder.logger.ImageDecoderLogger;
 import io.mosip.imagedecoder.model.ByteBufferContext;
 import io.mosip.imagedecoder.model.wsq.WsqFet;
 import io.mosip.imagedecoder.model.wsq.WsqHeaderForm;
@@ -21,6 +20,7 @@ import io.mosip.imagedecoder.model.wsq.WsqTableDtt;
 import io.mosip.imagedecoder.util.ByteStreamUtil;
 import io.mosip.imagedecoder.util.StringUtil;
 import io.mosip.imagedecoder.util.wsq.WsqUtil;
+import io.mosip.kernel.core.logger.spi.Logger;
 
 public class WsqTableIOHelper {
 	private Logger logger = ImageDecoderLogger.getLogger(WsqTableIOHelper.class);
@@ -397,9 +397,11 @@ public class WsqTableIOHelper {
 			/* have one here by default due to the calloc of one extra byte at */
 			/* the end. */
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			comment = " ".toString().getBytes();
+			logger.info(LOGGER_SESSIONID, LOGGER_IDTYPE,  LOGGER_EMPTY, "getComment : comment empty " + ex.getLocalizedMessage());
+			Arrays.fill(comment, (byte) '\0');
 		}
+		// Add a null terminator at the end
+		comment[comment.length-1] = '\0'; // Null terminator (ASCII 0)
 		return ret;
 	}
 
@@ -441,7 +443,6 @@ public class WsqTableIOHelper {
 
 		headerForm.setWsqEncoder((int) ByteStreamUtil.getInstance().getUByte(cbufptr));
 		headerForm.setSoftware(ByteStreamUtil.getInstance().getUShort(cbufptr));
-
 		return ret;
 	}
 
@@ -482,9 +483,9 @@ public class WsqTableIOHelper {
 					int cs = hdrSize - 2;
 					/* Allocate including a possible NULL terminator. */
 					byte[] comment = new byte[cs + 1];
-
 					if ((ret = getComment(comment, cbufptr)) != 0)
 						return ret;
+					
 					commentText.append(new String(comment, StandardCharsets.UTF_8));
 					if ((ret = WsqFetHelper.getInstance().string2fet(nistcom,
 							commentText.toString().toCharArray())) != 0) {
