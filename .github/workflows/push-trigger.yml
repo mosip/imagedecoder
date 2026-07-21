@@ -54,7 +54,7 @@ jobs:
   sonar_analysis:
     needs: build-maven-imagedecoder
     if: "${{  github.event_name != 'pull_request' }}"
-    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@mahesh-patch-2
+    uses: mahesh-binayak/kattu/.github/workflows/maven-sonar-analysis.yml@gpgupdate
     with:
       SERVICE_LOCATION: imagedecoder
       PROJECT_KEY: 'mosip_imagedecoder'
