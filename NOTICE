@@ -3,8 +3,8 @@ NOTICES
 Copyright (c) MOSIP.
 All rights reserved.
 
-This project is MPL 2.0 (see LICENSE). Third-party versions match pom.xml and
-Spring Boot 4.1.1. Full texts and MOSIP dual-license elections: licenses/.
+This project is MPL 2.0 (see LICENSE). Per-artifact list with versions:
+THIRD-PARTY-NOTICES. Full license texts: licenses/.
 
 MOSIP open-source license matrix (compatible with MPL 2.0 / Use with MOSIP):
 
@@ -26,54 +26,95 @@ MOSIP open-source license matrix (compatible with MPL 2.0 / Use with MOSIP):
   Zlib                             Yes           Yes               Keep zlib license text
   0BSD                             Yes           Yes               Permissive
 
-Dual-licensed jars: MOSIP elects an allowed option (never EPL, GPL, AGPL, LGPLv3,
-or Creative Commons as the product license).
-
 ===========================
-MIT License (licenses/MIT.txt)
+License texts (licenses/)
 ===========================
 
-- org.slf4j:slf4j-api (Boot-managed)
-- org.slf4j:jul-to-slf4j (Boot-managed)
-- org.slf4j:jcl-over-slf4j (Boot-managed)
-- org.projectlombok:lombok (Boot-managed; provided)
-- org.mockito:mockito-core (Boot-managed; test)
+  Apache-2.0.txt                        Spring, Jackson, Hibernate, Tomcat, Apache
+                                        Commons, Guava, Micrometer, Maven plugins
+  MIT.txt                               SLF4J, Mockito, jsoup, java-jwt, Lombok,
+                                        Bouncy Castle (Bouncy Castle Licence = MIT)
+  BSD-2-Clause.txt                      HdrHistogram, OpenJPEG (ported code)
+  BSD-3-Clause.txt                      ANTLR, Janino, Hamcrest, OWASP Encoder,
+                                        Eclipse Distribution License 1.0 (Jakarta
+                                        Activation/JAXB/Persistence, Angus, istack)
+  BSD-3-Clause-No-Nuclear-License.txt   jai-imageio-core
+  CDDL-1.0.txt / CDDL-1.1.txt           javax.activation, jaxb-api 2.3.1,
+                                        javax.interceptor, javax.transaction, mailapi
+  MPL-2.0.txt                           This project, kernel-core, Rhino
+  Unicode-3.0.txt                       ICU4J
+  CC0-1.0.txt                           HdrHistogram alternative (not elected)
+  EPL-1.0.txt / EPL-2.0.txt             Flagged runtime jars, JUnit, JaCoCo (test/build)
+  LGPL-2.1.txt                          Flagged runtime jars (Logback, openhtmltopdf,
+                                        mchange-commons, findbugs annotations)
+  LGPL-3.0.txt                          git-commit-id-plugin, sonar-maven-plugin (build)
+  GPL-2.0-with-Classpath-Exception.txt  Alternative on CDDL / Jakarta EE jars (not elected)
+  CC-BY-2.5.txt                         jcip-annotations (flagged)
 
 ===========================
-Apache-2.0 (licenses/Apache-2.0.txt)
+Dual-license elections
 ===========================
 
-- Spring Boot 4.1.1 / Spring Framework (Boot parent)
-- com.fasterxml.jackson.* (Jackson 2 via spring-boot-jackson2)
-- Maven build plugins (compiler, surefire, jar, source, javadoc, gpg, deploy,
-  assembly, dependency, resources)
+MOSIP elects an allowed option; never EPL, GPL, AGPL, LGPL or Creative Commons.
+
+  org.javassist:javassist                    Apache-2.0  (not MPL-1.1 / LGPL-2.1)
+  com.github.java-json-tools:*               Apache-2.0  (not LGPL-3.0)
+  org.hdrhistogram:HdrHistogram              BSD-2-Clause (not CC0-1.0)
+  net.logstash.logback:logstash-logback-encoder  Apache-2.0 (not MIT)
+  jakarta.persistence:jakarta.persistence-api    EDL-1.0 / BSD-3 (not EPL-2.0)
+  javax.persistence:javax.persistence-api        EDL-1.0 / BSD-3 (not EPL-1.0)
+  javax.xml.bind:jaxb-api, javax.activation:javax.activation-api,
+  javax.interceptor:*, javax.transaction:*, com.sun.mail:mailapi
+                                             CDDL-1.1   (not GPL-2.0 + CPE)
 
 ===========================
-Mozilla Public License 2.0 (LICENSE)
+Flagged: no MOSIP-approved option
 ===========================
 
-- This repository (imagedecoder modules)
-- io.mosip.kernel:kernel-core (commons — includes Logfactory)
+All arrive transitively through io.mosip.kernel:kernel-core. They are used as
+unmodified separate jars; this project's code stays MPL-2.0.
+
+  ch.qos.logback:logback-classic / logback-core   EPL-1.0 or LGPL-2.1
+  com.mchange:mchange-commons-java                EPL-1.0 or LGPL-2.1
+  jakarta.annotation:jakarta.annotation-api       EPL-2.0 or GPL-2.0 + CPE
+  jakarta.transaction:jakarta.transaction-api     EPL-2.0 or GPL-2.0 + CPE
+  org.aspectj:aspectjweaver                       EPL-2.0
+  junit:junit                                     EPL-1.0
+  com.openhtmltopdf:openhtmltopdf-core / -pdfbox  LGPL-2.1-or-later
+  com.google.code.findbugs:annotations            LGPL-2.1
+  net.jcip:jcip-annotations                       CC-BY-2.5
+
+Permissive but not in the matrix: com.ibm.icu:icu4j (Unicode-3.0),
+aopalliance:aopalliance and org.json:json (Public Domain).
+
+Test and build only (not distributed): JUnit Jupiter/Vintage and JaCoCo (EPL-2.0),
+nexus-staging-maven-plugin (EPL-1.0), git-commit-id-plugin and sonar-maven-plugin
+(LGPL-3.0).
+
 ===========================
-Eclipse Public License 2.0 (licenses/EPL-2.0.txt)
+Ported code in this repository
 ===========================
 
-- org.junit.vintage:junit-vintage-engine (test only — MOSIP product license remains MPL-2.0)
+io.mosip.imagedecoder.openjpeg is a Java port of OpenJPEG 1.x (BSD-2-Clause,
+licenses/BSD-2-Clause.txt):
+  Copyright (c) 2002-2014, Universite catholique de Louvain (UCL), Belgium
+  Copyright (c) 2002-2014, Professor Benoit Macq
+  Copyright (c) 2001-2003, David Janssens
+  Copyright (c) 2002-2003, Yannick Verschueren
+  Copyright (c) 2003-2007, Francois-Olivier Devaux
+  Copyright (c) 2003-2014, Antonin Descampe
+  Copyright (c) 2005, Herve Drolon, FreeImage Team
+  Copyright (c) 2006-2007, Parvatha Elangovan
+  https://github.com/uclouvain/openjpeg
 
-===========================
-GNU LGPL 3.0 (licenses/LGPL-3.0.txt) — build plugin only
-===========================
-
-- pl.project13.maven:git-commit-id-plugin (build-time; not redistributed in library JAR)
+io.mosip.imagedecoder.wsq is a Java port of the NIST Biometric Image Software
+(NBIS) WSQ codec, a work of the U.S. Government in the public domain.
+  https://www.nist.gov/services-resources/software/nist-biometric-image-software-nbis
+  Upstream mirror: https://github.com/lessandro/nbis
 
 ===========================
 Removed / banned (do not reintroduce)
 ===========================
 
-- io.mosip.kernel:kernel-bom — replaced by Spring Boot 4.1.1 dependency management
-- io.mosip.kernel:kernel-logger-logback — Logfactory lives in kernel-core
-
-Algorithm provenance (ports, not redistributed as separate jars):
-- OpenJPEG / openjp2 → Java package io.mosip.imagedecoder.openjpeg
-- NBIS WSQ → Java package io.mosip.imagedecoder.wsq
-  Upstream inspiration: https://github.com/lessandro/nbis
+- io.mosip.kernel:kernel-bom (replaced by Spring Boot 4.1.1 dependency management)
+- io.mosip.kernel:kernel-logger-logback (Logfactory lives in kernel-core)
