@@ -4,71 +4,143 @@ COPYRIGHT NOTICES
 
 This software includes components from the following open source projects.
 All copyright notices must be preserved as required by their respective licenses.
-Versions match Spring Boot 4.1.1 parent and imagedecoder-parent pom.xml.
-Full license texts: licenses/*.txt
+Per-artifact versions: ../THIRD-PARTY-NOTICES. MOSIP elections: ../NOTICE.
 
 ================================================================================
-1. SLF4J (MIT License)
-================================================================================
-Copyright (c) 2004-2022 QOS.ch Sarl (Switzerland)
-
-Packages: org.slf4j:slf4j-api, jul-to-slf4j, jcl-over-slf4j
-License: MIT License — licenses/MIT.txt
-Homepage: https://www.slf4j.org
-
-================================================================================
-2. Jackson (Apache License 2.0)
-================================================================================
-Copyright FasterXML, LLC
-
-Packages: com.fasterxml.jackson.core:jackson-core, jackson-databind
-          (Jackson 2 via org.springframework.boot:spring-boot-jackson2)
-License: Apache License 2.0 — licenses/Apache-2.0.txt
-Homepage: https://github.com/FasterXML/jackson-core
-
-================================================================================
-3. Spring Boot / Spring Framework (Apache License 2.0)
-================================================================================
-Copyright VMware, Inc. / Broadcom
-
-Packages: org.springframework.boot:spring-boot-starter-parent 4.1.1,
-          spring-boot-starter-test, spring-boot-jackson2
-License: Apache License 2.0 — licenses/Apache-2.0.txt
-Homepage: https://spring.io/projects/spring-boot
-
-================================================================================
-4. JUnit Vintage (Eclipse Public License 2.0) — test only
-================================================================================
-Package: org.junit.vintage:junit-vintage-engine
-License: EPL-2.0 — licenses/EPL-2.0.txt
-Homepage: https://junit.org/junit5/
-
-================================================================================
-5. Apache Maven Plugins (Apache License 2.0)
-================================================================================
-Packages: maven-compiler-plugin, maven-surefire-plugin, maven-jar-plugin,
-          maven-source-plugin, maven-javadoc-plugin, maven-gpg-plugin,
-          maven-deploy-plugin, maven-assembly-plugin, maven-dependency-plugin,
-          maven-resources-plugin, jacoco-maven-plugin
-License: Apache License 2.0 — licenses/Apache-2.0.txt
-Homepage: https://maven.apache.org/plugins/
-
-================================================================================
-6. MOSIP Kernel Core (Mozilla Public License 2.0)
+1. This project (Mozilla Public License 2.0)
 ================================================================================
 Copyright (c) MOSIP
+Package: io.mosip.imagedecoder:imagedecoder
+License: MPL-2.0 - ../LICENSE, MPL-2.0.txt
+Homepage: https://github.com/mosip/imagedecoder
 
-Package: io.mosip.kernel:kernel-core
-         (includes io.mosip.kernel.logger.logback.factory.Logfactory)
-License: MPL-2.0 — LICENSE / licenses/MPL-2.0.txt
+================================================================================
+2. MOSIP Kernel Core (Mozilla Public License 2.0)
+================================================================================
+Copyright (c) MOSIP
+Package: io.mosip.kernel:kernel-core (includes Logfactory)
+License: MPL-2.0 - MPL-2.0.txt
 Homepage: https://github.com/mosip/commons
 
 ================================================================================
-7. This project (Mozilla Public License 2.0)
+3. OpenJPEG 1.x - ported to io.mosip.imagedecoder.openjpeg (BSD-2-Clause)
 ================================================================================
-Package: io.mosip.imagedecoder:imagedecoder
-License: MPL-2.0 — LICENSE
-Homepage: https://github.com/mosip/imagedecoder
+Copyright (c) 2002-2014, Universite catholique de Louvain (UCL), Belgium
+Copyright (c) 2002-2014, Professor Benoit Macq
+Copyright (c) 2001-2003, David Janssens
+Copyright (c) 2002-2003, Yannick Verschueren
+Copyright (c) 2003-2007, Francois-Olivier Devaux
+Copyright (c) 2003-2014, Antonin Descampe
+Copyright (c) 2005, Herve Drolon, FreeImage Team
+Copyright (c) 2006-2007, Parvatha Elangovan
+License: BSD-2-Clause - BSD-2-Clause.txt
+Homepage: https://github.com/uclouvain/openjpeg
+
+================================================================================
+4. NIST NBIS WSQ - ported to io.mosip.imagedecoder.wsq (Public Domain)
+================================================================================
+Work of the U.S. Government (National Institute of Standards and Technology);
+not subject to copyright in the United States.
+Homepage: https://www.nist.gov/services-resources/software/nist-biometric-image-software-nbis
+
+================================================================================
+5. Spring Framework / Spring Boot / Spring Data / Spring Cloud (Apache-2.0)
+================================================================================
+Copyright (c) 2002-present Broadcom Inc. and/or its subsidiaries
+License: Apache-2.0 - Apache-2.0.txt
+Homepage: https://spring.io
+
+================================================================================
+6. Jackson (Apache-2.0)
+================================================================================
+Copyright (c) FasterXML, LLC
+Packages: com.fasterxml.jackson.* (Jackson 2 via spring-boot-jackson2),
+          tools.jackson.core:* (Jackson 3, transitive)
+License: Apache-2.0 - Apache-2.0.txt
+Homepage: https://github.com/FasterXML/jackson
+
+================================================================================
+7. Hibernate / JBoss Logging / HikariCP / Tomcat / Apache Commons / Guava /
+   Micrometer / Prometheus / Brave / other Apache-2.0 components
+================================================================================
+Copyright holders: Red Hat, Inc.; Brett Wooldridge; The Apache Software
+Foundation; Google LLC; VMware/Broadcom (Micrometer); The Prometheus Authors;
+The OpenZipkin Authors; and the respective project authors listed in
+../THIRD-PARTY-NOTICES.
+License: Apache-2.0 - Apache-2.0.txt
+
+================================================================================
+8. SLF4J (MIT)
+================================================================================
+Copyright (c) 2004-2022 QOS.ch Sarl (Switzerland)
+Packages: org.slf4j:slf4j-api, jul-to-slf4j (jcl-over-slf4j is Apache-2.0)
+License: MIT - MIT.txt
+Homepage: https://www.slf4j.org
+
+================================================================================
+9. Other MIT components
+================================================================================
+Mockito (Copyright (c) 2007 Mockito contributors), jsoup (Copyright (c)
+Jonathan Hedley), java-jwt (Copyright (c) Auth0, Inc.), JOpt Simple
+(Copyright (c) Paul R. Holser, Jr.), Project Lombok (Copyright (c) The Project
+Lombok Authors; provided scope), Bouncy Castle (Copyright (c) 2000-2025 The
+Legion of the Bouncy Castle Inc.; Bouncy Castle Licence = MIT).
+License: MIT - MIT.txt
+
+================================================================================
+10. BSD components
+================================================================================
+BSD-2-Clause (BSD-2-Clause.txt): HdrHistogram (Gil Tene; elected over CC0-1.0)
+BSD-3-Clause (BSD-3-Clause.txt): ANTLR (Terence Parr), Janino (Arno Unkrig),
+  Hamcrest (Joe Walnes, Nat Pryce, Steve Freeman), OWASP Java Encoder,
+  ParaNamer (Paul Hammant)
+BSD-3-Clause w/ nuclear disclaimer (BSD-3-Clause-No-Nuclear-License.txt):
+  jai-imageio-core (Sun Microsystems, Inc.)
+
+================================================================================
+11. Eclipse Distribution License 1.0 (= BSD-3-Clause)
+================================================================================
+Copyright (c) Eclipse Foundation / Oracle and/or its affiliates
+Packages: jakarta.activation-api, angus-activation, jakarta.xml.bind-api,
+          jaxb-core, jaxb-runtime, txw2, istack-commons-runtime,
+          jakarta.persistence-api and javax.persistence-api (EDL elected over EPL)
+License: BSD-3-Clause.txt
+
+================================================================================
+12. CDDL components
+================================================================================
+Copyright (c) Oracle and/or its affiliates (formerly Sun Microsystems, Inc.)
+CDDL-1.0 (CDDL-1.0.txt): javax.activation:activation
+CDDL-1.1 (CDDL-1.1.txt, elected over GPL-2.0-with-Classpath-Exception.txt):
+  jaxb-api 2.3.1, javax.activation-api, javax.interceptor-api,
+  javax.transaction-api, com.sun.mail:mailapi
+
+================================================================================
+13. Rhino (MPL-2.0) and ICU4J (Unicode-3.0)
+================================================================================
+Rhino: Copyright (c) Mozilla Foundation - MPL-2.0.txt
+ICU4J: Copyright (c) 2016-present Unicode, Inc. - Unicode-3.0.txt
+
+================================================================================
+14. Flagged transitive components (no MOSIP-approved option; see ../NOTICE)
+================================================================================
+Logback (QOS.ch Sarl)                 EPL-1.0.txt / LGPL-2.1.txt
+mchange-commons-java (Steve Waldman)  EPL-1.0.txt / LGPL-2.1.txt
+Jakarta Annotations / Transaction     EPL-2.0.txt / GPL-2.0-with-Classpath-Exception.txt
+  (Eclipse Foundation)
+AspectJ Weaver (Eclipse Foundation)   EPL-2.0.txt
+JUnit 4 (JUnit team)                  EPL-1.0.txt
+openhtmltopdf (danfickle et al.)      LGPL-2.1.txt
+FindBugs annotations (Univ. of Maryland) LGPL-2.1.txt
+jcip-annotations (Brian Goetz, Tim Peierls) CC-BY-2.5.txt
+
+================================================================================
+15. Test and build tools (not distributed)
+================================================================================
+JUnit Jupiter / Vintage, JaCoCo           EPL-2.0.txt
+nexus-staging-maven-plugin                EPL-1.0.txt
+git-commit-id-plugin, sonar-maven-plugin  LGPL-3.0.txt
+Apache Maven plugins, central-publishing  Apache-2.0.txt
 
 ================================================================================
 END OF COPYRIGHT NOTICES

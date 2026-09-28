@@ -20,6 +20,7 @@ rules
 ├─ cover   jacoco ≥0.85 instr · Sonar = (line+branch) ≥85% · excl config/dto/entity ONLY
 ├─ tests   write tests, never add exclusions
 └─ license approved: MIT/BSD/Apache/MPL/ISC/CDDL/Zlib/0BSD · no EPL/GPL/AGPL/LGPL/CC at runtime
+   └─ on dep change: regen report → update NOTICE, THIRD-PARTY-NOTICES, licenses/
 gotchas
 ├─ Cio/Bio/MQC: array+index "pointers"; byteOut PRE-increments → next byte at bpIndex+1
 ├─ Cio: start=bpIndex=-1, end=start+length
@@ -32,5 +33,6 @@ cmds (PowerShell: quote -D args)
 ├─ module  mvn -q test "-Dtest=Class#method" "-Dgpg.skip=true"
 ├─ sonar   mvn verify sonar:sonar -Psonar
 ├─ cov     parse imagedecoder/target/site/jacoco/jacoco.xml (LINE+BRANCH counters)
+├─ lic     (in imagedecoder/) mvn org.codehaus.mojo:license-maven-plugin:2.7.1:add-third-party "-Dlicense.includedScopes=compile,runtime"
 └─ local   imagedecoder/run-local.(bat|sh) init|test|all
 ```
