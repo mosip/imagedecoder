@@ -594,10 +594,10 @@ public class WsqUtil {
 			// use new data index
 			if (inv != 0) {
 				hipassIndex = newDataIndex + rw_cl * pitch;
-				lopassIndex = hipassIndex;
+				lopassIndex = hipassIndex + (stride * hlen);
 			} else {
 				lopassIndex = newDataIndex + rw_cl * pitch;
-				hipassIndex = lopassIndex;
+				hipassIndex = lopassIndex + (stride * llen);
 			}
 
 			// use old data index

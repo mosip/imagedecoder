@@ -67,7 +67,7 @@ public class CioHelper {
 		/* Initialize byte IO */
 		cio.setBpIndex(-1);
 		cio.setStart(-1);
-		cio.setEnd(0 + cio.getLength());
+		cio.setEnd(cio.getStart() + cio.getLength());
 		cio.setBuffer(cio.getBuffer());
 
 		return cio;

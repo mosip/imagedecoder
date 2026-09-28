@@ -1,86 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>io.mosip.imagedecoder</groupId>
+	<!-- Sample CLI apps only — not in the reactor modules list. Do not reintroduce kernel-bom. -->
+	<parent>
+		<groupId>io.mosip.imagedecoder</groupId>
+		<artifactId>imagedecoder-parent</artifactId>
+		<version>0.10.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
 	<artifactId>sample-imagedecoder</artifactId>
+	<version>0.10.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<version>0.10.0-SNAPSHOT</version>
-	<name>imagedecoder</name>
-	<url>http://maven.apache.org</url>
-	<description>Image decoder testing sample</description>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>21</java.version>
 
-		<!-- maven -->
-		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<maven.compiler.version>3.11.0</maven.compiler.version>
-		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
-		<maven.war.plugin.version>3.1.0</maven.war.plugin.version>
-		<maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
-		<maven.shade.plugin.version>2.3</maven.shade.plugin.version>
-		<jacoco.maven.plugin.version>0.8.11</jacoco.maven.plugin.version>
-		<maven.deploy.plugin.version>3.1.1</maven.deploy.plugin.version>
-		<maven.source.plugin.version>3.3.1</maven.source.plugin.version>
-		<maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
-		<maven.gpg.plugin.version>3.2.3</maven.gpg.plugin.version>
-		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
-		<maven.war.plugin.version>3.1.0</maven.war.plugin.version>
-		<maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
-		<maven.dependency.plugin.version>3.1.2</maven.dependency.plugin.version>
-		<maven.resources.plugin.version>3.0.2</maven.resources.plugin.version>
-
-		<nexus.staging.maven.plugin.version>1.6.14</nexus.staging.maven.plugin.version>
-		<spring.boot.maven.plugin.version>3.2.5</spring.boot.maven.plugin.version>
-
-		<!-- git -->
-		<git.commit.id.plugin.version>3.0.1</git.commit.id.plugin.version>
-
-		<!-- Mosip kernel -->
-		<kernel.bom.version>1.3.1-rc.1</kernel.bom.version>
-		<kernel.core.version>1.3.1-rc.1</kernel.core.version>
-		<kernel.logger.logback.version>1.3.1-rc.1</kernel.logger.logback.version>
-		<mosip.imagedecoder.version>0.10.0-SNAPSHOT</mosip.imagedecoder.version>
-	</properties>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>io.mosip.kernel</groupId>
-				<artifactId>kernel-bom</artifactId>
-				<version>${kernel.bom.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+	<name>sample-imagedecoder</name>
+	<url>https://github.com/mosip/imagedecoder</url>
+	<description>
+		Standalone CLI demo for imagedecoder: batch-decode JPEG2000 (.jp2) or WSQ (.wsq) files
+		from a folder (BiometricInfo). Not published to Maven Central. Use
+		run-jp2000-decoder / run-wsq-decoder scripts after packaging this module.
+		Library local runner lives under imagedecoder/run-local.(bat|sh).
+	</description>
 
 	<dependencies>
+		<!--
+			imagedecoder: Library under demo — OpenJpegDecoder / WsqDecoder.
+			Version from parent (${mosip.imagedecoder.version}). MPL-2.0.
+		-->
 		<dependency>
 			<groupId>io.mosip.imagedecoder</groupId>
 			<artifactId>imagedecoder</artifactId>
-			<version>${mosip.imagedecoder.version}</version>
 		</dependency>
+		<!--
+			kernel-core: Logger SPI / Logfactory used by sample CLI.
+			${kernel.core.version}. MPL-2.0. Exclude security starter (library CLI).
+		-->
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-core</artifactId>
-			<version>${kernel.core.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
-					<artifactId>
-						spring-boot-starter-security
-					</artifactId>
+					<artifactId>spring-boot-starter-security</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>io.mosip.kernel</groupId>
-			<artifactId>kernel-logger-logback</artifactId>
-			<version>${kernel.logger.logback.version}</version>
-		</dependency>
+		<!--
+			slf4j bridges: Route JUL / JCL to SLF4J for console sample runs.
+			Versions from Boot parent. License: MIT.
+		-->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jul-to-slf4j</artifactId>
@@ -89,34 +59,10 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
 		</dependency>
-
 	</dependencies>
-
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-	</distributionManagement>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven.compiler.version}</version>
-				<configuration>
-					<release>${java.version}</release>
-					<compilerArgs>
-						<arg>--enable-preview</arg>
-					</compilerArgs>
-				</configuration>
-			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -125,13 +71,11 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>
-								io.mosip.imagedecoder.test.ImageDecoderApplication.class</mainClass>
+							<mainClass>io.mosip.imagedecoder.sample.SampleImageDecoderApplication</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -144,9 +88,7 @@
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>
-								${project.build.directory}/lib
-							</outputDirectory>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
@@ -154,14 +96,12 @@
 					</execution>
 				</executions>
 			</plugin>
-
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>${maven.resources.plugin.version}</version>
 				<executions>
 					<execution>
-						<id>copy-resources-1</id>
-						<!-- here the phase you need -->
+						<id>copy-biometric-info</id>
 						<phase>validate</phase>
 						<goals>
 							<goal>copy-resources</goal>
@@ -176,8 +116,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>copy-resources-2</id>
-						<!-- here the phase you need -->
+						<id>copy-run-scripts</id>
 						<phase>validate</phase>
 						<goals>
 							<goal>copy-resources</goal>
@@ -188,9 +127,11 @@
 								<resource>
 									<directory>${basedir}</directory>
 									<filtering>true</filtering>
-									<includes><!-- what -->
-										<include>run_jp2000_decoder.bat</include>
-										<include>run_wsq_decoder.bat</include>
+									<includes>
+										<include>run-jp2000-decoder.bat</include>
+										<include>run-jp2000-decoder.sh</include>
+										<include>run-wsq-decoder.bat</include>
+										<include>run-wsq-decoder.sh</include>
 									</includes>
 								</resource>
 							</resources>
@@ -200,5 +141,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

@@ -20,12 +20,13 @@ on:
       - 'master'
       - '1.*'
       - 'release*'
+      - 'issue*'
 
 jobs:
   build-maven-imagedecoder:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
-      SERVICE_LOCATION: imagedecoder
+      SERVICE_LOCATION: ./
       BUILD_ARTIFACT: imagedecoder
     secrets:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
@@ -39,7 +40,7 @@ jobs:
     needs: build-maven-imagedecoder
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
     with:
-      SERVICE_LOCATION: imagedecoder
+      SERVICE_LOCATION: ./
     secrets:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
@@ -53,7 +54,7 @@ jobs:
     if: "${{  github.event_name != 'pull_request' }}"
     uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master-java21
     with:
-      SERVICE_LOCATION: imagedecoder
+      SERVICE_LOCATION: ./
       PROJECT_KEY: 'mosip_imagedecoder'
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

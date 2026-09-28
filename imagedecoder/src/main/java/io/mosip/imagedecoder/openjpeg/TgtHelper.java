@@ -114,6 +114,10 @@ public class TgtHelper {
 		node = tree.getNodes()[leafNo];
 		while (node != null && node.getValue() > value) {
 			node.setValue(value);
+			/* parent==0 marks the root (OpenJPEG null parent) */
+			if (node.getParent() == 0) {
+				break;
+			}
 			node = tree.getNodes()[node.getParent()];
 		}
 	}
@@ -129,7 +133,7 @@ public class TgtHelper {
 		int stackDataIndex = 0;
 		stkptr = stack;
 		node = tree.getNodes()[leafNo];
-		while (tree.getNodes()[node.getParent()] != null) {
+		while (node.getParent() != 0) {
 			stkptr[stackDataIndex++] = node;
 			node = tree.getNodes()[node.getParent()];
 		}

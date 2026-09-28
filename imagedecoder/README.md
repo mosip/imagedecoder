@@ -1,14 +1,38 @@
-# image decode
-## Overview
-This is a reference repository to use Image Decoder to extract image header and raw image data.
-This library provides a Image header information.
+# imagedecoder (library)
 
-https://github.com/mosip/imagedecoder.
+Pure-Java JPEG2000 + WSQ biometric image decoder for MOSIP.
 
-## Inspired By
-This library is inspired by https://github.com/lessandro/nbis WSQ for WSQ decoder and
-https://github.com/lessandro/nbis openjp2 for JPEG2000 decoder.
+- Artifact: `io.mosip.imagedecoder:imagedecoder`
+- Parent: `imagedecoder-parent` (Spring Boot **4.1.1**, no `kernel-bom`)
+- Depends on: `kernel-core` (version from parent `kernel.core.version`; Logfactory included)
 
-### License
+```text
+spi/ → IImageDecoderApi
+openjpeg/ → OpenJpegDecoder
+wsq/ → WsqDecoder
+```
 
+## Local runner
 
+From **`imagedecoder/`**:
+
+```bat
+run-local.bat init
+run-local.bat test
+run-local.bat all
+```
+
+```bash
+chmod +x run-local.sh
+./run-local.sh init
+./run-local.sh test
+./run-local.sh all
+```
+
+| Command | Action |
+| ------- | ------ |
+| `init` | Install parent + package this module (skip tests) |
+| `test` | Run unit tests (`OpenJpegDecoderTest`, `WsqDecoderTest`) |
+| `all` | `init` + `test` |
+
+See root [README.md](../README.md) and [AGENTS.md](../AGENTS.md).

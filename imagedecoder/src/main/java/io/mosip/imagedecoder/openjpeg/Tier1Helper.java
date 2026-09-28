@@ -673,6 +673,11 @@ public class Tier1Helper {
 			if ((pass.getRate() > 1) && (cblk.getData()[pass.getRate() - 1] == (byte) 0xFF)) {
 				pass.setRate(pass.getRate() - 1);
 			}
+			/* bypass passes may over-estimate the rate; keep rates monotonic */
+			int minRate = passno == 0 ? 0 : cblk.getPasses()[passno - 1].getRate();
+			if (pass.getRate() < minRate) {
+				pass.setRate(minRate);
+			}
 			pass.setLength(pass.getRate() - (passno == 0 ? 0 : cblk.getPasses()[passno - 1].getRate()));
 		}
 	}

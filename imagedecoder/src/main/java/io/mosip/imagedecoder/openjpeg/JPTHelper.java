@@ -38,7 +38,7 @@ public class JPTHelper {
 		byte element;
 
 		element = (byte) CioHelper.getInstance().cioRead(cio, 1);
-		while ((element >> 7) == 1) {
+		while (((element & 0xff) >> 7) == 1) {
 			value = (value << 7);
 			value |= (element & 0x7f);
 			element = (byte) CioHelper.getInstance().cioRead(cio, 1);
@@ -117,7 +117,7 @@ public class JPTHelper {
 
 		/* In-class identifier */
 		header.setId(header.getId() | (element & 0x0f));
-		if ((element >> 7) == 1)
+		if (((element & 0xff) >> 7) == 1)
 			header.setId(jptReadVBASInfo(cio, header.getId()));
 
 		/* ------------ */

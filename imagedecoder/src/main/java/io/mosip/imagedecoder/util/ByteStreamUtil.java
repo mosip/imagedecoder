@@ -862,7 +862,7 @@ public class ByteStreamUtil {
 		int offInc = 1;
 		if (order == ByteOrder.BIG_ENDIAN) {
 			offInc = -1;
-			offset += 8;
+			offset += 7;
 		}
 
 		long rtn = getSignedByte(byteBuffer, offset);
@@ -902,7 +902,7 @@ public class ByteStreamUtil {
 		int offInc = 1;
 		if (order == ByteOrder.BIG_ENDIAN) {
 			offInc = -1;
-			offset += 8;
+			offset += 7;
 		}
 
 		BigInteger rtn = BigInteger.valueOf(getSignedByte(byteBuffer, offset));
@@ -911,8 +911,8 @@ public class ByteStreamUtil {
 		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (3 * offInc))).shiftLeft(24)));
 		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (4 * offInc))).shiftLeft(32)));
 		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (5 * offInc))).shiftLeft(40)));
-		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (7 * offInc))).shiftLeft(48)));
-		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (8 * offInc))).shiftLeft(56)));
+		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (6 * offInc))).shiftLeft(48)));
+		rtn = rtn.add((BigInteger.valueOf(getSignedByte(byteBuffer, offset + (7 * offInc))).shiftLeft(56)));
 		return rtn;
 	}
 

@@ -1,1 +1,0 @@
-java -cp sample-imagedecoder-0.10.0-SNAPSHOT.jar;lib\* io.mosip.imagedecoder.sample.SampleImageDecoderApplication "io.mosip.imagedecoder.image.type=1" "io.mosip.imagedecoder.image.folder.path=/BiometricInfo"

@@ -24,8 +24,8 @@ public class BioHelper {
 		if (bio.getBpIndex() >= bio.getEnd()) {
 			return 1;
 		}
-		bio.setBpIndex(bio.getBpIndex() + 1);
 		bio.getBp()[bio.getBpIndex()] = (byte) (bio.getBuf() >> 8);
+		bio.setBpIndex(bio.getBpIndex() + 1);
 		return 0;
 	}
 

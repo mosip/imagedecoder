@@ -37,6 +37,11 @@ public class JP2Helper {
 		this.j2k = j2k;
 	}
 
+	private static boolean boxFits(JP2Box box, Cio cio) {
+		return box.getInitPosition() + (long) box.getLength() <= CioHelper.getInstance().cioTell(cio)
+				+ (long) CioHelper.getInstance().cioNoOfBytesLeft(cio);
+	}
+
 	@SuppressWarnings({ "java:S1172"})
 	private int jp2ReadBoxHeader(CodecContextInfo codecContextInfo, Cio cio, JP2Box box) {
 		box.setInitPosition(CioHelper.getInstance().cioTell(cio));
@@ -95,6 +100,9 @@ public class JP2Helper {
 		jp2.setWidth(CioHelper.getInstance().cioRead(cio, 4)); /* WIDTH */
 		jp2.setNoOfComps(CioHelper.getInstance().cioRead(cio, 2)); /* NC */
 		jp2.setComps(new JP2Component[(int) jp2.getNoOfComps()]);
+		for (int i = 0; i < jp2.getComps().length; i++) {
+			jp2.getComps()[i] = new JP2Component();
+		}
 
 		jp2.setBpc(CioHelper.getInstance().cioRead(cio, 1)); /* BPC */
 
@@ -207,6 +215,10 @@ public class JP2Helper {
 		jp2ReadBoxHeader(codecContextInfo, cio, box);
 		do {
 			if (OpenJpegConstant.JP2_COLR != box.getType()) {
+				if (box.getLength() < 8 || !boxFits(box, cio)) {
+					logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Expected COLR Marker");
+					return 0;
+				}
 				CioHelper.getInstance().cioSkip(cio, box.getLength() - 8);
 				jp2ReadBoxHeader(codecContextInfo, cio, box);
 			}
@@ -319,7 +331,7 @@ public class JP2Helper {
 		jp2ReadBoxHeader(codecContextInfo, cio, box);
 		do {
 			if (OpenJpegConstant.JP2_JP2H != box.getType()) {
-				if (box.getType() == OpenJpegConstant.JP2_JP2C) {
+				if (box.getType() == OpenJpegConstant.JP2_JP2C || box.getLength() < 8 || !boxFits(box, cio)) {
 					logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Expected JP2H Marker");
 					return 0;
 				}
@@ -384,6 +396,10 @@ public class JP2Helper {
 			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Expected FTYP Marker");
 			return 0;
 		}
+		if (box.getLength() < 16 || !boxFits(box, cio)) {
+			logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Error with FTYP Box");
+			return 0;
+		}
 
 		jp2.setBrand(CioHelper.getInstance().cioRead(cio, 4)); /* BR */
 		jp2.setMinVersion(CioHelper.getInstance().cioRead(cio, 4)); /* MinV */
@@ -438,12 +454,14 @@ public class JP2Helper {
 		CodecContextInfo codecContextInfo = jp2.getCodecContextInfo();
 
 		jp2ReadBoxHeader(codecContextInfo, cio, box);
-		do {
-			if (OpenJpegConstant.JP2_JP2C != box.getType()) {
-				CioHelper.getInstance().cioSkip(cio, box.getLength() - 8);
-				jp2ReadBoxHeader(codecContextInfo, cio, box);
+		while (OpenJpegConstant.JP2_JP2C != box.getType()) {
+			if (box.getLength() < 8 || !boxFits(box, cio)) {
+				logger.error(LOGGER_SESSIONID, LOGGER_IDTYPE, LOGGER_EMPTY, "Expected JP2C Marker");
+				return 0;
 			}
-		} while (OpenJpegConstant.JP2_JP2C != box.getType());
+			CioHelper.getInstance().cioSkip(cio, box.getLength() - 8);
+			jp2ReadBoxHeader(codecContextInfo, cio, box);
+		}
 
 		j2kCodestreamOffset[0] = CioHelper.getInstance().cioTell(cio);
 		j2kCodestreamLength[0] = (long) box.getLength() - 8;
@@ -635,6 +653,9 @@ public class JP2Helper {
 
 		jp2.setNoOfComps(image.getNoOfComps()); /* NC */
 		jp2.setComps(new JP2Component[(int) jp2.getNoOfComps()]);
+		for (i = 0; i < jp2.getNoOfComps(); i++) {
+			jp2.getComps()[i] = new JP2Component();
+		}
 		jp2.setHeight((long) image.getY1() - image.getY0()); /* HEIGHT */
 		jp2.setWidth((long) image.getX1() - image.getX0()); /* WIDTH */
 		/* BPC */

@@ -19,19 +19,19 @@ import io.mosip.imagedecoder.util.Base64UrlUtil;
 import io.mosip.imagedecoder.wsq.WsqDecoder;
 import io.mosip.kernel.core.logger.spi.Logger;
 
-public class WsqDecoderTest {
+class WsqDecoderTest {
 
 	private static Logger logger = ImageDecoderLogger.getLogger(WsqDecoderTest.class);
 
 	private WsqDecoder wsqDecoder;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		wsqDecoder = new WsqDecoder();
 	}
 
 	@Test
-	public void testDecodeSuccess() {
+	void testDecodeSuccess() {
 		// Arrange
 		DecoderRequestInfo requestInfo = new DecoderRequestInfo();
 		requestInfo.setImageData(Base64UrlUtil.getInstance().decodeURLSafeBase64(

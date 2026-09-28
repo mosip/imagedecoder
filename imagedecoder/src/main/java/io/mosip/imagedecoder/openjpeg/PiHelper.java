@@ -574,6 +574,7 @@ public class PiHelper {
 
 		for (piNo = 0; piNo < tcp.getNoOfPocs() + 1; piNo++) {
 			pi[piNo] = new PiIterator();
+			pi[piNo].setPoc(new Poc());
 			pi[piNo].setTilePartOn(codingParameters.getTilePartOn());
 
 			p = tileno % codingParameters.getTileWidth();
@@ -683,7 +684,8 @@ public class PiHelper {
 				tcp.getPocs()[piNo].setCompE(image.getNoOfComps());
 				tcp.getPocs()[piNo].setResS(0);
 				tcp.getPocs()[piNo].setResE(maxres);
-				tcp.getPocs()[piNo].setLayE(0);
+				tcp.getPocs()[piNo].setLayS(0);
+				tcp.getPocs()[piNo].setLayE(tcp.getNoOfLayers());
 				tcp.getPocs()[piNo].setProgressionOrder(tcp.getProgressionOrder());
 			}
 
@@ -785,9 +787,9 @@ public class PiHelper {
 			pi[piNo].getPoc().setPrecNo0(tcp.getPrcS());
 			pi[piNo].getPoc().setPrecNo1(tcp.getPrcE());
 			pi[piNo].getPoc().setTX0(tcp.getTXS());
-			pi[piNo].getPoc().setTY0(tcp.getTXS());
+			pi[piNo].getPoc().setTY0(tcp.getTYS());
 			pi[piNo].getPoc().setTX1(tcp.getTXE());
-			pi[piNo].getPoc().setTY1(tcp.getTXE());
+			pi[piNo].getPoc().setTY1(tcp.getTYE());
 		} else {
 			if (tilePartNo < currentTotalNoOfTilePart) {
 				for (i = 3; i >= 0; i--) {
