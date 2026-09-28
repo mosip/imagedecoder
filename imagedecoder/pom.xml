@@ -12,6 +12,7 @@
 	</parent>
 
 	<artifactId>imagedecoder</artifactId>
+	<version>0.10.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Imagedecoder</name>
