@@ -31,6 +31,11 @@ public class Tcp {
 	private int isPoc;
 	/** progression order changes */
 	private Poc[] pocs = new Poc[32];
+	{
+		for (int i = 0; i < pocs.length; i++) {
+			pocs[i] = new Poc();
+		}
+	}
 	private int pptDataIndex;
 	/** packet header store there for futur use in t2_decode_packet */
 	private byte[] pptData;

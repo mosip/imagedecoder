@@ -18,5 +18,10 @@ public class TcdResolution {
 	private int pWidth;
 	private int pHeight;
 	private int noOfBands;			/* number sub-band for the resolution level */
-	private TcdBand[] bands = new TcdBand[3];		/* subband information */
+	private TcdBand[] bands = new TcdBand[3]; /* subband information */
+	{
+		for (int i = 0; i < bands.length; i++) {
+			bands[i] = new TcdBand();
+		}
+	}
 }

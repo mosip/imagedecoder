@@ -30,8 +30,8 @@ public class RawHelper {
 		return raw.getBpIndex() - raw.getStart();
 	}
 
-	@SuppressWarnings({ "java:S1172" })
 	public void rawInitDecode(Raw raw, byte[] bp, int bpIndex, int len) {
+		raw.setBp(bp);
 		raw.setBpIndex(bpIndex);
 		raw.setStart(bpIndex);
 		raw.setLengthMax(len);
@@ -50,7 +50,7 @@ public class RawHelper {
 				if (raw.getC() == (byte) 0xff) {
 					raw.setCt(7);
 				}
-				raw.setC(raw.getBp()[(int) raw.getLength()]);
+				raw.setC(raw.getBp()[raw.getStart() + (int) raw.getLength()]);
 				raw.setLength(raw.getLength() + 1);
 			}
 		}

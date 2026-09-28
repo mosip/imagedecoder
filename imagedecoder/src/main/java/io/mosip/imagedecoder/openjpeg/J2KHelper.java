@@ -167,7 +167,11 @@ public class J2KHelper {
 			/* INDEX >> */
 			if (j2kInfo.getCodeStreamInfo() != null) {
 				j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].setNoOfTileParts(curTotalNoOfTilePart);
-				j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].setTp(new TpInfo[curTotalNoOfTilePart]);
+				TpInfo[] tp = new TpInfo[Math.max(curTotalNoOfTilePart, 1)];
+				for (int tpi = 0; tpi < tp.length; tpi++) {
+					tp[tpi] = new TpInfo();
+				}
+				j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].setTp(tp);
 			}
 			/* << INDEX */
 		}
@@ -446,6 +450,9 @@ public class J2KHelper {
 			codeStreamInfo.setTileOY(codingParameters.getTileY0());
 			codeStreamInfo
 					.setTileInfo(new TileInfo[codingParameters.getTileWidth() * codingParameters.getTileHeight()]);
+			for (int ti = 0; ti < codeStreamInfo.getTileInfo().length; ti++) {
+				codeStreamInfo.getTileInfo()[ti] = new TileInfo();
+			}
 		}
 	}
 
@@ -1200,10 +1207,19 @@ public class J2KHelper {
 				j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].setEndPosition(
 						j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].getStartPosition() + totalLength - 1);
 				j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].setNoOfTileParts(noOfParts);
-				if (noOfParts != 0)
-					j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].setTp(new TpInfo[noOfParts]);
-				else
-					j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].setTp(new TpInfo[10]); // Fix me (10)
+				if (noOfParts != 0) {
+					TpInfo[] tp = new TpInfo[noOfParts];
+					for (int tpi = 0; tpi < tp.length; tpi++) {
+						tp[tpi] = new TpInfo();
+					}
+					j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].setTp(tp);
+				} else {
+					TpInfo[] tp = new TpInfo[10]; // Fix me (10)
+					for (int tpi = 0; tpi < tp.length; tpi++) {
+						tp[tpi] = new TpInfo();
+					}
+					j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].setTp(tp);
+				}
 			} else {
 				j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].setEndPosition(
 						j2kInfo.getCodeStreamInfo().getTileInfo()[tileNo].getEndPosition() + totalLength);
@@ -1299,9 +1315,14 @@ public class J2KHelper {
 				codeStreamInfo.setPacketNo(0);
 		}
 
-		length = TcdHelper.getInstance().tcdEncodeTile(tcd, j2kInfo.getCurTileNo(),
-				CioHelper.getInstance().cioGetBuffer(cio), CioHelper.getInstance().cioNoOfBytesLeft(cio) - 2,
-				codeStreamInfo);
+		/* cioByteOut pre-increments, so the next byte lands at bpIndex + 1 */
+		int tileDataStart = CioHelper.getInstance().cioGetBufferIndex(cio) + 1;
+		byte[] tileData = new byte[CioHelper.getInstance().cioNoOfBytesLeft(cio)];
+		length = TcdHelper.getInstance().tcdEncodeTile(tcd, j2kInfo.getCurTileNo(), tileData,
+				CioHelper.getInstance().cioNoOfBytesLeft(cio) - 2, codeStreamInfo);
+		if (length > 0) {
+			System.arraycopy(tileData, 0, cio.getBuffer(), tileDataStart, length);
+		}
 
 		/* Writing Psot in SOT marker */
 		totalLength = CioHelper.getInstance().cioTell(cio) + length - j2kInfo.getSotStart();
@@ -2052,6 +2073,7 @@ public class J2KHelper {
 		codingParameters.setTcps(new Tcp[codingParameters.getTileWidth() * codingParameters.getTileHeight()]);
 
 		for (tileNo = 0; tileNo < codingParameters.getTileWidth() * codingParameters.getTileHeight(); tileNo++) {
+			codingParameters.getTcps()[tileNo] = new Tcp();
 			Tcp tcp = codingParameters.getTcps()[tileNo];
 			tcp.setNoOfLayers(parameters.getTcpNoOfLayers());
 			for (j = 0; j < tcp.getNoOfLayers(); j++) {
@@ -2194,8 +2216,11 @@ public class J2KHelper {
 		/* INDEX >> */
 		j2kInfo.setCodeStreamInfo(codeStreamInfo);
 		if (codeStreamInfo != null) {
-			codeStreamInfo
-					.setTileInfo(new TileInfo[codingParameters.getTileWidth() * codingParameters.getTileHeight()]);
+			int tileCount = codingParameters.getTileWidth() * codingParameters.getTileHeight();
+			codeStreamInfo.setTileInfo(new TileInfo[tileCount]);
+			for (int ti = 0; ti < tileCount; ti++) {
+				codeStreamInfo.getTileInfo()[ti] = new TileInfo();
+			}
 			codeStreamInfo.setImageWidth(image.getX1() - image.getX0());
 			codeStreamInfo.setImageHeight(image.getY1() - image.getY0());
 			codeStreamInfo.setProgOrder(codingParameters.getTcps()[0].getProgressionOrder());

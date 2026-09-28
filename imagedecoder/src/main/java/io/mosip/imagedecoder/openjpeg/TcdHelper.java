@@ -84,6 +84,7 @@ public class TcdHelper {
 		tcd.getTcdImage().setTileWidth(codingParameters.getTileWidth());
 		tcd.getTcdImage().setTileHeight(codingParameters.getTileHeight());
 		tcd.getTcdImage().setTiles(new TcdTile[1]);
+		tcd.getTcdImage().getTiles()[0] = new TcdTile();
 
 		for (tileNo = 0; tileNo < 1; tileNo++) {
 			Tcp tcp = codingParameters.getTcps()[currentTileNo];
@@ -160,6 +161,7 @@ public class TcdHelper {
 					int cbgwidthexpn, cbgheightexpn;
 					int cblkwidthexpn, cblkheightexpn;
 
+					tilec.getResolutions()[resNo] = new TcdResolution();
 					TcdResolution res = tilec.getResolutions()[resNo];
 
 					/* border for each resolution level (global) */
@@ -304,8 +306,14 @@ public class TcdHelper {
 								 * this. Why?
 								 */
 								cblk.setDataIndex(cblk.getDataIndex() + 2);
-								cblk.setLayers(new TcdLayer[100]);
-								cblk.setPasses(new TcdPass[100]);
+								TcdLayer[] layers = new TcdLayer[100];
+								TcdPass[] passes = new TcdPass[100];
+								for (int li = 0; li < 100; li++) {
+									layers[li] = new TcdLayer();
+									passes[li] = new TcdPass();
+								}
+								cblk.setLayers(layers);
+								cblk.setPasses(passes);
 							}
 						}
 					}
@@ -550,6 +558,8 @@ public class TcdHelper {
 							prc.setImsbTree(TgtHelper.getInstance().tgtCreate(prc.getCWidth(), prc.getCHeight()));
 
 							for (codeBlockNo = 0; codeBlockNo < prc.getCWidth() * prc.getCHeight(); codeBlockNo++) {
+								prc.getTcdCodeBlockEncoder()[codeBlockNo] = new TcdCodeBlockEncoder();
+
 								int cblkxStart = tlcblkxStart + (codeBlockNo % prc.getCWidth()) * (1 << cblkwidthexpn);
 								int cblkyStart = tlcblkyStart + (codeBlockNo / prc.getCWidth()) * (1 << cblkheightexpn);
 								int cblkxEnd = cblkxStart + (1 << cblkwidthexpn);
@@ -568,8 +578,14 @@ public class TcdHelper {
 								 * Why?
 								 */
 								cblk.setDataIndex(cblk.getDataIndex() + 2);
-								cblk.setLayers(new TcdLayer[100]);
-								cblk.setPasses(new TcdPass[100]);
+								TcdLayer[] layers = new TcdLayer[100];
+								TcdPass[] passes = new TcdPass[100];
+								for (int li = 0; li < 100; li++) {
+									layers[li] = new TcdLayer();
+									passes[li] = new TcdPass();
+								}
+								cblk.setLayers(layers);
+								cblk.setPasses(passes);
 							}
 						} /* precNo */
 					} /* bandNo */
@@ -1218,8 +1234,12 @@ public class TcdHelper {
 					codeStreamInfo.getTileInfo()[tileNo].getPDX()[i] = tccp.getPrecinctWidth()[i];
 					codeStreamInfo.getTileInfo()[tileNo].getPDY()[i] = tccp.getPrecinctHeight()[i];
 				}
-				codeStreamInfo.getTileInfo()[tileNo].setPacket(
-						new PacketInfo[codeStreamInfo.getNoOfComps() * codeStreamInfo.getNoOfLayers() * numpacks]);
+				PacketInfo[] packets = new PacketInfo[codeStreamInfo.getNoOfComps() * codeStreamInfo.getNoOfLayers()
+						* numpacks];
+				for (int pi = 0; pi < packets.length; pi++) {
+					packets[pi] = new PacketInfo();
+				}
+				codeStreamInfo.getTileInfo()[tileNo].setPacket(packets);
 			}
 			/* << INDEX */
 
@@ -1379,7 +1399,11 @@ public class TcdHelper {
 					}
 				}
 			}
-			codeStreamInfo.getTileInfo()[tileNo].setPacket(new PacketInfo[codeStreamInfo.getNoOfLayers() * numprec]);
+			PacketInfo[] packets = new PacketInfo[codeStreamInfo.getNoOfLayers() * numprec];
+			for (int pi = 0; pi < packets.length; pi++) {
+				packets[pi] = new PacketInfo();
+			}
+			codeStreamInfo.getTileInfo()[tileNo].setPacket(packets);
 			codeStreamInfo.setPacketNo(0);
 		}
 		/* << INDEX */

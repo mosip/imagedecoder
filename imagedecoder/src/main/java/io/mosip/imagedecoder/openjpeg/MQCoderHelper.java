@@ -218,7 +218,9 @@ public class MQCoderHelper {
 		mqcSetCurrentContext(mqc, 0);
 		mqc.setA(0x8000);
 		mqc.setC(0);
-		mqc.setBpIndex(bpIndex);
+		mqc.setBp(bp);
+		/* OpenJPEG: mqc->bp = bp - 1; start = bp */
+		mqc.setBpIndex(bpIndex - 1);
 		mqc.setContextIndex(0);
 		mqc.setCt(12);
 		if ((mqc.getBp()[mqc.getBpIndex()] & 0xff) == 0xff) {
@@ -274,7 +276,7 @@ public class MQCoderHelper {
 		if (mqc.getCt() != 0) {
 			while (mqc.getCt() > 0) {
 				mqc.setCt(mqc.getCt() - 1);
-				mqc.setC(mqc.getC() + bitPadding << mqc.getCt());
+				mqc.setC(mqc.getC() + ((long) bitPadding << mqc.getCt()));
 				bitPadding = (bitPadding + 1) & 0x01;
 			}
 			mqc.setBpIndex(mqc.getBpIndex() + 1);

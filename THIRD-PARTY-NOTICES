@@ -1,152 +1,72 @@
 THIRD-PARTY-NOTICES
 
-This project includes third-party packages that are distributed under various open-source licenses. Below is a list of packages and their associated licenses.
+This project includes third-party packages distributed under various open-source
+licenses. Versions are managed by Spring Boot 4.1.1 (parent) unless noted.
+Product license: MPL-2.0 (LICENSE). Attribution details: NOTICE and licenses/.
 
 ================================================================================
-Package: org.slf4j:jcl-over-slf4j
-Version: Not specified
-License: MIT License (Inferred from project’s official repository)
-Homepage: https://www.slf4j.org
-================================================================================
-
-================================================================================
-Package: org.apache.maven.plugins:maven-source-plugin
-Version: 3.3.1
-License: Apache License 2.0
-Homepage: https://maven.apache.org/plugins
+Package: org.springframework.boot:spring-boot-starter-parent
+Version: 4.1.1
+License: Apache-2.0
+Homepage: https://spring.io/projects/spring-boot
 ================================================================================
 
 ================================================================================
-Package: io.mosip.kernel:kernel-core
-Version: 1.3.0-SNAPSHOT
-License: MPL-2.0 (Inferred from MOSIP official repository)
-Homepage: https://mosip.io
+Package: org.springframework.boot:spring-boot-jackson2
+Version: Boot-managed (4.1.1)
+License: Apache-2.0
+Homepage: https://spring.io/projects/spring-boot
+Note: Keeps Jackson 2 under Boot 4 (default Jackson 3 line is not used).
 ================================================================================
 
 ================================================================================
-Package: com.fasterxml.jackson.core:jackson-core
-Version: Not specified
-License: Apache License 2.0 (Inferred)
+Package: com.fasterxml.jackson.core:jackson-core / jackson-databind
+Version: Boot-managed via spring-boot-jackson2 (Jackson 2.x)
+License: Apache-2.0
 Homepage: https://github.com/FasterXML/jackson-core
 ================================================================================
 
 ================================================================================
-Package: org.slf4j:jul-to-slf4j
-Version: Not specified
-License: MIT License (Inferred)
+Package: org.slf4j:slf4j-api / jul-to-slf4j / jcl-over-slf4j
+Version: Boot-managed
+License: MIT
 Homepage: https://www.slf4j.org
 ================================================================================
 
 ================================================================================
-Package: org.apache.maven.plugins:maven-gpg-plugin
-Version: 3.2.3
-License: Apache License 2.0
-Homepage: https://maven.apache.org/plugins
-================================================================================
-
-================================================================================
-Package: pl.project13.maven:git-commit-id-plugin
-Version: 3.0.1
-License: GNU Lesser General Public License v3.0 (LGPL-3.0)
-Homepage: https://github.com/git-commit-id/git-commit-id-maven-plugin
-================================================================================
-
-================================================================================
-Package: org.apache.maven.plugins:maven-assembly-plugin
-Version: 3.1.1
-License: Apache License 2.0
-Homepage: https://maven.apache.org/plugins
-================================================================================
-
-================================================================================
-Package: io.mosip.kernel:kernel-bom
-Version: 1.3.0-SNAPSHOT
-License: MPL-2.0 (Inferred)
-Homepage: https://mosip.io
-================================================================================
-
-================================================================================
-Package: io.mosip.kernel:kernel-logger-logback
-Version: 1.3.0-SNAPSHOT
-License: MPL-2.0 (Inferred)
-Homepage: https://mosip.io
-================================================================================
-
-================================================================================
-Package: org.apache.maven.plugins:maven-compiler-plugin
-Version: 3.11.0
-License: Apache License 2.0
-Homepage: https://maven.apache.org/plugins
-================================================================================
-
-================================================================================
-Package: com.fasterxml.jackson.core:jackson-databind
-Version: Not specified
-License: Apache License 2.0 (Inferred)
-Homepage: https://github.com/FasterXML/jackson-databind
+Package: io.mosip.kernel:kernel-core
+Version: see kernel.core.version in pom.xml
+License: MPL-2.0
+Homepage: https://github.com/mosip/commons
+Note: Provides Logger SPI and Logfactory. Do not add kernel-logger-logback.
 ================================================================================
 
 ================================================================================
 Package: org.junit.vintage:junit-vintage-engine
-Version: Not specified
-License: Eclipse Public License 2.0 (EPL-2.0)
+Version: Boot-managed
+License: EPL-2.0
+Scope: test
 Homepage: https://junit.org/junit5/
 ================================================================================
 
 ================================================================================
-Package: org.apache.maven.plugins:maven-javadoc-plugin
-Version: 3.2.0
-License: Apache License 2.0
-Homepage: https://maven.apache.org/plugins
+Package: org.jacoco:jacoco-maven-plugin
+Version: 0.8.15
+License: EPL-2.0
+Scope: build
+Homepage: https://www.jacoco.org
 ================================================================================
 
 ================================================================================
-Package: org.apache.maven.plugins:maven-surefire-plugin
-Version: 2.22.0
-License: Apache License 2.0
-Homepage: https://maven.apache.org/plugins
+Package: pl.project13.maven:git-commit-id-plugin
+Version: 4.9.10
+License: LGPL-3.0
+Scope: build
+Homepage: https://github.com/git-commit-id/git-commit-id-maven-plugin
 ================================================================================
 
 ================================================================================
-Package: org.apache.maven.plugins:maven-jar-plugin
-Version: 3.0.2
-License: Apache License 2.0
-Homepage: https://maven.apache.org/plugins
+REMOVED (do not reintroduce)
 ================================================================================
-
-================================================================================
-Package: org.apache.maven.plugins:maven-dependency-plugin
-Version: 3.1.2
-License: Apache License 2.0
-Homepage: https://maven.apache.org/plugins
-================================================================================
-
-================================================================================
-Package: io.mosip.kernel:kernel-bom
-Version: 1.3.0-beta.1
-License: MPL-2.0
-Homepage: https://mosip.io
-================================================================================
-
-================================================================================
-Package: io.mosip.kernel:kernel-core
-Version: 1.3.0-beta.1
-License: MPL-2.0
-Homepage: https://mosip.io
-================================================================================
-
-================================================================================
-Package: io.mosip.kernel:kernel-logger-logback
-Version: 1.3.0-beta.1
-License: MPL-2.0
-Homepage: https://mosip.io
-================================================================================
-
-================================================================================
-Package: io.mosip.imagedecoder:imagedecoder
-Version: 0.10.0-beta.1
-License: MPL-2.0
-Homepage: https://github.com/mosip
-================================================================================
-
-Full license texts and additional details for each of the above packages are available in the license/ directory of this repository. Please refer to those files or the original source of each package for complete legal terms and conditions.
+- io.mosip.kernel:kernel-bom
+- io.mosip.kernel:kernel-logger-logback

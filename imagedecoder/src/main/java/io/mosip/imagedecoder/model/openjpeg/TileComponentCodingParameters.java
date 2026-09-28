@@ -28,6 +28,11 @@ public class TileComponentCodingParameters {
 	private int quantisationStyle;
 	/** stepsizes used for quantization */
 	private StepSize[] stepsizes = new StepSize[OpenJpegConstant.J2K_MAXBANDS];
+	{
+		for (int i = 0; i < stepsizes.length; i++) {
+			stepsizes[i] = new StepSize();
+		}
+	}
 	/** number of guard bits */
 	private int noOfGaurdBits;
 	/** Region Of Interest shift */

@@ -94,10 +94,10 @@ public class Tier2Helper {
 	}
 
 	@SuppressWarnings({ "java:S1659", "java:S3776", "java:S6541" })
-	private int tier2EncodePacket(TcdTile tile, Tcp tcp, PiIterator pi, byte[] dest, int length,
+	private int tier2EncodePacket(TcdTile tile, Tcp tcp, PiIterator pi, byte[] dest, int destStart, int length,
 			CodeStreamInfo codeStreamInfo, int tileno) {
 		int bandNo, codeBlockNo;
-		int destIndex = 0;
+		int destIndex = destStart;
 
 		int compNo = pi.getCompNo(); /* component value */
 		int resNo = pi.getResNo(); /* resolution level value */
@@ -111,12 +111,12 @@ public class Tier2Helper {
 
 		/* <SOP 0xff91> */
 		if ((tcp.getCodingStyle() & OpenJpegConstant.J2K_CP_CSTY_SOP) != 0) {
-			dest[0] = (byte) 255;
-			dest[1] = (byte) 145;
-			dest[2] = (byte) 0;
-			dest[3] = (byte) 4;
-			dest[4] = (byte) ((tile.getPacketNo() % 65536) / 256);
-			dest[5] = (byte) ((tile.getPacketNo() % 65536) % 256);
+			dest[destIndex] = (byte) 255;
+			dest[destIndex + 1] = (byte) 145;
+			dest[destIndex + 2] = (byte) 0;
+			dest[destIndex + 3] = (byte) 4;
+			dest[destIndex + 4] = (byte) ((tile.getPacketNo() % 65536) / 256);
+			dest[destIndex + 5] = (byte) ((tile.getPacketNo() % 65536) % 256);
 			destIndex += 6;
 		}
 		/* </SOP> */
@@ -137,7 +137,9 @@ public class Tier2Helper {
 		}
 
 		bio = BioHelper.getInstance().bioCreate();
-		BioHelper.getInstance().bioInitEncoder(bio, dest, length);
+		BioHelper.getInstance().bioInitEncoder(bio, dest, destStart + length);
+		bio.setStart(destIndex);
+		bio.setBpIndex(destIndex);
 		BioHelper.getInstance().bioWrite(bio, 1, 1); /* Empty header bit */
 
 		/* Writing Packet header */
@@ -220,8 +222,8 @@ public class Tier2Helper {
 
 		/* <EPH 0xff92> */
 		if ((tcp.getCodingStyle() & OpenJpegConstant.J2K_CP_CSTY_EPH) != 0) {
-			dest[0] = (byte) OpenJpegConstant.LAST_DATA_BYTE;
-			dest[1] = (byte) 146;
+			dest[destIndex] = (byte) OpenJpegConstant.LAST_DATA_BYTE;
+			dest[destIndex + 1] = (byte) 146;
 			destIndex += 2;
 		}
 		/* </EPH> */
@@ -232,7 +234,7 @@ public class Tier2Helper {
 		// Will be updated later by incrementing with packet start value
 		if (codeStreamInfo != null && codeStreamInfo.getIndexWrite() != 0) {
 			PacketInfo packetInfo = codeStreamInfo.getTileInfo()[tileno].getPacket()[codeStreamInfo.getPacketNo()];
-			packetInfo.setEndPHPosition((destIndex - 0));
+			packetInfo.setEndPHPosition((destIndex - destStart));
 		}
 		/* INDEX >> */
 
@@ -246,7 +248,7 @@ public class Tier2Helper {
 				if (layer.getNoOfPasses() == 0) {
 					continue;
 				}
-				if ((destIndex + layer.getLength()) > (0 + length)) {
+				if ((destIndex + layer.getLength()) > (destStart + length)) {
 					return -999;
 				}
 
@@ -266,7 +268,7 @@ public class Tier2Helper {
 			}
 		}
 
-		return (destIndex - 0);
+		return (destIndex - destStart);
 	}
 
 	@SuppressWarnings({ "java:S3012", "java:S3776" })
@@ -636,8 +638,8 @@ public class Tier2Helper {
 					}
 					while (PiHelper.getInstance().piNext(pi[poc]) != 0) {
 						if (pi[poc].getLayNo() < maxlayers) {
-							e = tier2EncodePacket(tile, codingParameters.getTcps()[tileno], pi[poc], dest,
-									0 + len - destIndex, codeStreamInfo, tileno);
+							e = tier2EncodePacket(tile, codingParameters.getTcps()[tileno], pi[poc], dest, destIndex,
+									len - destIndex, codeStreamInfo, tileno);
 							compLength = compLength + e;
 							if (e == -999) {
 								break;
@@ -661,8 +663,8 @@ public class Tier2Helper {
 					curTotalNoOfTilePart);
 			while (PiHelper.getInstance().piNext(pi[piNo]) != 0) {
 				if (pi[piNo].getLayNo() < maxlayers) {
-					e = tier2EncodePacket(tile, codingParameters.getTcps()[tileno], pi[piNo], dest, 0 + len - destIndex,
-							codeStreamInfo, tileno);
+					e = tier2EncodePacket(tile, codingParameters.getTcps()[tileno], pi[piNo], dest, destIndex,
+							len - destIndex, codeStreamInfo, tileno);
 					if (e == -999) {
 						break;
 					} else {
